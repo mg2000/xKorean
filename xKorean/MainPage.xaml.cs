@@ -94,7 +94,7 @@ namespace xKorean
         {
             var now = DateTime.Now;
 
-            if (23 <= now.Hour && now.Hour <= 23)
+            if (1 <= now.Hour && now.Hour <= 8)
             {
                 ReadGamesFromJson(true);
                 return;
@@ -106,7 +106,7 @@ namespace xKorean
             try
             {
                 //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-test.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -118,6 +118,7 @@ namespace xKorean
                 {
                     var dialog = new MessageDialog("현재 서버 정보를 최신 정보로 업데이트 중입니다. 잠시 후에 다시 시도해 주십시오.", "데이터 수신 오류");
                     await dialog.ShowAsync();
+                    _isRefreshing = false;
 
                     return;
                 }
@@ -162,7 +163,7 @@ namespace xKorean
             try
             {
                 //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-test.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -437,6 +438,8 @@ namespace xKorean
                     }
                 }
 
+                TitleBlock.Text = $"한국어화 타이틀 목록 ({games.Length}개)";
+
             }
             else
             {
@@ -445,6 +448,8 @@ namespace xKorean
                 {
                     GamesViewModel.Add(new GameViewModel(game));
                 }
+
+                TitleBlock.Text = $"한국어화 타이틀 목록 ({Games.Count}개)";
             }
         }
 
