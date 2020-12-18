@@ -10,6 +10,7 @@ using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace xKorean
 {
@@ -69,29 +70,9 @@ namespace xKorean
             //Description = game.Description.First().Value;
             ThumbnailUrl = game.Thumbnail;
             ID = game.ID;
-            Localize = game.Localize.Replace("/", "\r\n");
+            Localize = game.Localize.Replace("메뉴자막", "자막").Replace("인터페이스자막", "자막").Replace("메뉴/기타★", "자막").Replace("/", "\r\n");
             StoreUri = game.StoreLink;
             Discount = game.Discount;
-
-            
-            //Categories.AddRange(game.Categories);
-            //ReleaseDate = DateTime.FromBinary(game.ReleaseDate);
-            //Screenshots = game.ScreenShots;
-            //if (game.MetaScore.Count != 0)
-            //{
-            //    Metascore = game.MetaScore.First().Value;
-
-            //    if (game.MetacriticUrls.Count != 0)
-            //    {
-            //        MetacriticUrl = game.MetacriticUrls.First().Value;
-            //    }
-
-            //}
-
-            //if(game.DownloadSize.Count != 0)
-            //{
-            //    DownloadSize = game.DownloadSize;
-            //}
         }
 
         public string Message
@@ -132,6 +113,22 @@ namespace xKorean
                     return "엑";
                 else
                     return "";
+            }
+        }
+
+        public string UseDolbyAtmos
+        {
+            get
+            {
+                return Game.DolbyAtmos;
+            }
+        }
+
+        public string UseConsoleKeyboardMouse
+        {
+            get
+            {
+                return Game.ConsoleKeyboardMouse;
             }
         }
 
@@ -277,11 +274,38 @@ namespace xKorean
                 switch (AnalyticsInfo.VersionInfo.DeviceFamily)
                 {
                     case "Windows.Xbox":
-                        titleSize = 13;
+                        titleSize = 11;
                         break;
                 }
                 return titleSize;
 
+            }
+        }
+
+        static public double MetadataFontSize
+        {
+            get
+            {
+                double titleSize = 15;
+                switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                {
+                    case "Windows.Xbox":
+                        titleSize = 11;
+                        break;
+                }
+                return titleSize;
+
+            }
+        }
+
+        static public Thickness TitleMargin
+        {
+            get
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    return new Thickness(10, 3, 0, 0);
+                else
+                    return new Thickness(10, 4, 0, 0);
             }
         }
 

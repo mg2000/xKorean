@@ -52,7 +52,6 @@ namespace xKorean
             switch (AnalyticsInfo.VersionInfo.DeviceFamily)
             {
                 case "Windows.Xbox":
-
                     Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode(Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
                     break;
             }

@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>F72D1D29249EA1A1FD4424210C9D3CB4852C7AF3</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>68F436AB197EC974F89963B29A123C3258C52EE5</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -132,6 +132,10 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CategorieViewModel.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="ExtraFilterDialog.xaml.cs">
+      <DependentUpon>ExtraFilterDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="GameViewModel.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -161,6 +165,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="AboutDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ExtraFilterDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

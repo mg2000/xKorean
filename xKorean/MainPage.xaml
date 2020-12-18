@@ -23,12 +23,14 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBox x:Name="SearchBox" Margin="10" VerticalAlignment="Bottom" Width="150" TextChanged="SearchBox_TextChanged"></TextBox>
             <StackPanel VerticalAlignment="Bottom" Margin="10">
-                <CommandBar x:Name="OrderBar" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent"  IsSticky="True">
+                <CommandBar x:Name="OrderBar" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent"  IsSticky="True" OverflowButtonVisibility="Collapsed">
                     <AppBarButton Icon="Sort" Label="정렬">
                         <AppBarButton.Flyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem x:Name="OrderByNameAscendItem" Text="이름 순 오름차순" Click="OrderByNameAscendItem_Click"></MenuFlyoutItem>
-                                <MenuFlyoutItem x:Name="OrderByNameDescendItem" Text="이름 순 내림차순" Click="OrderByNameDescendItem_Click"></MenuFlyoutItem>
+                                <muxc:RadioMenuFlyoutItem x:Name="OrderByNameAscendItem" Text="이름 순 오름차순" Click="OrderByNameAscendItem_Click"></muxc:RadioMenuFlyoutItem>
+                                <muxc:RadioMenuFlyoutItem x:Name="OrderByNameDescendItem" Text="이름 순 내림차순" Click="OrderByNameDescendItem_Click"></muxc:RadioMenuFlyoutItem>
+                                <muxc:RadioMenuFlyoutItem x:Name="OrderByReleaseAscendItem" Text="출시일 오름차순" Click="OrderByReleaseAscendItem_Click"></muxc:RadioMenuFlyoutItem>
+                                <muxc:RadioMenuFlyoutItem x:Name="OrderByReleaseDescendItem" Text="출시일 내림차순" Click="OrderByReleaseDescendItem_Click"></muxc:RadioMenuFlyoutItem>
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
@@ -38,6 +40,7 @@
                             </SymbolIcon>
                         </AppBarButton.Icon>
                     </AppBarButton>
+                    <AppBarButton x:Name="SettingButton" Icon="Setting" Label="설정" Click="SettingButton_ClickAsync"></AppBarButton>
                     <AppBarButton x:Name="AboutButton" Icon="Account" Label="정보" Click="AboutButton_ClickAsync"></AppBarButton>
                 </CommandBar>
             </StackPanel>
@@ -49,26 +52,26 @@
             </Grid.ColumnDefinitions>
             <ScrollViewer>
                 <StackPanel Padding="30, 0, 0, 0" Grid.Column="0">
-                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" Padding="0, 0, 0, 10">기종</TextBlock>
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" Padding="0, 0, 0, 10">검색 필터</TextBlock>
+                    
+                    <CheckBox x:Name="CategorySeriesXSCheckBox" Width="170" Content="시리즈 X/S 최적화" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    <CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="170" Content="엑원X 인핸스드" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    <CheckBox x:Name="CategoryOneCheckBox" Width="170" Content="엑원" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    <CheckBox x:Name="CategoryX360CheckBox" Width="170" Content="엑박 360" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    <CheckBox x:Name="CategoryOGCheckBox" Width="170" Content="구엑박" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    
+                    <NavigationViewItemSeparator Padding="0" IsEnabled="False" />
 
-                    <ListView x:Name="CategoriesView" ItemsSource="{x:Bind Categories}" IsItemClickEnabled="True" ItemClick="CategoriesView_ItemClick" XYFocusDown="{x:Bind InVaultTimeRadioButtons}" XYFocusRight="{x:Bind GamesView}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="local:CategorieViewModel">
-                                <CheckBox x:Name="CategorieCheckBox" Tag="{Binding Categorie}" Width="170" Content="{Binding Categorie}" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+                    <CheckBox x:Name="DiscountCheckBox" Width="170" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+                    <CheckBox x:Name="DolbyAtmosCheckBox" Width="170" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
+                    <CheckBox x:Name="ConsoleKeyboardMouseCheckBox" Width="170" Content="키보드/마우스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
+                    
                     <NavigationViewItemSeparator Padding="0" IsEnabled="False"></NavigationViewItemSeparator>
-                    <ListView x:Name="GameMetaView" Margin="0, 0, 0, 10">
-                        <CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-                        <CheckBox x:Name="DiscountCheckBox" Width="170" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-                    </ListView>
-                    <NavigationViewItemSeparator Padding="0" IsEnabled="False"></NavigationViewItemSeparator>
-                    <ListView x:Name="InVaultTimeRadioButtons" IsItemClickEnabled="True" ItemClick="InVaultTimeRadioButtons_ItemClick" Margin="0, 0, 0, 10" XYFocusUp="{x:Bind GameMetaView}" GotFocus="InVaultTimeRadioButtons_GotFocus" XYFocusRight="{x:Bind GamesView}">
-                        <RadioButton x:Name="AllRadioButton" Content="한국어 지원" Checked="TimingRadioButton_Checked" IsChecked="True" GroupName="InVaultTimeRadioButtons"/>
-                        <RadioButton x:Name="KoreanVoiceRadioButton" Content="한국어 음성 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
-                        <RadioButton x:Name="KoreanSubtitleRadioButton" Content="한국어 자막 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
-                    </ListView>
+                    
+                    <RadioButton x:Name="AllRadioButton" Content="한국어 지원" Checked="TimingRadioButton_Checked" IsChecked="True" GroupName="InVaultTimeRadioButtons" XYFocusUp="{x:Bind DiscountCheckBox}"/>
+                    <RadioButton x:Name="KoreanVoiceRadioButton" Content="한국어 음성 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
+                    <RadioButton x:Name="KoreanSubtitleRadioButton" Content="한국어 자막 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
                 </StackPanel>
             </ScrollViewer>
             <controls:AdaptiveGridView Name="GamesView" Grid.Column="1" Padding="20, 0" Margin="0, 10, 0, 0" ItemsSource="{x:Bind GamesViewModel}" DesiredWidth="240" ItemHeight="{x:Bind GamesViewItemHeight}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
@@ -91,33 +94,33 @@
                                     <Grid.Background>
                                         <AcrylicBrush TintColor="Black" TintOpacity="0.5"></AcrylicBrush>
                                     </Grid.Background>
-                                    <TextBlock Text="{Binding Discount}" Margin="10, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="15"  Foreground="White" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     </TextBlock>
                                 </Grid>
                                 <Grid Grid.Row="2" Visibility="{Binding IsGamePass}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="6.3*"></ColumnDefinition>
-                                        <ColumnDefinition Width="1.8*"></ColumnDefinition>
-                                        <ColumnDefinition Width="1.8*"></ColumnDefinition>
-                                        <ColumnDefinition Width="1.8*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.6*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.6*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.6*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Grid.Background>
                                         <AcrylicBrush TintColor="Black" TintOpacity="0.5"></AcrylicBrush>
                                     </Grid.Background>
                                     <Grid Grid.Column="0">
-                                        <TextBlock Text="{Binding GamePass}" Margin="7, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="15"  Foreground="White" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding GamePass}" Margin="7" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center">
                                         </TextBlock>
                                     </Grid>
                                     <Grid Grid.Column="1">
-                                        <TextBlock Text="{Binding IsGamePassPC}" Margin="1, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="15"  Foreground="White" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding IsGamePassPC}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         </TextBlock>
                                     </Grid>
                                     <Grid Grid.Column="2">
-                                        <TextBlock Text="{Binding IsGamePassConsole}" Margin="1, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="15"  Foreground="White" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding IsGamePassConsole}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         </TextBlock>
                                     </Grid>
                                     <Grid Grid.Column="3">
-                                        <TextBlock Text="{Binding IsGamePassCloud}" Margin="1, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="15"  Foreground="White" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding IsGamePassCloud}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         </TextBlock>
                                     </Grid>
                                 </Grid>
@@ -129,7 +132,11 @@
                                     <Grid.Background>
                                         <AcrylicBrush TintColor="Black" TintOpacity="0.5"></AcrylicBrush>
                                     </Grid.Background>
-                                    <TextBlock Text="{Binding Title}" Margin="10, 9" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding TitleFontSize}"  Foreground="White"></TextBlock>
+                                    <TextBlock Text="{Binding Title}" Margin="10, 3" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding TitleFontSize}"  Foreground="White"  TextTrimming="CharacterEllipsis">
+                                        <ToolTipService.ToolTip>
+                                            <ToolTip Content="{Binding Title}"/>
+                                        </ToolTipService.ToolTip>
+                                    </TextBlock>
                                     <Grid Grid.Row="1" Grid.Column="1" Visibility="{Binding IsLocalizeAvaliable}">
                                         <Grid.Background>
                                             <SolidColorBrush Opacity="0.5" Color="{Binding LocalizeColor}"></SolidColorBrush>

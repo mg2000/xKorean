@@ -16,6 +16,8 @@
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
             <TextBlock TextWrapping="WrapWholeWords">앱의 UI 소스 코드는 Gamepass Scores 앱을 활용하였습니다.</TextBlock>
             <TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="GithubLink" NavigateUri="https://github.com/XeonKHJ/GamePassScores">GitHub 바로가기</Hyperlink></TextBlock>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+            <TextBlock TextWrapping="WrapWholeWords">엑박용 버전은 유정군님께서 대여해주신 엑스박스 원S에서 제작되었습니다.</TextBlock>
         </StackPanel>
     </Grid>
 </ContentDialog>

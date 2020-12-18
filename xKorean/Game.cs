@@ -62,5 +62,14 @@ namespace xKorean
 
         [JsonProperty("discount")]
         public string Discount { set; get; } = string.Empty;
+
+        [JsonProperty("releaseDate")]
+        public string ReleaseDate { set; get; } = "";
+
+        [JsonProperty("dolbyAtmos")]
+        public string DolbyAtmos { set; get; } = "";
+
+        [JsonProperty("consoleKeyboardMouse")]
+        public string ConsoleKeyboardMouse { set; get; } = "";
     }
 }
