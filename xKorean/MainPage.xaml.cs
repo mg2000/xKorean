@@ -130,8 +130,8 @@ namespace xKorean
 
             try
             {
-                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -150,7 +150,7 @@ namespace xKorean
                 }
                 else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
                 {
-                    settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
+                    await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
                     UpateJsonData();
                 }
                 else
@@ -185,8 +185,8 @@ namespace xKorean
 
             try
             {
-                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -495,31 +495,31 @@ namespace xKorean
                              select g).ToArray();
 
 
-                bool isViewModelChanged = false;
-                if (games.Length == GamesViewModel.Count)
-                {
-                    for (int i = 0; i < games.Length; ++i)
-                    {
-                        if (games[i].ID != GamesViewModel[i].ID)
-                        {
-                            isViewModelChanged = true;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    isViewModelChanged = true;
-                }
+                //bool isViewModelChanged = false;
+                //if (games.Length == GamesViewModel.Count)
+                //{
+                //    for (int i = 0; i < games.Length; ++i)
+                //    {
+                //        if (games[i].ID != GamesViewModel[i].ID)
+                //        {
+                //            isViewModelChanged = true;
+                //            break;
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    isViewModelChanged = true;
+                //}
 
-                if (isViewModelChanged)
-                {
+                //if (isViewModelChanged)
+                //{
                     GamesViewModel.Clear();
                     foreach (var g in games)
                     {
                         GamesViewModel.Add(new GameViewModel(g));
                     }
-                }
+                //}
 
                 TitleBlock.Text = $"한국어화 타이틀 목록 ({games.Length}개)";
 
