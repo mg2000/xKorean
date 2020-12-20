@@ -119,20 +119,23 @@ namespace xKorean
         {
             var now = DateTime.Now;
 
-            if (1 <= now.Hour && now.Hour <= 8)
-            {
-                ReadGamesFromJson(true);
-                return;
-            }
+            //if (1 <= now.Hour && now.Hour <= 8)
+            //{
+            //    ReadGamesFromJson(true);
+            //    return;
+            //}
 
 
             var httpClient = new HttpClient();
 
             try
             {
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-
+//#               if DEBUG
+//                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+//#               else
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+//#               endif
+                
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
                 var settingMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
@@ -185,8 +188,12 @@ namespace xKorean
 
             try
             {
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                //var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+//#               if DEBUG
+//                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server-dev.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                
+//#               else
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+//#               endif
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -567,7 +574,7 @@ namespace xKorean
             Game[] filteredGames = gamesFilteredByGamePass;
 
             if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked)
-                filteredGames = (from g in gamesFilteredByGamePass where g.Discount != "" select g).ToArray();
+                filteredGames = (from g in gamesFilteredByGamePass where g.Discount != "" && !g.Discount.Contains("출시") select g).ToArray();
 
             return filteredGames;
         }
