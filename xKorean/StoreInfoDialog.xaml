@@ -1,0 +1,32 @@
+﻿<ContentDialog
+    x:Class="xKorean.StoreInfoDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:xKorean"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    Title="스토어로 이동하기 전에">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <StackPanel>
+                <TextBlock x:Name="StoreInfoTextBlock" TextWrapping="WrapWholeWords"></TextBlock>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" VerticalAlignment="Bottom">
+            <controls:WrapPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button x:Name="GoToStoreButton" Margin="5" Click="GoToStoreButton_Click">스토어로 이동</Button>
+                <Button x:Name="GoToDefaultButton" Margin="5">기본 에디션으로 이동</Button>
+                <Button x:Name="GoToDLRegionButton" Margin="5" Visibility="Collapsed" Click="DLRegionButton_Click"></Button>
+                <Button x:Name="GoToOneButton" Margin="5" Visibility="Collapsed" Click="GoToOneButton_Click">엑스박스 원 버전으로 이동</Button>
+                <Button x:Name="GoToRemasterButton" Margin="5" Visibility="Collapsed" Click="GoToRemasterButton_Click">리마스터 버전으로</Button>
+                <Button x:Name="GoTo360Market" Margin="5" Visibility="Collapsed" Click="GoTo360Market_Click">360 마켓플레이스로 이동</Button>
+                <Button x:Name="Close" Margin="5" Click="Close_Click">닫기</Button>
+            </controls:WrapPanel>
+        </Grid>
+    </Grid>
+</ContentDialog>

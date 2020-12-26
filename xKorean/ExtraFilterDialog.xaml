@@ -1,0 +1,25 @@
+﻿<ContentDialog
+    x:Class="xKorean.ExtraFilterDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:xKorean"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="설정"
+    PrimaryButtonText="저장"
+    CloseButtonText="닫기"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    <Grid>
+        <StackPanel>
+            <TextBlock TextWrapping="WrapWholeWords">추가 필터 설정</TextBlock>
+            <CheckBox x:Name="UseDolbyAtmos" Content="돌비 애트모스 필터 추가"/>
+            <CheckBox x:Name="UseKeyboardMouse" Content="키보드/마우스 지원 필터 추가"/>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+            <TextBlock TextWrapping="WrapWholeWords">아이템 크기:</TextBlock>
+            <TextBlock x:Name="XboxNoti" TextWrapping="WrapWholeWords">(변경시 앱이 재시작됩니다)</TextBlock>
+            <RadioButton x:Name="NormalRadioButton" Content="기본" IsChecked="True" GroupName="IconSizeRadioButtons"/>
+            <RadioButton x:Name="SmallRadioButton" Content="작게" GroupName="IconSizeRadioButtons"/>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

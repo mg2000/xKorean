@@ -16,6 +16,8 @@ namespace xKorean
 {
     public class GameViewModel : INotifyPropertyChanged
     {
+        private string mIconSize = "Normal";
+
         public Game Game { set; get; } = new Game();
         public string Title { set; get; }
         //public string Description { set; get; }
@@ -24,7 +26,6 @@ namespace xKorean
 
         public Dictionary<string, long> DownloadSize { set; get; } = new Dictionary<string, long>();
         public DateTime ReleaseDate { set; get; }
-        private string _thumbnailPath;
 
         public string PackageOnly { get; set; }
         public string ThumbnailPath
@@ -55,24 +56,20 @@ namespace xKorean
         }
 
         public string Localize { set; get; } = "";
-        //public int Metascore { set; get; } = -1;
-        //public Uri MetacriticUrl { set; get; }
-
-        //public List<string> Categories { set; get; } = new List<string>();
         public string ID { set; get; }
 
         public string StoreUri { get; set; } = "";
         public List<string> Screenshots { set; get; } = new List<string>();
-        public GameViewModel(Game game)
+        public GameViewModel(Game game, string iconSize)
         {
             Game = game;
             Title = game.KoreanName;
-            //Description = game.Description.First().Value;
             ThumbnailUrl = game.Thumbnail;
             ID = game.ID;
-            Localize = game.Localize.Replace("메뉴자막", "자막").Replace("인터페이스자막", "자막").Replace("메뉴/기타★", "자막").Replace("/", "\r\n");
+            Localize = game.Localize.Replace("/", "\r\n");
             StoreUri = game.StoreLink;
             Discount = game.Discount;
+            mIconSize = iconSize;
         }
 
         public string Message
@@ -251,77 +248,94 @@ namespace xKorean
             }
         }
 
-        static public double MaxWidth
+        public double MaxWidth
         {
             get
             {
-                double maxWidth = 202.5;
-                switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                if (mIconSize == "Small")
                 {
-                    case "Windows.Xbox":
-                        maxWidth = 150;
-                        break;
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 130;
+                        default:
+                            return 160;
+                    }
                 }
-                return maxWidth;
-            }
-        }
-
-        static public double TitleFontSize
-        {
-            get
-            {
-                double titleSize = 15;
-                switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-                {
-                    case "Windows.Xbox":
-                        titleSize = 11;
-                        break;
-                }
-                return titleSize;
-
-            }
-        }
-
-        static public double MetadataFontSize
-        {
-            get
-            {
-                double titleSize = 15;
-                switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-                {
-                    case "Windows.Xbox":
-                        titleSize = 11;
-                        break;
-                }
-                return titleSize;
-
-            }
-        }
-
-        static public Thickness TitleMargin
-        {
-            get
-            {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-                    return new Thickness(10, 3, 0, 0);
                 else
-                    return new Thickness(10, 4, 0, 0);
+                {
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 150;
+                        default:
+                            return 202.5;
+                    }
+                }
             }
         }
 
-
-        static public double ItemHeight
+        public double TitleFontSize
         {
             get
             {
-                double maxWidth = 303.75;
-                switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                if (mIconSize == "Small")
                 {
-                    case "Windows.Xbox":
-                        maxWidth = 225;
-                        break;
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 9;
+                        default:
+                            return 12;
+                    }
                 }
-                return maxWidth;
+                else
+                {
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 11;
+                        default:
+                            return 15;
+                    }
+                }
+            }
+        }
+
+        public double MetadataFontSize
+        {
+            get
+            {
+                if (mIconSize == "Small")
+                {
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 9;
+                        default:
+                            return 12;
+                    }
+                }
+                else
+                {
+                    switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+                    {
+                        case "Windows.Xbox":
+                            return 11;
+                        default:
+                            return 15;
+                    }
+                }
+            }
+        }
+
+        public string IconSize
+        {
+            set {
+                mIconSize = value;
+                NotifyPropertyChanged("MaxWidth");
+                NotifyPropertyChanged("MetadataFontSize");
+                NotifyPropertyChanged("TitleFontSize");
             }
         }
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
