@@ -17,11 +17,19 @@ namespace xKorean
     public class GameViewModel : INotifyPropertyChanged
     {
         private string mIconSize = "Normal";
+        private string mGameNameDisplayLanguage = "Korean";
 
         public Game Game { set; get; } = new Game();
-        public string Title { set; get; }
-        //public string Description { set; get; }
-
+        public string Title {
+            get
+            {
+                if (mGameNameDisplayLanguage == "English")
+                    return Game.Name;
+                else
+                    return Game.KoreanName;
+            }
+        }
+        
         public string ThumbnailUrl { set; get; }
 
         public Dictionary<string, long> DownloadSize { set; get; } = new Dictionary<string, long>();
@@ -60,16 +68,17 @@ namespace xKorean
 
         public string StoreUri { get; set; } = "";
         public List<string> Screenshots { set; get; } = new List<string>();
-        public GameViewModel(Game game, string iconSize)
+        public GameViewModel(Game game, string gameNameDisplayLanguage, string iconSize)
         {
             Game = game;
-            Title = game.KoreanName;
+
             ThumbnailUrl = game.Thumbnail;
             ID = game.ID;
             Localize = game.Localize.Replace("/", "\r\n");
             StoreUri = game.StoreLink;
             Discount = game.Discount;
             mIconSize = iconSize;
+            mGameNameDisplayLanguage = gameNameDisplayLanguage;
         }
 
         public string Message
@@ -294,7 +303,7 @@ namespace xKorean
                     switch (AnalyticsInfo.VersionInfo.DeviceFamily)
                     {
                         case "Windows.Xbox":
-                            return 11;
+                            return 10;
                         default:
                             return 15;
                     }
@@ -338,6 +347,16 @@ namespace xKorean
                 NotifyPropertyChanged("TitleFontSize");
             }
         }
+
+        public string GameNameDisplayLanguage
+        {
+            set
+            {
+                mGameNameDisplayLanguage = value;
+                NotifyPropertyChanged("Title");
+            }
+        }
+
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

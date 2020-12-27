@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -21,11 +22,16 @@ namespace xKorean
             this.InitializeComponent();
         }
 
-        public StoreInfoDialog(string message, bool useOneStore, bool useRemaster, bool use360Market, string dlRegionName)
+        public StoreInfoDialog(string message, bool useStore, bool useOneStore, bool useRemaster, bool useMerge, bool useCollection, bool useDefaultEdtion, bool use360Market, string dlRegionName)
         {
             this.InitializeComponent();
 
             StoreInfoTextBlock.Text = message;
+
+            if ((AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && useStore) || AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+            {
+                GoToStoreButton.Visibility = Visibility.Visible;
+            }
 
             if (useOneStore)
                 GoToOneButton.Visibility = Visibility.Visible;
@@ -36,10 +42,19 @@ namespace xKorean
                 GoToDLRegionButton.Visibility = Visibility.Visible;
             }
 
+            if (useMerge)
+                GoToMergeButton.Visibility = Visibility.Visible;
+
+            if (useCollection)
+                GoToCollectionButton.Visibility = Visibility.Visible;
+
             if (useRemaster)
                 GoToRemasterButton.Visibility = Visibility.Visible;
 
-            if (use360Market)
+            if (useDefaultEdtion)
+                GoToDefaultButton.Visibility = Visibility.Visible;
+
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop" && use360Market)
                 GoTo360Market.Visibility = Visibility.Visible;
         }
 
@@ -76,6 +91,24 @@ namespace xKorean
         private void DLRegionButton_Click(object sender, RoutedEventArgs e)
         {
             ChooseItem = "DLstore";
+            Hide();
+        }
+
+        private void GoToMergeButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChooseItem = "merge";
+            Hide();
+        }
+
+        private void GoToDefaultButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChooseItem = "defaultEdition";
+            Hide();
+        }
+
+        private void GoToCollectionButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChooseItem = "collection";
             Hide();
         }
     }

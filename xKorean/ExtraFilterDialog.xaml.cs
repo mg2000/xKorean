@@ -22,6 +22,7 @@ namespace xKorean
 {
     public sealed partial class ExtraFilterDialog : ContentDialog
     {
+        private string mGameNameDisplayLanguage;
         private string mIconSize;
 
         public ExtraFilterDialog()
@@ -40,6 +41,12 @@ namespace xKorean
             if (settings.LoadValue("useKeyboardMouse") == "True")
                 UseKeyboardMouse.IsChecked = true;
 
+            mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
+            if (mGameNameDisplayLanguage == "English")
+                EnglishRadioButton.IsChecked = true;
+            else
+                KoreanRadioButton.IsChecked = true;
+
             mIconSize = settings.LoadValue("iconSize");
             if (mIconSize == "Small")
                 SmallRadioButton.IsChecked = true;
@@ -56,6 +63,11 @@ namespace xKorean
                 await settings.SetValue("iconSize", "Normal");
             else
                 await settings.SetValue("iconSize", "Small");
+
+            if (KoreanRadioButton.IsChecked == true)
+                await settings.SetValue("gameNameDisplayLanguage", "Korean");
+            else
+                await settings.SetValue("gameNameDisplayLanguage", "English");
 
             if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && ((mIconSize == "Small" && NormalRadioButton.IsChecked == true) || SmallRadioButton.IsChecked == true)) {
                 var result = await CoreApplication.RequestRestartAsync("");

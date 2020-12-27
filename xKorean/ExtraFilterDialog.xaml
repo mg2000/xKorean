@@ -14,11 +14,15 @@
         <StackPanel>
             <TextBlock TextWrapping="WrapWholeWords">추가 필터 설정</TextBlock>
             <CheckBox x:Name="UseDolbyAtmos" Content="돌비 애트모스 필터 추가"/>
-            <CheckBox x:Name="UseKeyboardMouse" Content="키보드/마우스 지원 필터 추가"/>
+            <CheckBox x:Name="UseKeyboardMouse" Content="키보드/마우스 지원 필터 추가" XYFocusDown="{x:Bind KoreanRadioButton}"/>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+            <TextBlock TextWrapping="WrapWholeWords">게임명 표시 언어:</TextBlock>
+            <RadioButton x:Name="KoreanRadioButton" Content="한글" IsChecked="True" GroupName="GameNameDisplayButtons" XYFocusUp="{x:Bind UseKeyboardMouse}"/>
+            <RadioButton x:Name="EnglishRadioButton" Content="영어" GroupName="GameNameDisplayButtons" XYFocusDown="{x:Bind NormalRadioButton}"/>
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
             <TextBlock TextWrapping="WrapWholeWords">아이템 크기:</TextBlock>
             <TextBlock x:Name="XboxNoti" TextWrapping="WrapWholeWords">(변경시 앱이 재시작됩니다)</TextBlock>
-            <RadioButton x:Name="NormalRadioButton" Content="기본" IsChecked="True" GroupName="IconSizeRadioButtons"/>
+            <RadioButton x:Name="NormalRadioButton" Content="기본" IsChecked="True" GroupName="IconSizeRadioButtons" XYFocusUp="{x:Bind EnglishRadioButton}"/>
             <RadioButton x:Name="SmallRadioButton" Content="작게" GroupName="IconSizeRadioButtons"/>
         </StackPanel>
     </Grid>
