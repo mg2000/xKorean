@@ -9,7 +9,7 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown">
 
     <Grid>
         <Grid.Background>
@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         <TextBlock x:Name="TitleBlock" Padding="30, 10, 30, 10" Grid.Row="0" Text="한국어화 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <TextBox x:Name="SearchBox" Margin="10" VerticalAlignment="Bottom" Width="150" TextChanged="SearchBox_TextChanged"></TextBox>
+            <TextBox x:Name="SearchBox" Margin="10" VerticalAlignment="Bottom" Width="150" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus"></TextBox>
             <StackPanel VerticalAlignment="Bottom" Margin="10">
                 <CommandBar x:Name="OrderBar" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent"  IsSticky="True" OverflowButtonVisibility="Collapsed">
                     <AppBarButton Icon="Sort" Label="정렬">
@@ -58,12 +58,13 @@
                     <CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
                     <CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
                     <CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-                    <CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Origianl Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                    <CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
                     
                     <NavigationViewItemSeparator Padding="0" IsEnabled="False" />
 
                     <CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
                     <CheckBox x:Name="DiscountCheckBox" Width="170" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+                    <CheckBox x:Name="PlayAnywhereCheckBox" Width="170" Content="플레이 애니웨어" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
                     <CheckBox x:Name="DolbyAtmosCheckBox" Width="170" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
                     <CheckBox x:Name="ConsoleKeyboardMouseCheckBox" Width="170" Content="키보드/마우스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
                     
@@ -85,19 +86,27 @@
                             </Viewbox>
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="4*"></RowDefinition>
+                                    <RowDefinition Height="1*"></RowDefinition>
+                                    <RowDefinition Height="3*"></RowDefinition>
                                     <RowDefinition Height="1*"></RowDefinition>
                                     <RowDefinition Height="1*"></RowDefinition>
                                     <RowDefinition Height="2*"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <Grid Grid.Row="1" Visibility="{Binding IsDiscounting}">
+                                <Grid Grid.Row="0" Visibility="{Binding IsSupporting}">
+                                    <Grid.Background>
+                                        <SolidColorBrush Color="Red"></SolidColorBrush>
+                                    </Grid.Background>
+                                    <TextBlock Text="미지원 타이틀" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    </TextBlock>
+                                </Grid>
+                                <Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
                                     <Grid.Background>
                                         <AcrylicBrush TintColor="Black" TintOpacity="0.5"></AcrylicBrush>
                                     </Grid.Background>
                                     <TextBlock Text="{Binding Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     </TextBlock>
                                 </Grid>
-                                <Grid Grid.Row="2" Visibility="{Binding IsGamePass}">
+                                <Grid Grid.Row="3" Visibility="{Binding IsGamePass}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="6.3*"></ColumnDefinition>
                                         <ColumnDefinition Width="1.6*"></ColumnDefinition>
@@ -124,7 +133,7 @@
                                         </TextBlock>
                                     </Grid>
                                 </Grid>
-                                <Grid Grid.Row="3">
+                                <Grid Grid.Row="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="4*"></ColumnDefinition>
                                         <ColumnDefinition Width="2*"></ColumnDefinition>

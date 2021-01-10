@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI;
@@ -206,6 +207,18 @@ namespace xKorean
             }
         }
 
+        public bool IsSupporting
+        {
+            get
+            {
+                var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
+                if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X"))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
         public bool IsDiscounting
         {
             get
@@ -253,7 +266,7 @@ namespace xKorean
             }
             catch (Exception exception)
             {
-                System.Diagnostics.Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {exception.Message}");
+                System.Diagnostics.Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
             }
         }
 

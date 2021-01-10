@@ -79,6 +79,9 @@ namespace xKorean
             var settings = Settings.Instance;
             await settings.Load();
 
+            if (settings.LoadValue("usePlayAnywhere") == "True")
+                PlayAnywhereCheckBox.Visibility = Visibility.Visible;
+
             if (settings.LoadValue("useDolbyAtmos") == "True")
                 DolbyAtmosCheckBox.Visibility = Visibility.Visible;
 
@@ -500,6 +503,7 @@ namespace xKorean
             Game remasterGame = null;
             Game mergeGame = null;
             Game collectionGame = null;
+            Game requiredGame = null;
 
             var messageArr = game.Message.Split("\n");
             var messageBuilder = new StringBuilder();
@@ -512,6 +516,14 @@ namespace xKorean
                 {
                     var template = mMessageTemplateMap["noRegion"];
                     messageBuilder.Append("* ").Append(template.Replace("[name]", ConvertCodeToStr(storeRegion)));
+
+                    if (game.Message.Trim() != "" || game.StoreLink.Contains("marketplace") || game.HasPrimary != "")
+                        messageBuilder.Append("\r\n");
+                }
+
+                if (game.StoreLink.Contains("marketplace"))
+                {
+                    messageBuilder.Append("* ").Append(mMessageTemplateMap["360market"]);
 
                     if (game.Message.Trim() != "" || game.HasPrimary != "")
                         messageBuilder.Append("\r\n");
@@ -539,13 +551,27 @@ namespace xKorean
                         switch (code)
                         {
                             case "dlregiononly":
-                                strValue = ConvertCodeToStr(parsePart[1]);
-                                dlRegionCode = parsePart[1];
+                                if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
+                                {
+                                    strValue = ConvertCodeToStr(parsePart[1]);
+                                    dlRegionCode = parsePart[1];
+                                }
+                                break;
+                            case "required":
+                                var requiredID = GetIDFromStoreUrl(parsePart[1]);
+                                requiredGame = mGameList.FirstOrDefault(item => item.ID == requiredID);
+                                if (requiredGame != null)
+                                {
+                                    if (mGameNameDisplayLanguage == "English")
+                                        strValue = requiredGame.Name;
+                                    else
+                                        strValue = requiredGame.KoreanName;
+                                }
                                 break;
                             case "remaster":
                                 var remasterID = GetIDFromStoreUrl(parsePart[1]);
                                 remasterGame = mGameList.FirstOrDefault(item => item.ID == remasterID);
-                                if (remasterID != null)
+                                if (remasterGame != null)
                                 {
                                     if (mGameNameDisplayLanguage == "English")
                                         strValue = remasterGame.Name;
@@ -567,7 +593,7 @@ namespace xKorean
                             case "merge":
                                 var mergeID = GetIDFromStoreUrl(parsePart[1]);
                                 mergeGame = mGameList.FirstOrDefault(item => item.ID == mergeID);
-                                if (mergeID != null)
+                                if (mergeGame != null)
                                 {
                                     if (mGameNameDisplayLanguage == "English")
                                         strValue = mergeGame.Name;
@@ -585,7 +611,8 @@ namespace xKorean
                         message = message.Replace("[name]", strValue);
                     }
 
-                    messageBuilder.Append("* ").Append(message);
+                    if ((code == "dlregiononly" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower()) || code != "dlregiononly")
+                        messageBuilder.Append("* ").Append(message);
                 }
                 else if (code != "")
                     messageBuilder.Append("* ").Append(parsePart[0]);
@@ -611,14 +638,16 @@ namespace xKorean
                     oneGame = mGameList.FirstOrDefault(item => item.ID == oneVerionID);
                 }
 
-
-                var messageDialog = new StoreInfoDialog(messageBuilder.ToString(), !game.StoreLink.Contains("marketplace"), oneGame != null, remasterGame != null, mergeGame != null, collectionGame != null, game.HasPrimary != "", store360Url != "", dlRegionName);
+                var messageDialog = new StoreInfoDialog(messageBuilder.ToString(), !game.StoreLink.Contains("marketplace"), requiredGame != null, oneGame != null, remasterGame != null, mergeGame != null, collectionGame != null, game.HasPrimary != "", store360Url != "", dlRegionName);
                 await messageDialog.ShowAsync();
 
                 switch(messageDialog.ChooseItem)
                 {
                     case "store":
                         OpenStore(game.StoreLink);
+                        break;
+                    case "required":
+                        GoToStore(requiredGame);
                         break;
                     case "oneStore":
                         GoToStore(oneGame);
@@ -644,8 +673,6 @@ namespace xKorean
                         OpenStore(store360Url);
                         break;
                 }
-
-                Debug.WriteLine("대화 상자 종료");
             }
             else
                 OpenStore(game.StoreLink);
@@ -818,7 +845,13 @@ namespace xKorean
                 gamesFilteredByDiscount = Games.ToArray();
             }
 
-            var gamesFilteredByDolbyAtmos = FilterByDolbyAtmos(gamesFilteredByDiscount);
+            var gamesFilteredByPlayAnywhere = FilterByPlayAnywhere(gamesFilteredByDiscount);
+            if (gamesFilteredByPlayAnywhere == null)
+            {
+                gamesFilteredByPlayAnywhere = Games.ToArray();
+            }
+
+            var gamesFilteredByDolbyAtmos = FilterByDolbyAtmos(gamesFilteredByPlayAnywhere);
             if (gamesFilteredByDolbyAtmos == null)
             {
                 gamesFilteredByDolbyAtmos = Games.ToArray();
@@ -918,12 +951,22 @@ namespace xKorean
             return filteredGames;
         }
 
-        private Game[] FilterByDolbyAtmos(Game[] gamesFilteredByDiscount)
+        private Game[] FilterByPlayAnywhere(Game[] gamesFilteredByDiscount)
         {
             Game[] filteredGames = gamesFilteredByDiscount;
 
+            if (PlayAnywhereCheckBox != null && (bool)PlayAnywhereCheckBox.IsChecked)
+                filteredGames = (from g in gamesFilteredByDiscount where g.PlayAnywhere == "O" select g).ToArray();
+
+            return filteredGames;
+        }
+
+        private Game[] FilterByDolbyAtmos(Game[] gamesFilteredByPlayAnywhere)
+        {
+            Game[] filteredGames = gamesFilteredByPlayAnywhere;
+
             if (DolbyAtmosCheckBox != null && (bool)DolbyAtmosCheckBox.IsChecked)
-                filteredGames = (from g in gamesFilteredByDiscount where g.DolbyAtmos == "O" select g).ToArray();
+                filteredGames = (from g in gamesFilteredByPlayAnywhere where g.DolbyAtmos == "O" select g).ToArray();
 
             return filteredGames;
         }
@@ -1152,6 +1195,15 @@ namespace xKorean
             if (result == ContentDialogResult.Primary)
             {
                 var settings = Settings.Instance;
+                if (settings.LoadValue("usePlayAnywhere") == "True")
+                    PlayAnywhereCheckBox.Visibility = Visibility.Visible;
+                else
+                {
+                    PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
+                    PlayAnywhereCheckBox.IsChecked = false;
+                }
+
+
                 if (settings.LoadValue("useDolbyAtmos") == "True")
                     DolbyAtmosCheckBox.Visibility = Visibility.Visible;
                 else
@@ -1178,6 +1230,27 @@ namespace xKorean
                 }
 
                 UpdateItemHeight();
+            }
+        }
+
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            (sender as TextBox).SelectAll();
+        }
+
+        private void Page_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Handled)
+                return;
+
+            switch (e.Key)
+            {
+                case VirtualKey.GamepadMenu:
+                    SearchBox.Focus(FocusState.Programmatic);
+                    break;
+                case VirtualKey.GamepadView:
+                    CategorySeriesXSCheckBox.Focus(FocusState.Programmatic);
+                    break;
             }
         }
     }

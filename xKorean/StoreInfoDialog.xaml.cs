@@ -22,16 +22,14 @@ namespace xKorean
             this.InitializeComponent();
         }
 
-        public StoreInfoDialog(string message, bool useStore, bool useOneStore, bool useRemaster, bool useMerge, bool useCollection, bool useDefaultEdtion, bool use360Market, string dlRegionName)
+        public StoreInfoDialog(string message, bool useStore, bool useRequired, bool useOneStore, bool useRemaster, bool useMerge, bool useCollection, bool useDefaultEdtion, bool use360Market, string dlRegionName)
         {
             this.InitializeComponent();
 
             StoreInfoTextBlock.Text = message;
 
             if ((AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && useStore) || AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
-            {
                 GoToStoreButton.Visibility = Visibility.Visible;
-            }
 
             if (useOneStore)
                 GoToOneButton.Visibility = Visibility.Visible;
@@ -41,6 +39,9 @@ namespace xKorean
                 GoToDLRegionButton.Content = $"{dlRegionName} 스토어로 이동";
                 GoToDLRegionButton.Visibility = Visibility.Visible;
             }
+
+            if (useRequired)
+                GoToRequiredButton.Visibility = Visibility.Visible;
 
             if (useMerge)
                 GoToMergeButton.Visibility = Visibility.Visible;
@@ -109,6 +110,12 @@ namespace xKorean
         private void GoToCollectionButton_Click(object sender, RoutedEventArgs e)
         {
             ChooseItem = "collection";
+            Hide();
+        }
+
+        private void GoToRequiredButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChooseItem = "required";
             Hide();
         }
     }

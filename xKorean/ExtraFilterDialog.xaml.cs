@@ -35,6 +35,9 @@ namespace xKorean
                 XboxNoti.Visibility = Visibility.Collapsed;
 
             var settings = Settings.Instance;
+            if (settings.LoadValue("usePlayAnywhere") == "True")
+                UsePlayAnywhere.IsChecked = true;
+
             if (settings.LoadValue("useDolbyAtmos") == "True")
                 UseDolbyAtmos.IsChecked = true;
 
@@ -57,6 +60,7 @@ namespace xKorean
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             var settings = Settings.Instance;
+            await settings.SetValue("usePlayAnywhere", UsePlayAnywhere.IsChecked.ToString());
             await settings.SetValue("useDolbyAtmos", UseDolbyAtmos.IsChecked.ToString());
             await settings.SetValue("useKeyboardMouse", UseKeyboardMouse.IsChecked.ToString());
             if (NormalRadioButton.IsChecked == true)
@@ -69,14 +73,10 @@ namespace xKorean
             else
                 await settings.SetValue("gameNameDisplayLanguage", "English");
 
-            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && ((mIconSize == "Small" && NormalRadioButton.IsChecked == true) || SmallRadioButton.IsChecked == true)) {
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && ((mIconSize == "Small" && NormalRadioButton.IsChecked == true) || (mIconSize != "Small" && SmallRadioButton.IsChecked == true))) {
                 var result = await CoreApplication.RequestRestartAsync("");
                 Debug.WriteLine("재시작 결과: " + result);
             }
-        }
-
-        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-        {
         }
     }
 }

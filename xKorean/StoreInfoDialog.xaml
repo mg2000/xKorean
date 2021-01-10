@@ -21,6 +21,7 @@
             <StackPanel Orientation="Vertical">
                 <Button x:Name="GoToStoreButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="GoToStoreButton_Click">스토어로 이동</Button>
                 <Button x:Name="GoToDLRegionButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="DLRegionButton_Click"></Button>
+                <Button x:Name="GoToRequiredButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="GoToRequiredButton_Click">필수 설치 게임으로 이동</Button>
                 <Button x:Name="GoToOneButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="GoToOneButton_Click">엑스박스 원 버전으로 이동</Button>
                 <Button x:Name="GoToCollectionButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="GoToCollectionButton_Click">합본팩으로 이동</Button>
                 <Button x:Name="GoToDefaultButton" Margin="5" HorizontalAlignment="Stretch" Visibility="Collapsed" Click="GoToDefaultButton_Click">기본 에디션으로 이동</Button>

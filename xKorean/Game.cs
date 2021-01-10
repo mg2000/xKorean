@@ -74,5 +74,8 @@ namespace xKorean
 
         [JsonProperty("hasPrimary")]
         public string HasPrimary { set; get; } = "";
+
+        [JsonProperty("playAnywhere")]
+        public string PlayAnywhere { set; get; } = "";
     }
 }
