@@ -194,15 +194,15 @@ namespace xKorean
             {
                 if (Localize.Contains("음성"))
                 {
-                    return Color.FromArgb(0xff, 0x74, 0xcb, 0x2c);
+                    return Color.FromArgb(0xff, 0x44, 0x85, 0x0E);
                 }
                 else if (Localize.Contains("자막"))
                 {
-                    return Color.FromArgb(0xff, 0xFB, 0xCC, 0x21);
+                    return Color.FromArgb(0xff, 0xA6, 0x88, 0x19);
                 }
                 else
                 {
-                    return Color.FromArgb(0xff, 0xF5, 0x16, 0x00);
+                    return Color.FromArgb(0xff, 0x95, 0x0D, 0x00);
                 }
             }
         }

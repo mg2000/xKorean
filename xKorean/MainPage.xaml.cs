@@ -168,9 +168,13 @@ namespace xKorean
                 var settings = Settings.Instance;
                 if (settingMap["lastModifiedTime"] == "")
                 {
+                    _isRefreshing = false;
+
+                    if (LoadingPanel.Visibility == Visibility.Visible)
+                        LoadingPanel.Visibility = Visibility.Collapsed;
+
                     var dialog = new MessageDialog("현재 서버 정보를 최신 정보로 업데이트 중입니다. 잠시 후에 다시 시도해 주십시오.", "데이터 수신 오류");
                     await dialog.ShowAsync();
-                    _isRefreshing = false;
 
                     return;
                 }
@@ -201,6 +205,9 @@ namespace xKorean
             {
                 System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
                 _isRefreshing = false;
+
+                if (LoadingPanel.Visibility == Visibility.Visible)
+                    LoadingPanel.Visibility = Visibility.Collapsed;
 
                 var dialog = new MessageDialog("서버에서 한글화 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
                 await dialog.ShowAsync();
@@ -259,6 +266,9 @@ namespace xKorean
                 System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
                 _isRefreshing = false;
 
+                if (LoadingPanel.Visibility == Visibility.Visible)
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+
                 var dialog = new MessageDialog("서버에서 데이터를 수신할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
                 await dialog.ShowAsync();
             }
@@ -297,6 +307,9 @@ namespace xKorean
             {
                 System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
                 _isRefreshing = false;
+
+                if (LoadingPanel.Visibility == Visibility.Visible)
+                    LoadingPanel.Visibility = Visibility.Collapsed;
 
                 var dialog = new MessageDialog("서버에서 한글화 정보를 다운로드할 수 없습니다.", "데이터 수신 오류");
                 await dialog.ShowAsync();
@@ -377,6 +390,8 @@ namespace xKorean
                 else
                     Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
             }
+
+            LoadingPanel.Visibility = Visibility.Collapsed;
 
             SearchBox_TextChanged(SearchBox, null);
             _isRefreshing = false;
@@ -1128,6 +1143,9 @@ namespace xKorean
         private float _angle = 360;
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
+            if (mGameList.Count == 0 && LoadingPanel.Visibility == Visibility.Collapsed)
+                LoadingPanel.Visibility = Visibility.Visible;
+
             _isRefreshing = true;
             CheckUpdateTime();
             while (_isRefreshing)
@@ -1137,56 +1155,9 @@ namespace xKorean
             }
         }
 
-        //private void InVaultTimeRadioButtons_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    SearchBox_TextChanged(SearchBox, null);
-        //}
-
         private void TimingRadioButton_Checked(object sender, RoutedEventArgs e)
         {
             SearchBox_TextChanged(SearchBox, null);
-        }
-
-        private void InVaultTimeRadioButtons_GotFocus(object sender, RoutedEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine("InVaultTimeRadioButtons_GotFocus");
-        }
-
-        private void InVaultTimeRadioButtons_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var item = e.ClickedItem as RadioButton;
-
-            if (item != null)
-            {
-                item.IsChecked = true;
-            }
-
-        }
-
-        private void CategoriesView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var item = e.ClickedItem as CheckBox;
-
-            if (item != null)
-            {
-                item.IsChecked = !(item.IsChecked);
-            }
-        }
-
-        private void StackPanel_GotFocus(object sender, RoutedEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine("StackPanel_GotFocus");
-
-            if (!OrderBar.IsOpen)
-            {
-                OrderBar.Focus(FocusState.Programmatic);
-                OrderBar.IsOpen = true;
-            }
-        }
-
-        private void CategoryOGCheckBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("포커스가 왔다리");
         }
 
         private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
