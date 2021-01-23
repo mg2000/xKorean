@@ -6,11 +6,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="한글화 정보"
+    Title="앱정보 정보"
     CloseButtonText="닫기">
 
     <Grid>
         <StackPanel>
+            <TextBlock TextWrapping="WrapWholeWords">컨트롤러 단축키</TextBlock>
+            <TextBlock TextWrapping="WrapWholeWords">LB: 검색 필터, RB: 툴바, 메뉴 버튼: 오류 신고</TextBlock>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
             <TextBlock TextWrapping="WrapWholeWords">한글화 정보는 엑스박스 정보 카페에서 제공한 데이터를 이용하였습니다.</TextBlock>
             <TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="CafeLink" NavigateUri="https://cafe.naver.com/xboxinfo">엑스박스 정보카페 바로가기</Hyperlink></TextBlock>
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>

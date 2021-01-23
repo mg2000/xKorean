@@ -1,3 +1,3 @@
-MainPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.8.24.0_x64.msix
-SymbolPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.8.24.0\xKorean_0.8.24.0_x64.appxsym
-ResourcePack=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.8.24.0_language-ko.msix
+MainPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.9.25.0_x64.msix
+SymbolPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.9.25.0\xKorean_0.9.25.0_x64.appxsym
+ResourcePack=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\Upload\xKorean_0.9.25.0_language-ko.msix

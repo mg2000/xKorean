@@ -132,6 +132,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CategorieViewModel.cs" />
+    <Compile Include="ErrorReportDialog.xaml.cs">
+      <DependentUpon>ErrorReportDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="ExtraFilterDialog.xaml.cs">
       <DependentUpon>ExtraFilterDialog.xaml</DependentUpon>
@@ -168,6 +171,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="AboutDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ErrorReportDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

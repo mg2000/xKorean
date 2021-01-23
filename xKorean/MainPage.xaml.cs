@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -17,6 +18,7 @@ using Windows.UI.Notifications;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
@@ -35,6 +37,8 @@ namespace xKorean
 
         private Dictionary<string, string> mMessageTemplateMap = new Dictionary<string, string>();
         private List<Game> mGameList = new List<Game>();
+
+        private readonly BlockingCollection<object> mDialogQueue = new BlockingCollection<object>(1);
         public MainPage()
         {
             this.InitializeComponent();
@@ -130,24 +134,9 @@ namespace xKorean
             CheckUpdateTime();
         }
 
-        //public double GamesViewItemHeight
-        //{
-        //    get
-        //    {
-        //        return GameViewModel.ItemHeight;
-        //    }
-        //}
-
         private async void CheckUpdateTime()
         {
             var now = DateTime.Now;
-
-            //if (1 <= now.Hour && now.Hour <= 8)
-            //{
-            //    ReadGamesFromJson(true);
-            //    return;
-            //}
-
 
             var httpClient = new HttpClient();
 
@@ -174,32 +163,36 @@ namespace xKorean
                         LoadingPanel.Visibility = Visibility.Collapsed;
 
                     var dialog = new MessageDialog("현재 서버 정보를 최신 정보로 업데이트 중입니다. 잠시 후에 다시 시도해 주십시오.", "데이터 수신 오류");
-                    await dialog.ShowAsync();
+                    if (mDialogQueue.TryAdd(dialog, 500))
+                    {
+                        await dialog.ShowAsync();
+                        mDialogQueue.Take();
+                    }
 
                     return;
                 }
-                else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
+                else //if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
                 {
                     await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
 
                     UpateJsonData();
                 }
-                else
-                {
-                    var content = new ToastContentBuilder()
-                        .AddText("업데이트 완료", hintMaxLines: 1)
-                        .AddText("이미 모든 정보가 최신입니다.")
-                        .GetToastContent();
+                //else
+                //{
+                //    var content = new ToastContentBuilder()
+                //        .AddText("업데이트 완료", hintMaxLines: 1)
+                //        .AddText("이미 모든 정보가 최신입니다.")
+                //        .GetToastContent();
 
-                    var notif = new ToastNotification(content.GetXml());
+                //    var notif = new ToastNotification(content.GetXml());
 
-                    // And show it!
-                    ToastNotificationManager.History.Clear();
-                    ToastNotificationManager.CreateToastNotifier().Show(notif);
-                    _isRefreshing = false;
+                //    // And show it!
+                //    ToastNotificationManager.History.Clear();
+                //    ToastNotificationManager.CreateToastNotifier().Show(notif);
+                //    _isRefreshing = false;
 
-                    ReadGamesFromJson();
-                }
+                //    ReadGamesFromJson();
+                //}
             }
             catch (Exception exception)
             {
@@ -210,67 +203,11 @@ namespace xKorean
                     LoadingPanel.Visibility = Visibility.Collapsed;
 
                 var dialog = new MessageDialog("서버에서 한글화 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
-                await dialog.ShowAsync();
-            }
-        }
-
-        private async void LoadMessageTemplate()
-        {
-            var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\messageTemplate.json");
-
-            StorageFile templateFile = null;
-            if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
-            {
-                templateFile = await StorageFile.GetFileFromPathAsync(ApplicationData.Current.LocalFolder.Path + "\\messageTemplate.json");
-            }
-            else
-            {
-                UpdateMessageTemplate();
-                return;
-            }
-
-            var templateStr = await FileIO.ReadTextAsync(templateFile);
-            var messageTemplateList = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(templateStr);
-
-            mMessageTemplateMap.Clear();
-            messageTemplateList.ForEach(item =>
-            {
-                mMessageTemplateMap.Add(item["code"], item["template"]);
-            });
-
-            ReadGamesFromJson();
-        }
-
-        private async void UpdateMessageTemplate()
-        {
-            var httpClient = new HttpClient();
-
-            try
-            {
-#               if DEBUG
-                var response = await httpClient.PostAsync(new Uri("http://192.168.200.105:3000/get_message_template"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#else
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/get_message_template"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#endif
-
-                var str = response.Content.ReadAsStringAsync().GetResults();
-
-                var file = await ApplicationData.Current.LocalFolder.CreateFileAsync("messageTemplate.json", CreationCollisionOption.ReplaceExisting);
-
-                await FileIO.WriteTextAsync(file, str);
-
-                LoadMessageTemplate();
-            }
-            catch (Exception exception)
-            {
-                System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
-                _isRefreshing = false;
-
-                if (LoadingPanel.Visibility == Visibility.Visible)
-                    LoadingPanel.Visibility = Visibility.Collapsed;
-
-                var dialog = new MessageDialog("서버에서 데이터를 수신할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
-                await dialog.ShowAsync();
+                if (mDialogQueue.TryAdd(dialog, 500))
+                {
+                    await dialog.ShowAsync();
+                    mDialogQueue.Take();
+                }
             }
         }
 
@@ -428,21 +365,6 @@ namespace xKorean
         UIElement animatingElement;
         private void GamesView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            //var container = GamesView.ContainerFromItem(e.ClickedItem) as GridViewItem;
-            //if (container != null)
-            //{
-            //    //find the image
-            //    var root = (FrameworkElement)container.ContentTemplateRoot;
-            //    var image = (UIElement)root.FindName("PosterImage");
-            //    animatingElement = image;
-            //    //prepare the animation
-            //    ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", image);
-            //}
-
-            //ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", sender);
-
-            //Frame.Navigate(typeof(GameDetailPage), e.ClickedItem);
-
             if (e.ClickedItem != null)
             {
                 GoToStore((e.ClickedItem as GameViewModel).Game);
@@ -825,9 +747,13 @@ namespace xKorean
             //        AboutTip.IsOpen = true;
             //        break;
             //}
-            var aboutDialogue = new AboutDialog();
-            var result = await aboutDialogue.ShowAsync();
 
+            var dialog = new AboutDialog();
+            if (mDialogQueue.TryAdd(dialog, 500))
+            {
+                await dialog.ShowAsync();
+                mDialogQueue.Take();
+            }
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -1162,45 +1088,51 @@ namespace xKorean
 
         private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            var result = await new ExtraFilterDialog().ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            var dialog = new ExtraFilterDialog();
+            if (mDialogQueue.TryAdd(dialog, 500))
             {
-                var settings = Settings.Instance;
-                if (settings.LoadValue("usePlayAnywhere") == "True")
-                    PlayAnywhereCheckBox.Visibility = Visibility.Visible;
-                else
+                var result = await dialog.ShowAsync();
+                mDialogQueue.Take();
+
+                if (result == ContentDialogResult.Primary)
                 {
-                    PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
-                    PlayAnywhereCheckBox.IsChecked = false;
+                    var settings = Settings.Instance;
+                    if (settings.LoadValue("usePlayAnywhere") == "True")
+                        PlayAnywhereCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
+                        PlayAnywhereCheckBox.IsChecked = false;
+                    }
+
+
+                    if (settings.LoadValue("useDolbyAtmos") == "True")
+                        DolbyAtmosCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        DolbyAtmosCheckBox.Visibility = Visibility.Collapsed;
+                        DolbyAtmosCheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useKeyboardMouse") == "True")
+                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Collapsed;
+                        ConsoleKeyboardMouseCheckBox.IsChecked = false;
+                    }
+
+                    mIconSize = settings.LoadValue("iconSize");
+                    mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
+
+                    for (int i = 0; i < GamesViewModel.Count; i++)
+                    {
+                        GamesViewModel[i].GameNameDisplayLanguage = mGameNameDisplayLanguage;
+                        GamesViewModel[i].IconSize = mIconSize;
+                    }
+
+                    UpdateItemHeight();
                 }
-
-
-                if (settings.LoadValue("useDolbyAtmos") == "True")
-                    DolbyAtmosCheckBox.Visibility = Visibility.Visible;
-                else
-                {
-                    DolbyAtmosCheckBox.Visibility = Visibility.Collapsed;
-                    DolbyAtmosCheckBox.IsChecked = false;
-                }
-
-                if (settings.LoadValue("useKeyboardMouse") == "True")
-                    ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
-                else
-                {
-                    ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Collapsed;
-                    ConsoleKeyboardMouseCheckBox.IsChecked = false;
-                }
-
-                mIconSize = settings.LoadValue("iconSize");
-                mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
-
-                for (int i = 0; i < GamesViewModel.Count; i++)
-                {
-                    GamesViewModel[i].GameNameDisplayLanguage = mGameNameDisplayLanguage;
-                    GamesViewModel[i].IconSize = mIconSize;
-                }
-
-                UpdateItemHeight();
             }
         }
 
@@ -1216,12 +1148,32 @@ namespace xKorean
 
             switch (e.Key)
             {
-                case VirtualKey.GamepadMenu:
-                    SearchBox.Focus(FocusState.Programmatic);
+                case VirtualKey.GamepadRightShoulder:
+                    OrderBar.Focus(FocusState.Programmatic);
                     break;
-                case VirtualKey.GamepadView:
+                case VirtualKey.GamepadLeftShoulder:
                     CategorySeriesXSCheckBox.Focus(FocusState.Programmatic);
                     break;
+            }
+        }
+
+        private async void GamesView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            GameViewModel game = null;
+            if (e.OriginalSource as Image != null)
+                game = ((e.OriginalSource as Image).DataContext as GameViewModel);
+            else if ((e.OriginalSource as TextBlock) != null)
+                game = ((e.OriginalSource as TextBlock).DataContext as GameViewModel);
+            else if ((e.OriginalSource as GridViewItem) != null)
+                game = ((e.OriginalSource as GridViewItem).Content as GameViewModel);
+            else
+                game = ((e.OriginalSource as ListViewItemPresenter).DataContext as GameViewModel);
+
+            var dialog = new ErrorReportDialog(game.Title);
+            if (mDialogQueue.TryAdd(dialog, 500))
+            {
+                await dialog.ShowAsync();
+                mDialogQueue.Take();
             }
         }
     }
