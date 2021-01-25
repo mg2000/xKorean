@@ -171,28 +171,28 @@ namespace xKorean
 
                     return;
                 }
-                else //if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
+                else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
                 {
                     await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
 
                     UpateJsonData();
                 }
-                //else
-                //{
-                //    var content = new ToastContentBuilder()
-                //        .AddText("업데이트 완료", hintMaxLines: 1)
-                //        .AddText("이미 모든 정보가 최신입니다.")
-                //        .GetToastContent();
+                else
+                {
+                    var content = new ToastContentBuilder()
+                        .AddText("업데이트 완료", hintMaxLines: 1)
+                        .AddText("이미 모든 정보가 최신입니다.")
+                        .GetToastContent();
 
-                //    var notif = new ToastNotification(content.GetXml());
+                    var notif = new ToastNotification(content.GetXml());
 
-                //    // And show it!
-                //    ToastNotificationManager.History.Clear();
-                //    ToastNotificationManager.CreateToastNotifier().Show(notif);
-                //    _isRefreshing = false;
+                    // And show it!
+                    ToastNotificationManager.History.Clear();
+                    ToastNotificationManager.CreateToastNotifier().Show(notif);
+                    _isRefreshing = false;
 
-                //    ReadGamesFromJson();
-                //}
+                    ReadGamesFromJson();
+                }
             }
             catch (Exception exception)
             {

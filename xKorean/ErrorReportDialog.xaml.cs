@@ -58,7 +58,7 @@ namespace xKorean
 #               if DEBUG
                 var response = await httpClient.PostAsync(new Uri("http://192.168.200.105:3000/report_error"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/report_error"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/report_error"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
                 await response.Content.ReadAsStringAsync();
