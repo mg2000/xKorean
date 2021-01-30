@@ -44,7 +44,7 @@ namespace xKorean
                 GoToRequiredButton.Visibility = Visibility.Visible;
 
             if (useMerge)
-                GoToMergeButton.Visibility = Visibility.Visible;
+                GoToMergeButton.Visibility = Visibility.Visible;    
 
             if (useCollection)
                 GoToCollectionButton.Visibility = Visibility.Visible;

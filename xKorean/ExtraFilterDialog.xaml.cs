@@ -55,6 +55,9 @@ namespace xKorean
                 SmallRadioButton.IsChecked = true;
             else
                 NormalRadioButton.IsChecked = true;
+
+            if (settings.LoadValue("ShowNewTitle") != "False")
+                ShowNewTitle.IsChecked = true;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -72,6 +75,8 @@ namespace xKorean
                 await settings.SetValue("gameNameDisplayLanguage", "Korean");
             else
                 await settings.SetValue("gameNameDisplayLanguage", "English");
+
+            await settings.SetValue("ShowNewTitle", ShowNewTitle.IsChecked.ToString());
 
             if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && ((mIconSize == "Small" && NormalRadioButton.IsChecked == true) || (mIconSize != "Small" && SmallRadioButton.IsChecked == true))) {
                 var result = await CoreApplication.RequestRestartAsync("");

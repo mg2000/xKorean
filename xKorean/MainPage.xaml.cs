@@ -8,10 +8,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
 using Windows.UI.Notifications;
@@ -39,6 +42,16 @@ namespace xKorean
         private List<Game> mGameList = new List<Game>();
 
         private readonly BlockingCollection<object> mDialogQueue = new BlockingCollection<object>(1);
+
+        private byte[] mOneTitleHeader = null;
+        private byte[] mSeriesXSHeader = null;
+
+        private const string oneTitlePath = "ms-appx:///Assets/xbox_one_title.png";
+        private const string seriesTitlePath = "ms-appx:///Assets/xbox_series_xs_title.png";
+
+        private List<Game> mExistGames = new List<Game>();
+        private List<string> mNewGames = new List<string>();
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -68,13 +81,53 @@ namespace xKorean
             }
 
             CacheFolderChecked += App_CacheFolderChecked;
-            CheckCacheFolder();
-
+            
             EasClientDeviceInformation eas = new EasClientDeviceInformation();
 
             Debug.WriteLine($"디바이스 정보 {eas.SystemManufacturer}, {eas.SystemProductName}");
             Debug.WriteLine($"지역 정보: {Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion}");
-            
+
+            LoadTitleImage(oneTitlePath);
+        }
+
+        private async void LoadTitleImage(string fileName)
+        {
+            var oneTitleFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(fileName));
+            using (IRandomAccessStream stream = await oneTitleFile.OpenAsync(FileAccessMode.Read))
+            {
+                // Create the decoder from the stream
+                BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+
+                // Get the SoftwareBitmap representation of the file
+                var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+                using (var buffer = softwareBitmap.LockBuffer(BitmapBufferAccessMode.Read))
+                {
+                    using (var reference = buffer.CreateReference())
+                    {
+                        unsafe
+                        {
+                            ((IMemoryBufferByteAccess)reference).GetBuffer(out byte* dataInBytes, out uint capacity);
+                            byte[] titleBuffer = new byte[capacity];
+                            if (fileName == oneTitlePath)
+                                mOneTitleHeader = titleBuffer;
+                            else
+                                mSeriesXSHeader = titleBuffer;
+
+                            BitmapPlaneDescription bufferLayout = buffer.GetPlaneDescription(0);
+                            for (var i = 0; i < capacity; i++)
+                            {
+                                titleBuffer[i] = dataInBytes[bufferLayout.StartIndex + i];
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (fileName == oneTitlePath)
+                LoadTitleImage(seriesTitlePath);
+            else
+                CheckCacheFolder();
         }
 
 
@@ -196,7 +249,7 @@ namespace xKorean
             }
             catch (Exception exception)
             {
-                System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
+                Debug.WriteLine($"다운로드 에러: {exception.Message}");
                 _isRefreshing = false;
 
                 if (LoadingPanel.Visibility == Visibility.Visible)
@@ -233,6 +286,18 @@ namespace xKorean
                 }
                 else
                 {
+                    if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
+                    {
+                        var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+
+                        if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
+                        {
+                            var existFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.OpenIfExists);
+                            var existStr = await FileIO.ReadTextAsync(existFile);
+                            mExistGames = JsonConvert.DeserializeObject<List<Game>>(existStr).OrderBy(g => g.ID).ToList();
+                        }
+                    }
+
                     var file = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.ReplaceExisting);
 
                     await FileIO.WriteTextAsync(file, str);
@@ -242,7 +307,8 @@ namespace xKorean
             }
             catch (Exception exception)
             {
-                System.Diagnostics.Debug.WriteLine($"다운로드 에러: {exception.Message}");
+                Debug.WriteLine($"다운로드 에러: {exception.Message}");
+                Debug.WriteLine(exception.StackTrace);
                 _isRefreshing = false;
 
                 if (LoadingPanel.Visibility == Visibility.Visible)
@@ -269,30 +335,40 @@ namespace xKorean
 
 
             var jsonString = await FileIO.ReadTextAsync(jsonFile);
-            var games = JsonConvert.DeserializeObject<List<Game>>(jsonString);
+            var games = JsonConvert.DeserializeObject<List<Game>>(jsonString).OrderBy(g => g.ID).ToList();
+
+            if (mExistGames.Count > 0)
+            {
+                mNewGames.Clear();
+                foreach (Game game in games)
+                {
+                    bool oldTitle = false;
+                    for (var i = 0; i < mExistGames.Count; i++)
+                    {
+                        if (game.ID == mExistGames[i].ID)
+                        {
+                            mExistGames.RemoveAt(i);
+                            oldTitle = true;
+                            break;
+                        }
+                        else if (game.ID.CompareTo(mExistGames[i].ID) > 0)
+                            break;
+                    }
+
+                    if (oldTitle == false)
+                    {
+                        if (mGameNameDisplayLanguage == "English")
+                            mNewGames.Add(game.Name);
+                        else
+                            mNewGames.Add(game.KoreanName);
+                    }
+                        
+                }
+
+                mExistGames.Clear();
+            }
 
             HashSet<string> genre = new HashSet<string>();
-
-            //foreach (var game in games)
-            //{
-            //    foreach (var c in game.Categories)
-            //    {
-            //        genre.Add(c);
-            //    }
-
-            //    GamesViewModel.Add(new GameViewModel(game));
-            //    if (game.MetaScore.Count == 0)
-            //    {
-            //        game.MetaScore.Add(Platform.Unknown, -1);
-            //    }
-
-            //}
-            //List<string> orderedGenre = genre.OrderBy(g => g).ToList();
-            //Categories.Clear();
-            //foreach (var g in orderedGenre)
-            //{
-            //    Categories.Add(new CategorieViewModel(g));
-            //}
 
             mGameList.Clear();
             mGameList.AddRange(games);
@@ -332,6 +408,16 @@ namespace xKorean
 
             SearchBox_TextChanged(SearchBox, null);
             _isRefreshing = false;
+
+            if (mNewGames.Count > 0)
+            {
+                var dialog = new NewControlDialog(mNewGames);
+                if (mDialogQueue.TryAdd(dialog, 500))
+                {
+                    await dialog.ShowAsync();
+                    mDialogQueue.Take();
+                }
+            }
         }
 
         public List<Game> Games = new List<Game>();
@@ -837,7 +923,7 @@ namespace xKorean
                     GamesViewModel.Clear();
                     foreach (var g in games)
                     {
-                        GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize));
+                        GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
                     }
                 //}
 
@@ -849,7 +935,7 @@ namespace xKorean
                 GamesViewModel.Clear();
                 foreach (var game in Games)
                 {
-                    GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize));
+                    GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
                 }
 
                 TitleBlock.Text = $"한국어화 타이틀 목록 ({Games.Count}개)";
@@ -1033,7 +1119,7 @@ namespace xKorean
                         break;
                     default:
                         GamesView.ItemHeight = 239;
-                        GamesView.Padding = new Thickness(20, 0, 20, 0);
+                        GamesView.Padding = new Thickness(0, 0, 0, 0);
                         GamesView.Margin = new Thickness(0, 10, 0, 0);
                         break;
                 }
@@ -1046,7 +1132,7 @@ namespace xKorean
                         GamesView.ItemHeight = 205;
                         break;
                     default:
-                        GamesView.ItemHeight = 303.75;
+                        GamesView.ItemHeight = 277;
                         break;
                 }
 
