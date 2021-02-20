@@ -24,9 +24,9 @@
             <TextBlock TextWrapping="WrapWholeWords">아이템 크기:</TextBlock>
             <TextBlock x:Name="XboxNoti" TextWrapping="WrapWholeWords">(변경시 앱이 재시작됩니다)</TextBlock>
             <RadioButton x:Name="NormalRadioButton" Content="기본" IsChecked="True" GroupName="IconSizeRadioButtons" XYFocusUp="{x:Bind EnglishRadioButton}"/>
-            <RadioButton x:Name="SmallRadioButton" Content="작게" GroupName="IconSizeRadioButtons"/>
+            <RadioButton x:Name="SmallRadioButton" Content="작게" GroupName="IconSizeRadioButtons" XYFocusDown="{x:Bind ShowNewTitle}"/>
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
-            <CheckBox x:Name="ShowNewTitle" Content="시작시 새로 확인된 타이틀 표시"/>
+            <CheckBox x:Name="ShowNewTitle" Content="시작시 새로 확인된 타이틀 표시" XYFocusUp="{x:Bind SmallRadioButton}"/>
         </StackPanel>
     </Grid>
 </ContentDialog>

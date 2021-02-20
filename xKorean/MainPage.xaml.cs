@@ -244,7 +244,8 @@ namespace xKorean
                     ToastNotificationManager.CreateToastNotifier().Show(notif);
                     _isRefreshing = false;
 
-                    ReadGamesFromJson();
+                    if (mGameList.Count == 0)
+                        ReadGamesFromJson();
                 }
             }
             catch (Exception exception)
@@ -351,7 +352,7 @@ namespace xKorean
                             oldTitle = true;
                             break;
                         }
-                        else if (game.ID.CompareTo(mExistGames[i].ID) > 0)
+                        else if (game.ID.CompareTo(mExistGames[i].ID) < 0)
                             break;
                     }
 
@@ -417,6 +418,8 @@ namespace xKorean
                     await dialog.ShowAsync();
                     mDialogQueue.Take();
                 }
+
+                GamesView.Focus(FocusState.Programmatic);
             }
         }
 
@@ -973,7 +976,7 @@ namespace xKorean
             Game[] filteredGames = gamesFilteredByGamePass;
 
             if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked)
-                filteredGames = (from g in gamesFilteredByGamePass where g.Discount != "" && !g.Discount.Contains("출시") select g).ToArray();
+                filteredGames = (from g in gamesFilteredByGamePass where g.Discount != "" && !g.Discount.Contains("출시") && !g.Discount.Contains("판매") select g).ToArray();
 
             return filteredGames;
         }
@@ -1066,7 +1069,7 @@ namespace xKorean
         private async void OrderByReleaseDescendItem_Click(object sender, RoutedEventArgs e)
         {
             if (mGameNameDisplayLanguage == "English")
-                Games = Games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
+                Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
             else
                 Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
 
