@@ -1,0 +1,27 @@
+﻿<ContentDialog
+    x:Class="xKorean.SettingDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:xKorean"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="설정"
+    PrimaryButtonText="저장"
+    CloseButtonText="닫기"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    <Grid>
+        <StackPanel>
+            <TextBlock TextWrapping="WrapWholeWords">게임명 표시 언어:</TextBlock>
+            <RadioButton x:Name="KoreanRadioButton" Content="한글" IsChecked="True" GroupName="GameNameDisplayButtons"/>
+            <RadioButton x:Name="EnglishRadioButton" Content="영어" GroupName="GameNameDisplayButtons" XYFocusDown="{x:Bind NormalRadioButton}"/>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+            <TextBlock TextWrapping="WrapWholeWords">아이템 크기:</TextBlock>
+            <TextBlock x:Name="XboxNoti" TextWrapping="WrapWholeWords">(변경시 앱이 재시작됩니다)</TextBlock>
+            <RadioButton x:Name="NormalRadioButton" Content="기본" IsChecked="True" GroupName="IconSizeRadioButtons" XYFocusUp="{x:Bind EnglishRadioButton}"/>
+            <RadioButton x:Name="SmallRadioButton" Content="작게" GroupName="IconSizeRadioButtons" XYFocusDown="{x:Bind ShowNewTitle}"/>
+            <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+            <CheckBox x:Name="ShowNewTitle" Content="시작시 새로 확인된 타이틀 표시" XYFocusUp="{x:Bind SmallRadioButton}"/>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

@@ -59,19 +59,24 @@
                         <CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
                         <CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
                         <CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-                        <CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+                        <CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" XYFocusDown="{x:Bind GamePassCheckBox}"/>
                     
                         <NavigationViewItemSeparator Padding="0" IsEnabled="False" />
 
-                        <CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+                        <CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" XYFocusUp="{x:Bind CategoryOGCheckBox}"></CheckBox>
                         <CheckBox x:Name="DiscountCheckBox" Width="170" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
                         <CheckBox x:Name="PlayAnywhereCheckBox" Width="170" Content="플레이 애니웨어" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
                         <CheckBox x:Name="DolbyAtmosCheckBox" Width="170" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
                         <CheckBox x:Name="ConsoleKeyboardMouseCheckBox" Width="170" Content="키보드/마우스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
-                    
+                        <CheckBox x:Name="LocalCoopCheckBox" Width="170" Content="로컬 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
+                        <CheckBox x:Name="OnlineCoopCheckBox" Width="170" Content="온라인 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
+                        <CheckBox x:Name="FPS120CheckBox" Width="170" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" Visibility="Collapsed"></CheckBox>
+
+                        <Button x:Name="ExtraFilterButton" Width="170" Click="ExtraFilterButton_Click" XYFocusDown="{x:Bind AllRadioButton}">추가 필터</Button>
+
                         <NavigationViewItemSeparator Padding="0" IsEnabled="False"></NavigationViewItemSeparator>
-                    
-                        <RadioButton x:Name="AllRadioButton" Content="한국어 지원" Checked="TimingRadioButton_Checked" IsChecked="True" GroupName="InVaultTimeRadioButtons" XYFocusUp="{x:Bind DiscountCheckBox}"/>
+
+                        <RadioButton x:Name="AllRadioButton" Content="한국어 지원" Checked="TimingRadioButton_Checked" IsChecked="True" GroupName="InVaultTimeRadioButtons" XYFocusUp="{x:Bind ExtraFilterButton}"/>
                         <RadioButton x:Name="KoreanVoiceRadioButton" Content="한국어 음성 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
                         <RadioButton x:Name="KoreanSubtitleRadioButton" Content="한국어 자막 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
                     </StackPanel>

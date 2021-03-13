@@ -77,5 +77,14 @@ namespace xKorean
 
         [JsonProperty("playAnywhere")]
         public string PlayAnywhere { set; get; } = "";
+
+        [JsonProperty("localCoop")]
+        public string LocalCoop { set; get; } = "";
+
+        [JsonProperty("onlineCoop")]
+        public string OnlineCoop { set; get; } = "";
+
+        [JsonProperty("fps120")]
+        public string FPS120 { set; get; } = "";
     }
 }

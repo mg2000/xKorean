@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.System.Profile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -22,17 +19,9 @@ namespace xKorean
 {
     public sealed partial class ExtraFilterDialog : ContentDialog
     {
-        private string mGameNameDisplayLanguage;
-        private string mIconSize;
-
         public ExtraFilterDialog()
         {
             this.InitializeComponent();
-
-            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-                XboxNoti.Visibility = Visibility.Visible;
-            else
-                XboxNoti.Visibility = Visibility.Collapsed;
 
             var settings = Settings.Instance;
             if (settings.LoadValue("usePlayAnywhere") == "True")
@@ -44,20 +33,14 @@ namespace xKorean
             if (settings.LoadValue("useKeyboardMouse") == "True")
                 UseKeyboardMouse.IsChecked = true;
 
-            mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
-            if (mGameNameDisplayLanguage == "English")
-                EnglishRadioButton.IsChecked = true;
-            else
-                KoreanRadioButton.IsChecked = true;
+            if (settings.LoadValue("useLocalCoop") == "True")
+                UseLocalCoopCheckBox.IsChecked = true;
 
-            mIconSize = settings.LoadValue("iconSize");
-            if (mIconSize == "Small")
-                SmallRadioButton.IsChecked = true;
-            else
-                NormalRadioButton.IsChecked = true;
+            if (settings.LoadValue("useOnlineCoop") == "True")
+                UseOnlineCoopCheckBox.IsChecked = true;
 
-            if (settings.LoadValue("ShowNewTitle") != "False")
-                ShowNewTitle.IsChecked = true;
+            if (settings.LoadValue("useFPS120") == "True")
+                UseFPS120CheckBox.IsChecked = true;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -66,22 +49,14 @@ namespace xKorean
             await settings.SetValue("usePlayAnywhere", UsePlayAnywhere.IsChecked.ToString());
             await settings.SetValue("useDolbyAtmos", UseDolbyAtmos.IsChecked.ToString());
             await settings.SetValue("useKeyboardMouse", UseKeyboardMouse.IsChecked.ToString());
-            if (NormalRadioButton.IsChecked == true)
-                await settings.SetValue("iconSize", "Normal");
-            else
-                await settings.SetValue("iconSize", "Small");
+            await settings.SetValue("useLocalCoop", UseLocalCoopCheckBox.IsChecked.ToString());
+            await settings.SetValue("useOnlineCoop", UseOnlineCoopCheckBox.IsChecked.ToString());
+            await settings.SetValue("useFPS120", UseFPS120CheckBox.IsChecked.ToString());
+        }
 
-            if (KoreanRadioButton.IsChecked == true)
-                await settings.SetValue("gameNameDisplayLanguage", "Korean");
-            else
-                await settings.SetValue("gameNameDisplayLanguage", "English");
-
-            await settings.SetValue("ShowNewTitle", ShowNewTitle.IsChecked.ToString());
-
-            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && ((mIconSize == "Small" && NormalRadioButton.IsChecked == true) || (mIconSize != "Small" && SmallRadioButton.IsChecked == true))) {
-                var result = await CoreApplication.RequestRestartAsync("");
-                Debug.WriteLine("재시작 결과: " + result);
-            }
+        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
         }
     }
 }
+

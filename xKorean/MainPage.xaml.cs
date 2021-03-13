@@ -145,6 +145,15 @@ namespace xKorean
             if (settings.LoadValue("useKeyboardMouse") == "True")
                 ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
 
+            if (settings.LoadValue("useLocalCoop") == "True")
+                LocalCoopCheckBox.Visibility = Visibility.Visible;
+
+            if (settings.LoadValue("useOnlineCoop") == "True")
+                OnlineCoopCheckBox.Visibility = Visibility.Visible;
+
+            if (settings.LoadValue("useFPS120") == "True")
+                FPS120CheckBox.Visibility = Visibility.Visible;
+
             mIconSize = settings.LoadValue("iconSize");
             UpdateItemHeight();
 
@@ -196,7 +205,7 @@ namespace xKorean
             try
             {
 #               if DEBUG
-                var response = await httpClient.PostAsync(new Uri("http://192.168.200.105:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #               else
                 var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #               endif
@@ -272,7 +281,7 @@ namespace xKorean
             try
             {
 #               if DEBUG
-                var response = await httpClient.PostAsync(new Uri("http://192.168.200.105:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
                 
 #               else
                 var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
@@ -410,6 +419,8 @@ namespace xKorean
             SearchBox_TextChanged(SearchBox, null);
             _isRefreshing = false;
 
+            OrderBar.Focus(FocusState.Programmatic);
+
             if (mNewGames.Count > 0)
             {
                 var dialog = new NewControlDialog(mNewGames);
@@ -418,38 +429,11 @@ namespace xKorean
                     await dialog.ShowAsync();
                     mDialogQueue.Take();
                 }
-
-                GamesView.Focus(FocusState.Programmatic);
             }
         }
 
         public List<Game> Games = new List<Game>();
         public ObservableCollection<GameViewModel> GamesViewModel { get; set; } = new ObservableCollection<GameViewModel>();
-
-        public ObservableCollection<CategorieViewModel> Categories { set; get; } = new ObservableCollection<CategorieViewModel>();
-        private void OrderByScoreAscendItem_Click(object sender, RoutedEventArgs e)
-        {
-            //Games = Games.OrderBy(g => g.MetaScore.First().Value).ToList();
-            //SearchBox_TextChanged
-            //GamesViewModel.Clear();
-            //foreach(var g in Games)
-            //{
-            //    GamesViewModel.Add(new GameViewModel(g));
-            //}
-            SearchBox_TextChanged(SearchBox, null);
-        }
-
-        private void OrderByScoreDescendItem_Click(object sender, RoutedEventArgs e)
-        {
-            //Games = Games.OrderByDescending(g => g.MetaScore.First().Value).ToList();
-
-            //GamesViewModel.Clear();
-            //foreach (var g in Games)
-            //{
-            //    GamesViewModel.Add(new GameViewModel(g));
-            //}
-            SearchBox_TextChanged(SearchBox, null);
-        }
 
         UIElement animatingElement;
         private void GamesView_ItemClick(object sender, ItemClickEventArgs e)
@@ -721,7 +705,7 @@ namespace xKorean
                 }
 
                 if (endStoreIdx == 99999)
-                    return "";
+                    return storeUrl.Substring(startStoreIdx).ToUpper();
                 else
                     return storeUrl.Substring(startStoreIdx, endStoreIdx - startStoreIdx).ToUpper();
             }
@@ -830,24 +814,12 @@ namespace xKorean
 
         private async void AboutButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            //switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-            //{
-            //    case "Windows.Desktop":
-            //        AboutTip.IsOpen = true;
-            //        break;
-            //}
-
             var dialog = new AboutDialog();
             if (mDialogQueue.TryAdd(dialog, 500))
             {
                 await dialog.ShowAsync();
                 mDialogQueue.Take();
             }
-        }
-
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            //SearchBox.TextChanged += SearchBox_TextChanged;
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -893,42 +865,39 @@ namespace xKorean
                 gamesFilteredByUseKeyboardMouse = Games.ToArray();
             }
 
-            if (text.Trim() != string.Empty || gamesFilteredByUseKeyboardMouse != null)
+            var gamesFilteredByLocalCoop = FilterByLocalCoop(gamesFilteredByUseKeyboardMouse);
+            if (gamesFilteredByLocalCoop == null)
             {
-                if (gamesFilteredByUseKeyboardMouse == null)
+                gamesFilteredByLocalCoop = Games.ToArray();
+            }
+
+            var gamesFilteredByOnlineCoop = FilterByOnlineCoop(gamesFilteredByLocalCoop);
+            if (gamesFilteredByOnlineCoop == null)
+            {
+                gamesFilteredByOnlineCoop = Games.ToArray();
+            }
+
+            var gamesFilteredByFPS120 = FilterByFPS120(gamesFilteredByOnlineCoop);
+            if (gamesFilteredByFPS120 == null)
+            {
+                gamesFilteredByFPS120 = Games.ToArray();
+            }
+
+            if (text.Trim() != string.Empty || gamesFilteredByFPS120 != null)
+            {
+                if (gamesFilteredByFPS120 == null)
                 {
-                    gamesFilteredByUseKeyboardMouse = Games.ToArray();
+                    gamesFilteredByFPS120 = Games.ToArray();
                 }
-                var games = (from g in gamesFilteredByUseKeyboardMouse
+                var games = (from g in gamesFilteredByFPS120
                              where g.KoreanName.ToLower().Contains(text.ToLower().Trim()) || g.Name.ToLower().Contains(text.ToLower().Trim())
                              select g).ToArray();
 
-
-                //bool isViewModelChanged = false;
-                //if (games.Length == GamesViewModel.Count)
-                //{
-                //    for (int i = 0; i < games.Length; ++i)
-                //    {
-                //        if (games[i].ID != GamesViewModel[i].ID)
-                //        {
-                //            isViewModelChanged = true;
-                //            break;
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    isViewModelChanged = true;
-                //}
-
-                //if (isViewModelChanged)
-                //{
-                    GamesViewModel.Clear();
-                    foreach (var g in games)
-                    {
-                        GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
-                    }
-                //}
+                GamesViewModel.Clear();
+                foreach (var g in games)
+                {
+                    GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
+                }
 
                 TitleBlock.Text = $"한국어화 타이틀 목록 ({games.Length}개)";
 
@@ -1007,6 +976,36 @@ namespace xKorean
 
             if (ConsoleKeyboardMouseCheckBox != null && (bool)ConsoleKeyboardMouseCheckBox.IsChecked)
                 filteredGames = (from g in gamesFilteredByDolbyAtmos where g.ConsoleKeyboardMouse == "O" select g).ToArray();
+
+            return filteredGames;
+        }
+
+        private Game[] FilterByLocalCoop(Game[] gamesFilteredByKeyboardMouse)
+        {
+            Game[] filteredGames = gamesFilteredByKeyboardMouse;
+
+            if (LocalCoopCheckBox != null && (bool)LocalCoopCheckBox.IsChecked)
+                filteredGames = (from g in gamesFilteredByKeyboardMouse where g.LocalCoop == "O" select g).ToArray();
+
+            return filteredGames;
+        }
+
+        private Game[] FilterByOnlineCoop(Game[] gamesFilteredByLocalCoop)
+        {
+            Game[] filteredGames = gamesFilteredByLocalCoop;
+
+            if (OnlineCoopCheckBox != null && (bool)OnlineCoopCheckBox.IsChecked)
+                filteredGames = (from g in gamesFilteredByLocalCoop where g.OnlineCoop == "O" select g).ToArray();
+
+            return filteredGames;
+        }
+
+        private Game[] FilterByFPS120(Game[] gamesFilteredByOnlineCoop)
+        {
+            Game[] filteredGames = gamesFilteredByOnlineCoop;
+
+            if (FPS120CheckBox != null && (bool)FPS120CheckBox.IsChecked)
+                filteredGames = (from g in gamesFilteredByOnlineCoop where g.FPS120 == "O" select g).ToArray();
 
             return filteredGames;
         }
@@ -1177,7 +1176,7 @@ namespace xKorean
 
         private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            var dialog = new ExtraFilterDialog();
+            var dialog = new SettingDialog();
             if (mDialogQueue.TryAdd(dialog, 500))
             {
                 var result = await dialog.ShowAsync();
@@ -1186,30 +1185,6 @@ namespace xKorean
                 if (result == ContentDialogResult.Primary)
                 {
                     var settings = Settings.Instance;
-                    if (settings.LoadValue("usePlayAnywhere") == "True")
-                        PlayAnywhereCheckBox.Visibility = Visibility.Visible;
-                    else
-                    {
-                        PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
-                        PlayAnywhereCheckBox.IsChecked = false;
-                    }
-
-
-                    if (settings.LoadValue("useDolbyAtmos") == "True")
-                        DolbyAtmosCheckBox.Visibility = Visibility.Visible;
-                    else
-                    {
-                        DolbyAtmosCheckBox.Visibility = Visibility.Collapsed;
-                        DolbyAtmosCheckBox.IsChecked = false;
-                    }
-
-                    if (settings.LoadValue("useKeyboardMouse") == "True")
-                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
-                    else
-                    {
-                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Collapsed;
-                        ConsoleKeyboardMouseCheckBox.IsChecked = false;
-                    }
 
                     mIconSize = settings.LoadValue("iconSize");
                     mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
@@ -1263,6 +1238,69 @@ namespace xKorean
             {
                 await dialog.ShowAsync();
                 mDialogQueue.Take();
+            }
+        }
+
+        private async void ExtraFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ExtraFilterDialog();
+            if (mDialogQueue.TryAdd(dialog, 500))
+            {
+                var result = await dialog.ShowAsync();
+                mDialogQueue.Take();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    var settings = Settings.Instance;
+                    if (settings.LoadValue("usePlayAnywhere") == "True")
+                        PlayAnywhereCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
+                        PlayAnywhereCheckBox.IsChecked = false;
+                    }
+
+
+                    if (settings.LoadValue("useDolbyAtmos") == "True")
+                        DolbyAtmosCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        DolbyAtmosCheckBox.Visibility = Visibility.Collapsed;
+                        DolbyAtmosCheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useKeyboardMouse") == "True")
+                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Collapsed;
+                        ConsoleKeyboardMouseCheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useLocalCoop") == "True")
+                        LocalCoopCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        LocalCoopCheckBox.Visibility = Visibility.Collapsed;
+                        LocalCoopCheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useOnlineCoop") == "True")
+                        OnlineCoopCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        OnlineCoopCheckBox.Visibility = Visibility.Collapsed;
+                        OnlineCoopCheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useFPS120") == "True")
+                        FPS120CheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        FPS120CheckBox.Visibility = Visibility.Collapsed;
+                        FPS120CheckBox.IsChecked = false;
+                    }
+                }
             }
         }
     }

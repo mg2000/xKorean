@@ -143,13 +143,16 @@
     <Compile Include="ErrorReportDialog.xaml.cs">
       <DependentUpon>ErrorReportDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ExtraFilterDialog.xaml.cs">
+      <DependentUpon>ExtraFilterDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="IMemoryBufferByteAccess.cs" />
     <Compile Include="NewControlDialog.xaml.cs">
       <DependentUpon>NewControlDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="ExtraFilterDialog.xaml.cs">
-      <DependentUpon>ExtraFilterDialog.xaml</DependentUpon>
+    <Compile Include="SettingDialog.xaml.cs">
+      <DependentUpon>SettingDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="GameViewModel.cs" />
@@ -193,6 +196,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ExtraFilterDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SettingDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
