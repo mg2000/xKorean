@@ -41,6 +41,9 @@ namespace xKorean
 
             if (settings.LoadValue("useFPS120") == "True")
                 UseFPS120CheckBox.IsChecked = true;
+
+            if (settings.LoadValue("useFPSBoost") == "True")
+                UseFPS120CheckBox.IsChecked = true;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -52,6 +55,7 @@ namespace xKorean
             await settings.SetValue("useLocalCoop", UseLocalCoopCheckBox.IsChecked.ToString());
             await settings.SetValue("useOnlineCoop", UseOnlineCoopCheckBox.IsChecked.ToString());
             await settings.SetValue("useFPS120", UseFPS120CheckBox.IsChecked.ToString());
+            await settings.SetValue("useFPSBoost", UseFPSBoostCheckBox.IsChecked.ToString());
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

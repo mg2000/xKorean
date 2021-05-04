@@ -154,6 +154,9 @@ namespace xKorean
             if (settings.LoadValue("useFPS120") == "True")
                 FPS120CheckBox.Visibility = Visibility.Visible;
 
+            if (settings.LoadValue("useFPSBoost") == "True")
+                FPSBoostCheckBox.Visibility = Visibility.Visible;
+
             mIconSize = settings.LoadValue("iconSize");
             UpdateItemHeight();
 
@@ -490,6 +493,9 @@ namespace xKorean
                                 case "jp":
                                     storeUrlBuilder.Append("ja-jp");
                                     break;
+                                case "gb":
+                                    storeUrlBuilder.Append("en-gb");
+                                    break;
                             }
                             storeUrlBuilder.Append(storeUrl.Substring(endRegionIdx));
 
@@ -725,6 +731,8 @@ namespace xKorean
                     return "일본";
                 case "hk":
                     return "홍콩";
+                case "gb":
+                    return "영국";
                 default:
                     return "";
             }
@@ -778,6 +786,9 @@ namespace xKorean
                         break;
                     case "jp":
                         storeUrlBuilder.Append("ja-jp");
+                        break;
+                    case "gb":
+                        storeUrlBuilder.Append("en-gb");
                         break;
                 }
                 storeUrlBuilder.Append(storeUrl.Substring(endRegionIdx));
@@ -883,13 +894,19 @@ namespace xKorean
                 gamesFilteredByFPS120 = Games.ToArray();
             }
 
-            if (text.Trim() != string.Empty || gamesFilteredByFPS120 != null)
+            var gamesFilteredByFPSBoost = FilterByFPSBoost(gamesFilteredByFPS120);
+            if (gamesFilteredByFPSBoost == null)
             {
-                if (gamesFilteredByFPS120 == null)
+                gamesFilteredByFPSBoost = Games.ToArray();
+            }
+
+            if (text.Trim() != string.Empty || gamesFilteredByFPSBoost != null)
+            {
+                if (gamesFilteredByFPSBoost == null)
                 {
-                    gamesFilteredByFPS120 = Games.ToArray();
+                    gamesFilteredByFPSBoost = Games.ToArray();
                 }
-                var games = (from g in gamesFilteredByFPS120
+                var games = (from g in gamesFilteredByFPSBoost
                              where g.KoreanName.ToLower().Contains(text.ToLower().Trim()) || g.Name.ToLower().Contains(text.ToLower().Trim())
                              select g).ToArray();
 
@@ -1006,6 +1023,16 @@ namespace xKorean
 
             if (FPS120CheckBox != null && (bool)FPS120CheckBox.IsChecked)
                 filteredGames = (from g in gamesFilteredByOnlineCoop where g.FPS120 == "O" select g).ToArray();
+
+            return filteredGames;
+        }
+
+        private Game[] FilterByFPSBoost(Game[] gamesFilteredByFPS120)
+        {
+            Game[] filteredGames = gamesFilteredByFPS120;
+
+            if (FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked)
+                filteredGames = (from g in gamesFilteredByFPS120 where g.FPSBoost == "O" select g).ToArray();
 
             return filteredGames;
         }
@@ -1299,6 +1326,14 @@ namespace xKorean
                     {
                         FPS120CheckBox.Visibility = Visibility.Collapsed;
                         FPS120CheckBox.IsChecked = false;
+                    }
+
+                    if (settings.LoadValue("useFPSBoost") == "True")
+                        FPSBoostCheckBox.Visibility = Visibility.Visible;
+                    else
+                    {
+                        FPSBoostCheckBox.Visibility = Visibility.Collapsed;
+                        FPSBoostCheckBox.IsChecked = false;
                     }
                 }
             }
