@@ -17,6 +17,7 @@
 		</Grid.Background>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"></RowDefinition>
+			<RowDefinition Height="auto"></RowDefinition>
 			<RowDefinition></RowDefinition>
 		</Grid.RowDefinitions>
 		<TextBlock x:Name="TitleBlock" Padding="30, 10, 30, 10" Grid.Row="0" Text="한국어화 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
@@ -45,7 +46,13 @@
 				</CommandBar>
 			</StackPanel>
 		</StackPanel>
-		<Grid Grid.Row="1">
+		<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="10">
+			<Button x:Name="DeviceButton">기종 선택</Button>
+			<Button x:Name="CapabilityButton">특성 선택</Button>
+			<Button x:Name="CategoryButton">장르 선택</Button>
+			<Button x:Name="SupportKoreanButton">한국어 지원 방식 선택</Button>
+		</StackPanel>
+		<Grid Grid.Row="2">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="auto"></ColumnDefinition>
 				<ColumnDefinition></ColumnDefinition>

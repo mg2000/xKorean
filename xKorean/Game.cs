@@ -89,5 +89,8 @@ namespace xKorean
 
         [JsonProperty("fpsBoost")]
         public string FPSBoost { set; get; } = "";
+
+        [JsonProperty("category")]
+        public string Category { set; get; } = "";
     }
 }
