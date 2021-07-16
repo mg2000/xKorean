@@ -1191,7 +1191,7 @@ namespace xKorean
             CheckUpdateTime();
             while (_isRefreshing)
             {
-                await RefreshButtonIcon.Rotate(value: _angle, centerX: 10.0f, centerY: 10.0f, duration: 1000, delay: 0, easingType: EasingType.Default).StartAsync();
+                //await RefreshButtonIcon.Rotate(value: _angle, centerX: 10.0f, centerY: 10.0f, duration: 1000, delay: 0, easingType: EasingType.Default).StartAsync();
                 _angle += 360;
             }
         }
