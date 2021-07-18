@@ -13,7 +13,7 @@ using Windows.UI.Xaml;
 
 namespace xKorean
 {
-	class EditionViewModel : INotifyPropertyChanged
+	public class EditionViewModel : INotifyPropertyChanged
 	{
 		private string mGamePassPC = "";
 		private string mGamePassConsole = "";

@@ -37,13 +37,12 @@ namespace xKorean
 			switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 			{
 				case "Windows.Xbox":
-					GamesView.DesiredWidth = 130;
-					GamesView.ItemHeight = 195;
+					GamesView.Width = 130;
+					GamesView.Height = 195;
 					break;
 				default:
-					GamesView.DesiredWidth = 160;
-					GamesView.MinWidth = 160;
-					GamesView.ItemHeight = 240;
+					GamesView.Width = 160;
+					GamesView.Height = 240;
 					break;
 			}
 		}

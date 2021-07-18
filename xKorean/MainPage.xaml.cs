@@ -23,6 +23,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
@@ -435,6 +436,7 @@ namespace xKorean
 
 		public List<Game> Games = new List<Game>();
 		public ObservableCollection<GameViewModel> GamesViewModel { get; set; } = new ObservableCollection<GameViewModel>();
+		public ObservableCollection<EditionViewModel> mEditionViewModel { get; set; } = new ObservableCollection<EditionViewModel>();
 
 		UIElement animatingElement;
 		private void GamesView_ItemClick(object sender, ItemClickEventArgs e)
@@ -1298,16 +1300,58 @@ namespace xKorean
 			}
 		}
 
-		private async Task ShowEdition(GameViewModel game) {
-			var dialog = new EditionDialog();
+		private async Task ShowEdition(GameViewModel gameModel) {
+			//var dialog = new EditionDialog();
 
-			dialog.SetEdition(mGameNameDisplayLanguage, GetLanguageCodeFromUrl(game.StoreUri), game.Game, mSeriesXSHeader, mOneTitleHeader);
+			//dialog.SetEdition(mGameNameDisplayLanguage, GetLanguageCodeFromUrl(game.StoreUri), game.Game, mSeriesXSHeader, mOneTitleHeader);
 
-			if (mDialogQueue.TryAdd(dialog, 500))
+			//if (mDialogQueue.TryAdd(dialog, 500))
+			//{
+			//	await dialog.ShowAsync();
+			//	mDialogQueue.Take();
+			//}
+
+			var game = gameModel.Game;
+
+			if (game.IsAvailable)
 			{
-				await dialog.ShowAsync();
-				mDialogQueue.Take();
+				mEditionViewModel.Add(new EditionViewModel
+				{
+					ID = game.ID,
+					Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
+					Discount = game.Discount,
+					SeriesXS = game.SeriesXS,
+					IsGamePassPC = game.GamePassPC,
+					IsGamePassConsole = game.GamePassConsole,
+					IsGamePassCloud = game.GamePassCloud,
+					GamePassNew = game.GamePassNew,
+					GamePassEnd = game.GamePassEnd,
+					ThumbnailUrl = game.Thumbnail,
+					SeriesXSHeader = mSeriesXSHeader,
+					OneSHeader = mOneTitleHeader
+				});
 			}
+
+			foreach (var bundle in game.Bundle)
+			{
+				mEditionViewModel.Add(new EditionViewModel
+				{
+					ID = bundle.ID,
+					Name = bundle.Name,
+					Discount = bundle.DiscountType,
+					SeriesXS = bundle.SeriesXS,
+					IsGamePassPC = bundle.GamePassPC,
+					IsGamePassConsole = bundle.GamePassConsole,
+					IsGamePassCloud = bundle.GamePassCloud,
+					GamePassNew = bundle.GamePassNew,
+					GamePassEnd = bundle.GamePassEnd,
+					ThumbnailUrl = game.Thumbnail,
+					SeriesXSHeader = mSeriesXSHeader,
+					OneSHeader = mOneTitleHeader
+				});
+			}
+
+			EditionView.Visibility = Visibility.Visible;
 		}
 
 		private async Task ShowErrorReportDialog(GameViewModel game) {
@@ -1466,6 +1510,21 @@ namespace xKorean
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
 
 			await ShowErrorReportDialog(game);
+		}
+
+		private async void EditionView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			//if (e.ClickedItem != null)
+			//{
+			//	var bundle = e.ClickedItem as EditionViewModel;
+
+			//	if (mLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
+			//		await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
+			//	else
+			//	{
+			//		await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mLanguage}/p/xkorean/{bundle.ID}"));
+			//	}
+			//}
 		}
 
 		//private async void ExtraFilterButton_Click(object sender, RoutedEventArgs e)
