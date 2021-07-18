@@ -24,13 +24,15 @@ namespace xKorean
     {
         private string mGameName = "";
 
-        public ErrorReportDialog(string gameName)
+        public ErrorReportDialog(string gameName, string country)
         {
             this.InitializeComponent();
 
             this.Title = $"\'{gameName}' 오류 신고";
 
             mGameName = gameName;
+
+            deviceInfo.Text = $"기기 지역: {Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion}, 스토어 지역: {country}";
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

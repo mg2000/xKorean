@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>5C4A13A64FFE806C46BD61A3977683B3E072043E</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>148FC5BB9319205AEC05402966F8AE3B7EA4059A</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -140,6 +140,10 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CategorieViewModel.cs" />
+    <Compile Include="EditionDialog.xaml.cs">
+      <DependentUpon>EditionDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditionViewModel.cs" />
     <Compile Include="ErrorReportDialog.xaml.cs">
       <DependentUpon>ErrorReportDialog.xaml</DependentUpon>
     </Compile>
@@ -188,6 +192,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="AboutDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
