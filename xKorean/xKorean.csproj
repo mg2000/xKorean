@@ -167,6 +167,7 @@
     <Compile Include="StoreInfoDialog.xaml.cs">
       <DependentUpon>StoreInfoDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

@@ -42,104 +42,39 @@ namespace xKorean
 					break;
 				default:
 					GamesView.DesiredWidth = 160;
+					GamesView.MinWidth = 160;
 					GamesView.ItemHeight = 240;
 					break;
 			}
 		}
 
-		public void SetEdition(string displayLanguage, string language, Game game)
+		public void SetEdition(string displayLanguage, string language, Game game, byte[] seriesXSHeader, byte[] oneSHeader)
 		{
 			mLinkButtonList.Clear();
 
 			mLanguage = language;
 			mBundleList = game.Bundle;
 
-			var titleBuilder = new StringBuilder();
-			if (displayLanguage == "Korean")
-				titleBuilder.Append(game.KoreanName);
-			else
-				titleBuilder.Append(game.Name);
-
-			if (game.GamePassConsole == "O" || game.GamePassConsole == "O" || game.GamePassCloud == "O")
-				titleBuilder.Append(" [게임패스]");
-
-			if (game.Discount != "")
-				titleBuilder.Append($" [{game.Discount}]");
-
-			var defaultButton = new Button
-			{
-				Content = titleBuilder.ToString(),
-				HorizontalAlignment = HorizontalAlignment.Stretch,
-				Margin = new Thickness(10)
-			};
-			defaultButton.Click += async (sender, e) =>
-			{
-				if (mLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
-				{
-					string baseUri = "ms-windows-store://pdp/?ProductId=" + game.ID;
-					Uri storeUri = new Uri(baseUri);
-					await Launcher.LaunchUriAsync(storeUri);
-				}
-				else
-					await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mLanguage}/p/xKorean/{game.ID}"));
-			};
-			EditionPanel.Children.Add(defaultButton);
-
-			foreach (var bundle in mBundleList)
-			{
-				titleBuilder.Clear();
-				titleBuilder.Append(bundle.Name);
-
-				if (bundle.GamePassConsole == "O" || bundle.GamePassConsole == "O" || bundle.GamePassCloud == "O")
-					titleBuilder.Append(" [게임패스]");
-
-				if (bundle.DiscountType != "")
-					titleBuilder.Append($" [{bundle.DiscountType}]");
-
-				var button = new Button
-				{
-					HorizontalAlignment = HorizontalAlignment.Stretch,
-					Margin = new Thickness(10)
-				};
-
-				var textBlock = new TextBlock
-				{
-					TextAlignment = TextAlignment.Center,
-					TextWrapping = TextWrapping.WrapWholeWords
-				};
-
-
-				var run = new Run();
-				run.Text = titleBuilder.ToString();
-				textBlock.Inlines.Add(run);
-				button.Content = textBlock;
-
-				button.Click += async (sender, e) =>
-				{
-					if (mLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
-					{
-						string baseUri = "ms-windows-store://pdp/?ProductId=" + bundle.ID;
-						Uri storeUri = new Uri(baseUri);
-						await Launcher.LaunchUriAsync(storeUri);
-					}
-					else
-						await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mLanguage}/p/xKorean/{bundle.ID}"));
-				};
-
-				EditionPanel.Children.Add(button);
-				mLinkButtonList.Add(button);
-			}
-
 			mEditionViewModel.Clear();
-			mEditionViewModel.Add(new EditionViewModel
+
+			if (game.IsAvailable)
 			{
-				ID = game.ID,
-				Name = displayLanguage == "Korean" ? game.KoreanName : game.Name,
-				Discount = game.Discount,
-				IsGamePassPC = game.GamePassPC,
-				IsGamePassConsole = game.GamePassConsole,
-				IsGamePassCloud = game.GamePassCloud
-			});
+				mEditionViewModel.Add(new EditionViewModel
+				{
+					ID = game.ID,
+					Name = displayLanguage == "Korean" ? game.KoreanName : game.Name,
+					Discount = game.Discount,
+					SeriesXS = game.SeriesXS,
+					IsGamePassPC = game.GamePassPC,
+					IsGamePassConsole = game.GamePassConsole,
+					IsGamePassCloud = game.GamePassCloud,
+					GamePassNew = game.GamePassNew,
+					GamePassEnd = game.GamePassEnd,
+					ThumbnailUrl = game.Thumbnail,
+					SeriesXSHeader = seriesXSHeader,
+					OneSHeader = oneSHeader
+				});
+			}
 
 			foreach (var bundle in mBundleList)
 			{
@@ -148,18 +83,31 @@ namespace xKorean
 					ID = bundle.ID,
 					Name = bundle.Name,
 					Discount = bundle.DiscountType,
+					SeriesXS = bundle.SeriesXS,
 					IsGamePassPC = bundle.GamePassPC,
 					IsGamePassConsole = bundle.GamePassConsole,
-					IsGamePassCloud = bundle.GamePassCloud
+					IsGamePassCloud = bundle.GamePassCloud,
+					GamePassNew = bundle.GamePassNew,
+					GamePassEnd = bundle.GamePassEnd,
+					ThumbnailUrl = game.Thumbnail,
+					SeriesXSHeader = seriesXSHeader,
+					OneSHeader = oneSHeader
 				});
 			}
 		}
 
-		private void GamesView_ItemClick(object sender, ItemClickEventArgs e)
+		private async void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			if (e.ClickedItem != null)
 			{
-				//GoToStore((e.ClickedItem as GameViewModel).Game);
+				var bundle = e.ClickedItem as EditionViewModel;
+
+				if (mLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
+					await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
+				else
+				{
+					await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mLanguage}/p/xkorean/{bundle.ID}"));
+				}
 			}
 		}
 

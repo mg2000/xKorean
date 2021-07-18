@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
@@ -14,8 +10,6 @@ using Windows.Storage.Streams;
 using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace xKorean
 {
@@ -93,10 +87,24 @@ namespace xKorean
 			ID = game.ID;
 			Localize = game.Localize.Replace("/", "\r\n");
 			StoreUri = game.StoreLink;
-			Discount = game.Discount;
 			mIconSize = iconSize;
 			mGameNameDisplayLanguage = gameNameDisplayLanguage;
 			Bundle = game.Bundle;
+
+			var discount = game.Discount;
+
+			foreach (var bundle in Bundle)
+			{
+				if (bundle.DiscountType.IndexOf("할인") >= 0)
+				{
+					discount = "에디션 할인";
+					break;
+				}
+				else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
+					discount = "";
+			}
+
+			Discount = discount;
 		}
 
 		public string Message
@@ -111,7 +119,15 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.GamePassCloud == "O")
+				if (Game.GamePassCloud == "" && Bundle.Count > 0) {
+					foreach (var bundle in Bundle) {
+						if (bundle.GamePassCloud != "")
+							return "클";
+					}
+
+					return "";
+				}
+				else if (Game.GamePassCloud == "O")
 					return "클";
 				else
 					return "";
@@ -122,7 +138,17 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.GamePassPC == "O")
+				if (Game.GamePassPC == "" && Bundle.Count > 0)
+				{
+					foreach (var bundle in Bundle)
+					{
+						if (bundle.GamePassPC != "")
+							return "피";
+					}
+
+					return "";
+				}
+				else if (Game.GamePassPC == "O")
 					return "피";
 				else
 					return "";
@@ -133,7 +159,17 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.GamePassConsole == "O")
+				if (Game.GamePassConsole == "" && Bundle.Count > 0)
+				{
+					foreach (var bundle in Bundle)
+					{
+						if (bundle.GamePassConsole != "")
+							return "엑";
+					}
+
+					return "";
+				}
+				else if (Game.GamePassConsole == "O")
 					return "엑";
 				else
 					return "";
@@ -160,7 +196,16 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
+				if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "") {
+					foreach (var bundle in Bundle)
+					{
+						if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")
+							return true;
+					}
+
+					return false;
+				}
+				else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
 					return true;
 				else
 					return false;
@@ -174,11 +219,34 @@ namespace xKorean
 				var gamePassStatus = "";
 				if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
 					gamePassStatus = "게임패스";
+				else if (Bundle.Count > 0) {
+					foreach (var bundle in Bundle) {
+						if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "") {
+							gamePassStatus = "게임패스";
+							break;
+						}
+					}
+				}
 
 				if (Game.GamePassNew == "O")
 					gamePassStatus += " 신규";
 				else if (Game.GamePassEnd == "O")
 					gamePassStatus += " 만기";
+				else {
+					foreach (var bundle in Bundle)
+					{
+						if (bundle.GamePassNew != "")
+						{
+							gamePassStatus += " 신규";
+							break;
+						}
+						else if (Game.GamePassEnd != "")
+						{
+							gamePassStatus += " 만기";
+							break;
+						}
+					}
+				}
 
 				return gamePassStatus;
 			}

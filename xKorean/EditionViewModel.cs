@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI.Xaml;
 
 namespace xKorean
 {
-	class EditionViewModel
+	class EditionViewModel : INotifyPropertyChanged
 	{
 		private string mGamePassPC = "";
 		private string mGamePassConsole = "";
 		private string mGamePassCloud = "";
+		private string mGamePassNew = "";
+		private string mGamePassEnd = "";
+
+		private bool mThumbnailCached = false;
 
 		public EditionViewModel()
 		{
@@ -57,7 +64,7 @@ namespace xKorean
 			set
 			{
 				if (value != "")
-					mGamePassConsole = "콘";
+					mGamePassConsole = "엑";
 				else
 					mGamePassConsole = "";
 			}
@@ -75,6 +82,34 @@ namespace xKorean
 					mGamePassCloud = "클";
 				else
 					mGamePassCloud = "";
+			}
+		}
+
+		public string GamePassNew {
+			get;
+			set;
+		}
+
+		public string GamePassEnd
+		{
+			get;
+			set;
+		}
+
+		public string GamePass
+		{
+			get
+			{
+				var gamePassStatus = "";
+				if (mGamePassCloud != "" || mGamePassPC != "" || mGamePassConsole != "")
+					gamePassStatus = "게임패스";
+
+				if (mGamePassNew != "")
+					gamePassStatus += " 신규";
+				else if (mGamePassEnd != "")
+					gamePassStatus += " 만기";
+
+				return gamePassStatus;
 			}
 		}
 
@@ -143,6 +178,77 @@ namespace xKorean
 			get
 			{
 				return _isImageLoaded;
+			}
+		}
+
+		public string SeriesXS {
+			private get;
+			set;
+		}
+
+		public string ThumbnailUrl {
+			private get;
+			set;
+		}
+
+		public byte[] SeriesXSHeader {
+			private get;
+			set;
+		}
+
+		public byte[] OneSHeader {
+			private get;
+			set;
+		}
+
+		public string ThumbnailPath
+		{
+			get
+			{
+				var fileName = ID;
+				if (SeriesXS == "O")
+					fileName += "_xs";
+				else
+					fileName += "_os";
+
+				FileInfo thumbnailCacheInfo = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{fileName}.jpg");
+
+				if (thumbnailCacheInfo.Exists)
+				{
+					if (thumbnailCacheInfo.Length == 0)
+					{
+						LoadImage();
+						return null;
+					}
+					else
+					{
+						mThumbnailCached = true;
+						return thumbnailCacheInfo.FullName;
+					}
+				}
+				else
+				{
+					LoadImage();
+					return null;
+				}
+			}
+		}
+
+		private async void LoadImage()
+		{
+			try
+			{
+				if (!mThumbnailCached)
+				{
+					await Utils.DownloadImage(ThumbnailUrl, ID, SeriesXS, "O", SeriesXSHeader, OneSHeader);
+				}
+
+				NotifyPropertyChanged("ThumbnailPath");
+
+			}
+			catch (Exception exception)
+			{
+				System.Diagnostics.Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
 			}
 		}
 

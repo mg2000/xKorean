@@ -20,7 +20,7 @@
 			<RowDefinition Height="auto"></RowDefinition>
 			<RowDefinition></RowDefinition>
 		</Grid.RowDefinitions>
-		<TextBlock x:Name="TitleBlock" Padding="10, 10, 10, 10" Grid.Row="0" Text="한국어화 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
+		<TextBlock x:Name="TitleBlock" Padding="20, 10, 10, 10" Grid.Row="0" Text="한국어화 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
 		<Grid Grid.Row="1" Padding="10, 0, 0, 0">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition/>
@@ -134,7 +134,7 @@
 				<muxc:ProgressRing HorizontalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True" Margin="0,10,0,0"></muxc:ProgressRing>
 			</StackPanel>
 			<controls:AdaptiveGridView Name="GamesView" ItemsSource="{x:Bind GamesViewModel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" RightTapped="GamesView_RightTapped" KeyUp="GamesView_KeyUp" GotFocus="GamesView_GotFocus">
+								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyUp="GamesView_KeyUp" GotFocus="GamesView_GotFocus">
 				<controls:AdaptiveGridView.ItemTemplate>
 					<DataTemplate x:DataType="local:Game">
 						<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited">
@@ -214,7 +214,7 @@
 							</Grid>
 							<Grid.ContextFlyout>
 								<MenuFlyout>
-									<MenuFlyoutItem x:Name="ViewMoreEdition" Text="각 에디션 보기" Click="ViewMoreEdition_Click" />
+									<MenuFlyoutItem x:Name="ViewMoreEdition" Text="모든 에디션 보기" Click="ViewMoreEdition_Click" />
 									<MenuFlyoutItem x:Name="RunCloud" Text="클라우드로 실행" Click="RunCloud_Click" />
 									<MenuFlyoutItem x:Name="ErrorReport" Text="정보 오류 신고" Click="ErrorReport_Click" />
 								</MenuFlyout>

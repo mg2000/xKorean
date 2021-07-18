@@ -200,7 +200,7 @@ namespace xKorean
 			CheckUpdateTime();
 		}
 
-		private async void CheckUpdateTime()
+		private async Task CheckUpdateTime()
 		{
 			var now = DateTime.Now;
 
@@ -223,8 +223,6 @@ namespace xKorean
 				var settings = Settings.Instance;
 				if (settingMap["lastModifiedTime"] == "")
 				{
-					_isRefreshing = false;
-
 					if (LoadingPanel.Visibility == Visibility.Visible)
 						LoadingPanel.Visibility = Visibility.Collapsed;
 
@@ -255,16 +253,18 @@ namespace xKorean
 					// And show it!
 					ToastNotificationManager.History.Clear();
 					ToastNotificationManager.CreateToastNotifier().Show(notif);
-					_isRefreshing = false;
-
+					
 					if (mGameList.Count == 0)
 						ReadGamesFromJson();
+					else {
+						LoadingPanel.Visibility = Visibility.Collapsed;
+						GamesView.Visibility = Visibility.Visible;
+					}
 				}
 			}
 			catch (Exception exception)
 			{
 				Debug.WriteLine($"다운로드 에러: {exception.Message}");
-				_isRefreshing = false;
 
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
@@ -323,7 +323,6 @@ namespace xKorean
 			{
 				Debug.WriteLine($"다운로드 에러: {exception.Message}");
 				Debug.WriteLine(exception.StackTrace);
-				_isRefreshing = false;
 
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
@@ -419,9 +418,9 @@ namespace xKorean
 			}
 
 			LoadingPanel.Visibility = Visibility.Collapsed;
+			GamesView.Visibility = Visibility.Visible;
 
 			SearchBox_TextChanged(SearchBox, null);
-			_isRefreshing = false;
 
 			if (mNewGames.Count > 0)
 			{
@@ -478,24 +477,7 @@ namespace xKorean
 						{
 							var storeUrlBuilder = new StringBuilder();
 							storeUrlBuilder.Append(storeUrl.Substring(0, startRegionIdx));
-							switch (region.ToLower())
-							{
-								case "kr":
-									storeUrlBuilder.Append("ko-kr");
-									break;
-								case "en":
-									storeUrlBuilder.Append("en-us");
-									break;
-								case "hk":
-									storeUrlBuilder.Append("en-hk");
-									break;
-								case "jp":
-									storeUrlBuilder.Append("ja-jp");
-									break;
-								case "gb":
-									storeUrlBuilder.Append("en-gb");
-									break;
-							}
+							storeUrlBuilder.Append(Utils.ConvertLanguageCode(region));
 							storeUrlBuilder.Append(storeUrl.Substring(endRegionIdx));
 
 							storeUrl = storeUrlBuilder.ToString();
@@ -755,6 +737,24 @@ namespace xKorean
 			else
 				return "";
 		}
+
+		private string GetLanguageCodeFromUrl(string storeUrl)
+		{
+			var startIdx = storeUrl.IndexOf("com/");
+
+			var endIdx = -1;
+			if (startIdx > 0)
+			{
+				startIdx += "com/".Length;
+				endIdx = storeUrl.IndexOf("/", startIdx);
+			}
+
+			if (endIdx > 0)
+				return storeUrl.Substring(startIdx, endIdx - startIdx);
+			else
+				return "";
+		}
+
 
 		private string GetStoreUrlFromRegionCode(string storeUrl, string regionCode)
 		{
@@ -1231,63 +1231,77 @@ namespace xKorean
 		}
 
 		private void ShowExtraInfo(GameViewModel game, MenuFlyout menu = null) {
-			var tipBuilder = new StringBuilder();
-			if (game.Bundle.Count > 0)
+			lock (AddInfoTip)
 			{
-				string howToUse;
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+				var tipBuilder = new StringBuilder();
+				if (game.Bundle.Count > 0)
 				{
-					case "Windows.Xbox":
-						howToUse = "X 버튼";
-						break;
-					default:
-						menu.Items[0].Visibility = Visibility.Visible;
-						howToUse = "마우스 오른쪽 버튼";
-						break;
+					string howToUse;
+					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+					{
+						case "Windows.Xbox":
+							howToUse = "X 버튼";
+							break;
+						default:
+							menu.Items[0].Visibility = Visibility.Visible;
+							howToUse = "마우스 오른쪽 버튼";
+							break;
+					}
+
+					tipBuilder.Append($"· {game.Bundle.Count}개의 추가 에디션이 있습니다. 확인하시려면 {howToUse}을 눌러 주십시오.");
+				}
+				else
+				{
+					if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+						menu.Items[0].Visibility = Visibility.Collapsed;
 				}
 
-				tipBuilder.Append($"● {game.Bundle.Count}개의 추가 에디션이 있습니다. 확인하시려면 {howToUse}을 눌러 주십시오.");
-			}
-			else
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
-					menu.Items[0].Visibility = Visibility.Collapsed;
-			}
 
-
-			if (game.IsGamePassCloud != "")
-			{
-				string howToPlayCloud;
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+				if (game.IsGamePassCloud != "")
 				{
-					case "Windows.Xbox":
-						howToPlayCloud = "Y 버튼";
-						break;
-					default:
-						menu.Items[0].Visibility = Visibility.Visible;
-						howToPlayCloud = "마우스 오른쪽 버튼";
-						break;
+					string howToPlayCloud;
+					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+					{
+						case "Windows.Xbox":
+							howToPlayCloud = "Y 버튼";
+							break;
+						default:
+							menu.Items[1].Visibility = Visibility.Visible;
+							howToPlayCloud = "마우스 오른쪽 버튼";
+							break;
+					}
+
+					if (tipBuilder.Length > 0)
+						tipBuilder.Append("\r\n");
+
+					tipBuilder.Append($"· 이 게임은 클라우드를 지원합니다. 클라우드 플레이하시려면 {howToPlayCloud}을 눌러 주십시오.");
+				}
+				else
+				{
+					if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+						menu.Items[1].Visibility = Visibility.Collapsed;
 				}
 
 				if (tipBuilder.Length > 0)
-					tipBuilder.Append("\r\n");
+				{
+					AddInfoTip.IsOpen = false;
+					AddInfoTip.Subtitle = tipBuilder.ToString();
+					AddInfoTip.IsOpen = true;
 
-				tipBuilder.Append($"● 이 게임은 클라우드를 지원합니다. 클라우드 플레이하시려면 {howToPlayCloud}을 눌러 주십시오.");
+					Debug.WriteLine("툴팁 켜기");
+				}
+				else
+				{
+					AddInfoTip.IsOpen = false;
+					Debug.WriteLine("툴팁 끄기");
+				}
 			}
-
-			if (tipBuilder.Length > 0)
-			{
-				AddInfoTip.Subtitle = tipBuilder.ToString();
-				AddInfoTip.IsOpen = true;
-			}
-			else
-				AddInfoTip.IsOpen = false;
 		}
 
 		private async Task ShowEdition(GameViewModel game) {
 			var dialog = new EditionDialog();
 
-			dialog.SetEdition(mGameNameDisplayLanguage, GetRegionCodeFromUrl(game.StoreUri), game.Game);
+			dialog.SetEdition(mGameNameDisplayLanguage, GetLanguageCodeFromUrl(game.StoreUri), game.Game, mSeriesXSHeader, mOneTitleHeader);
 
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
@@ -1319,20 +1333,15 @@ namespace xKorean
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
-		private bool _isRefreshing = false;
-		private float _angle = 360;
 		private async void RefreshButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (mGameList.Count == 0 && LoadingPanel.Visibility == Visibility.Collapsed)
-				LoadingPanel.Visibility = Visibility.Visible;
-
-			_isRefreshing = true;
-			CheckUpdateTime();
-			while (_isRefreshing)
+			if (LoadingPanel.Visibility == Visibility.Collapsed)
 			{
-				//await RefreshButtonIcon.Rotate(value: _angle, centerX: 10.0f, centerY: 10.0f, duration: 1000, delay: 0, easingType: EasingType.Default).StartAsync();
-				_angle += 360;
+				LoadingPanel.Visibility = Visibility.Visible;
+				GamesView.Visibility = Visibility.Collapsed;
 			}
+
+			await CheckUpdateTime();
 		}
 
 		private void TimingRadioButton_Checked(object sender, RoutedEventArgs e)
@@ -1385,26 +1394,6 @@ namespace xKorean
 			}
 		}
 
-		private async void GamesView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-		{
-			//GameViewModel game = null;
-			//if (e.OriginalSource as Image != null)
-			//	game = ((e.OriginalSource as Image).DataContext as GameViewModel);
-			//else if ((e.OriginalSource as TextBlock) != null)
-			//	game = ((e.OriginalSource as TextBlock).DataContext as GameViewModel);
-			//else if ((e.OriginalSource as GridViewItem) != null)
-			//	game = ((e.OriginalSource as GridViewItem).Content as GameViewModel);
-			//else
-			//	game = ((e.OriginalSource as ListViewItemPresenter).DataContext as GameViewModel);
-
-			//var dialog = new ErrorReportDialog(game.Title);
-			//if (mDialogQueue.TryAdd(dialog, 500))
-			//{
-			//	await dialog.ShowAsync();
-			//	mDialogQueue.Take();
-			//}
-		}
-
 		private void Grid_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
 		{
 			GameViewModel game;
@@ -1426,7 +1415,7 @@ namespace xKorean
 
 		private void Grid_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
 		{
-			AddInfoTip.IsOpen = false;
+			//AddInfoTip.IsOpen = false;
 		}
 
 		private async void RunCloud_Click(object sender, RoutedEventArgs e)

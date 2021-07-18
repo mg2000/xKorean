@@ -93,12 +93,25 @@ namespace xKorean
 		[JsonProperty("category")]
 		public string Category { set; get; } = "";
 
+		[JsonProperty("price")]
+		public float Price
+		{
+			get;
+			set;
+		} = -1;
+
 		[JsonProperty("Bundle")]
 		public List<Bundle> Bundle
 		{
 			get;
 			set;
 		} = new List<Bundle>();
+
+		public bool IsAvailable {
+			get {
+				return (Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "") && !(Discount.IndexOf("출시") >= 0 && Price == -1);
+			}
+		}
 	}
 
 	public class Bundle {
@@ -158,6 +171,20 @@ namespace xKorean
 
 		[JsonProperty("gamePassCloud")]
 		public string GamePassCloud
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("gamePassNew")]
+		public string GamePassNew
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("gamePassEnd")]
+		public string GamePassEnd
 		{
 			get;
 			set;
