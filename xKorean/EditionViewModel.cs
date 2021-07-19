@@ -139,6 +139,34 @@ namespace xKorean
 			}
 		}
 
+		public double Width
+		{
+			get
+			{
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+				{
+					case "Windows.Xbox":
+						return 130;
+					default:
+						return 160;
+				}
+			}
+		}
+
+		public double Height
+		{
+			get
+			{
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+				{
+					case "Windows.Xbox":
+						return 178;
+					default:
+						return 219;
+				}
+			}
+		}
+
 		public double TitleFontSize
 		{
 			get
@@ -218,7 +246,7 @@ namespace xKorean
 					if (thumbnailCacheInfo.Length == 0)
 					{
 						LoadImage();
-						return null;
+						return "none";
 					}
 					else
 					{
@@ -229,8 +257,11 @@ namespace xKorean
 				else
 				{
 					LoadImage();
-					return null;
+					return "none";
 				}
+			}
+			set {
+			
 			}
 		}
 
@@ -248,12 +279,12 @@ namespace xKorean
 			}
 			catch (Exception exception)
 			{
-				System.Diagnostics.Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
+				Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
 			}
 		}
 
 
-		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}

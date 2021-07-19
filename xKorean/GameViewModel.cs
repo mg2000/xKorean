@@ -55,7 +55,7 @@ namespace xKorean
 					if (thumbnailCacheInfo.Length == 0)
 					{
 						LoadImage();
-						return null;
+						return "none";
 					}
 					else
 					{
@@ -66,7 +66,7 @@ namespace xKorean
 				else
 				{
 					LoadImage();
-					return null;
+					return "none";
 				}
 			}
 		}

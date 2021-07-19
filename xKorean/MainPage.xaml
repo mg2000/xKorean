@@ -12,10 +12,10 @@
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown">
 	<Page.Resources>
 		<DataTemplate x:Key="BundleTemplate" x:DataType="local:EditionViewModel">
-			<Grid Margin="10" Width="160" Height="240" Background="Black">
+			<Grid Margin="10" Width="{x:Bind Width}" Height="{x:Bind Height}" Background="Black">
 				<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
 				<Viewbox Grid.Row="0" MaxWidth="{x:Bind MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
-					<Image x:Name="ThumbnailImage" Source="{x:Bind ThumbnailPath}" Tag="{x:Bind ID}" ImageOpened="PosterImage_ImageOpened"></Image>
+					<Image x:Name="ThumbnailImage" Source="{x:Bind ThumbnailPath, Mode=TwoWay}" Tag="{x:Bind ID}" ImageOpened="EditionPosterImage_ImageOpened"></Image>
 				</Viewbox>
 				<Grid>
 					<Grid.RowDefinitions>
@@ -65,9 +65,9 @@
 							<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
 						</Grid.Background>
 						<TextBlock Text="{Binding Name}" Margin="10, 3" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding TitleFontSize}"  Foreground="White"  TextTrimming="CharacterEllipsis">
-									<ToolTipService.ToolTip>
-										<ToolTip Content="{Binding Name}"/>
-									</ToolTipService.ToolTip>
+							<ToolTipService.ToolTip>
+								<ToolTip Content="{Binding Name}"/>
+							</ToolTipService.ToolTip>
 						</TextBlock>
 					</Grid>
 				</Grid>
@@ -87,8 +87,8 @@
 		<TextBlock x:Name="TitleBlock" Padding="20, 10, 10, 10" Grid.Row="0" Text="한국어화 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
 		<Grid Grid.Row="1" Padding="10, 0, 0, 0">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition/>
-				<ColumnDefinition/>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 			<CommandBar HorizontalAlignment="Left" Grid.Column="0" OverflowButtonVisibility="Collapsed" Background="Transparent" DefaultLabelPosition="Right">
 				<AppBarButton Label="기종">
@@ -192,7 +192,7 @@
 			</CommandBar>
 			<TextBox Grid.Column="1" x:Name="SearchBox"  Margin="10" HorizontalAlignment="Right" Width="150" TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus"></TextBox>
 		</Grid>
-		<Grid Grid.Row="2" Margin="10, 0, 10, 0">
+		<Grid Grid.Row="2" Margin="20,0,20,20">
 			<StackPanel x:Name="LoadingPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<TextBlock Text="한국어 타이틀 정보를 확인중..." FontSize="20"></TextBlock>
 				<muxc:ProgressRing HorizontalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True" Margin="0,10,0,0"></muxc:ProgressRing>
@@ -206,7 +206,7 @@
 							<Viewbox Grid.Row="0" MaxWidth="{Binding MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
 								<Image x:Name="ThumbnailImage" Source="{Binding ThumbnailPath}" Tag="{Binding ID}" ImageOpened="PosterImage_ImageOpened"></Image>
 							</Viewbox>
-							<Grid>
+							<Grid x:Name="GameTitleView">
 								<Grid.RowDefinitions>
 									<RowDefinition Height="1*"></RowDefinition>
 									<RowDefinition Height="3*"></RowDefinition>
@@ -287,18 +287,33 @@
 					</DataTemplate>
 				</controls:AdaptiveGridView.ItemTemplate>
 			</controls:AdaptiveGridView>
-			<GridView Name="EditionView" ItemsSource="{x:Bind mEditionViewModel}" ItemTemplate="{StaticResource BundleTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed" Opacity="0.1">
-				<GridView.ItemsPanel>
-					<ItemsPanelTemplate>
-						<ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="5" Orientation="Horizontal"/>
-					</ItemsPanelTemplate>
-				</GridView.ItemsPanel>
-			</GridView>
+			<StackPanel x:Name="EditionPanelView" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="200, 100, 100, 200">
+					<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">에디션 선택</TextBlock>
+					<GridView Name="EditionView" ItemsSource="{x:Bind mEditionViewModel}" ItemTemplate="{StaticResource BundleTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+									   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache"
+									   >
+						<GridView.ItemsPanel>
+							<ItemsPanelTemplate>
+								<ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="5" Orientation="Horizontal"/>
+							</ItemsPanelTemplate>
+						</GridView.ItemsPanel>
+					</GridView>
+					<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
+				</StackPanel>
+			</StackPanel>
+			<Border x:Name="InfoPanel" Background="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="0.8">
+				<TextBlock x:Name="InfoBlock" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="10">
+				테스트1
+				<LineBreak/>
+				테스트2
+				</TextBlock>
+			</Border>
 		</Grid>
+		
 		<muxc:TeachingTip x:Name="AddInfoTip"
 			Title="추가 정보"
-			Subtitle="">
+			Subtitle="" Closed="AddInfoTip_Closed">
 		</muxc:TeachingTip>
 	</Grid>
 </Page>

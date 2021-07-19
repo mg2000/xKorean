@@ -189,5 +189,13 @@ namespace xKorean
 			get;
 			set;
 		} = "";
+
+		public bool IsAvailable
+		{
+			get
+			{
+				return (DiscountType != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "") && !(DiscountType.IndexOf("출시") >= 0 && Price == -1);
+			}
+		}
 	}
 }
