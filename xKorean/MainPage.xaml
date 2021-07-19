@@ -278,9 +278,14 @@
 							</Grid>
 							<Grid.ContextFlyout>
 								<MenuFlyout>
-									<MenuFlyoutItem x:Name="ViewMoreEdition" Text="모든 에디션 보기" Click="ViewMoreEdition_Click" />
-									<MenuFlyoutItem x:Name="RunCloud" Text="클라우드로 실행" Click="RunCloud_Click" />
-									<MenuFlyoutItem x:Name="ErrorReport" Text="정보 오류 신고" Click="ErrorReport_Click" />
+									<MenuFlyoutItem x:Name="Menu360Market" Text="360 마켓플레이스 열기" Click="Menu360Market_Click" Visibility="Collapsed"/>
+									<MenuFlyoutItem x:Name="MenuRequireTitle" Text="필요 타이틀 보기"  Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenuMergeTitle" Text="병합 타이틀 보기"  Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenueCollectionTitle" Text="합본 타이틀 보기"  Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenuRemasterTitle" Text="리마스터 타이틀 보기" Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenuOneTitle" Text="엑스박스 원 버전 보기" Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenuRunCloud" Text="클라우드로 실행" Click="MenuRunCloud_Click" Visibility="Collapsed" />
+									<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 								</MenuFlyout>
 							</Grid.ContextFlyout>
 						</Grid>
@@ -303,7 +308,7 @@
 				</StackPanel>
 			</StackPanel>
 			<Border x:Name="InfoPanel" Background="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="0.8">
-				<TextBlock x:Name="InfoBlock" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="10">
+				<TextBlock x:Name="InfoBlock" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="10" >
 				테스트1
 				<LineBreak/>
 				테스트2

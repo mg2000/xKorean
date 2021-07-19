@@ -21,10 +21,12 @@ using Windows.System;
 using Windows.System.Profile;
 using Windows.UI.Notifications;
 using Windows.UI.Popups;
+using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
@@ -496,7 +498,7 @@ namespace xKorean
 					if (game.IsAvailable || game.Bundle.Count > 1)
 						ShowEditionPanel();
 					else {
-						await GoToEditionStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0]);
+						await GoToEditionStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0].ID);
 					}
 				}
 			}
@@ -732,13 +734,13 @@ namespace xKorean
 				OpenStore(game.StoreLink);
 		}
 
-		private async Task GoToEditionStore(string language, Bundle bundle)
+		private async Task GoToEditionStore(string language, string id)
 		{
 			if (language.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
-				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
+				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={id}"));
 			else
 			{
-				await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{language}/p/xkorean/{bundle.ID}"));
+				await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{language}/p/xkorean/{id}"));
 			}
 		}
 
@@ -1119,7 +1121,7 @@ namespace xKorean
 
 		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
 		{
-			Image image = sender as Image;
+			var image = sender as Image;
 
 			if (image != null && image.Tag != null)
 			{
@@ -1130,12 +1132,7 @@ namespace xKorean
 				}
 			}
 		}
-
-		private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-		{
-
-		}
-
+				
 		private async void OrderByNameAscendItem_Click(object sender, RoutedEventArgs e)
 		{
 			if (mGameNameDisplayLanguage == "English")
@@ -1316,14 +1313,6 @@ namespace xKorean
 				}
 			}
 
-			if (game.HasPrimary != "")
-			{
-				tipBuilder.Append("* ").Append(mMessageTemplateMap["hasPrimary"]);
-
-				if (game.Message.Trim() != "")
-					tipBuilder.Append("\r\n");
-			}
-
 			for (var i = 0; i < messageArr.Length; i++)
 			{
 				var parsePart = messageArr[i].Split("=");
@@ -1420,59 +1409,10 @@ namespace xKorean
 			//	}
 			//}
 
-
-
-			if (game.Bundle.Count > 0)
-			{
-				string howToUse;
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-				{
-					case "Windows.Xbox":
-						howToUse = "X 버튼";
-						break;
-					default:
-						menu.Items[0].Visibility = Visibility.Visible;
-						howToUse = "마우스 오른쪽 버튼";
-						break;
-				}
-
-				tipBuilder.Append($"· {game.Bundle.Count}개의 추가 에디션이 있습니다. 확인하시려면 {howToUse}을 눌러 주십시오.");
-			}
-			else
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
-					menu.Items[0].Visibility = Visibility.Collapsed;
-			}
-
-
-			if (game.GamePassCloud != "")
-			{
-				string howToPlayCloud;
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-				{
-					case "Windows.Xbox":
-						howToPlayCloud = "Y 버튼";
-						break;
-					default:
-						menu.Items[1].Visibility = Visibility.Visible;
-						howToPlayCloud = "마우스 오른쪽 버튼";
-						break;
-				}
-
-				if (tipBuilder.Length > 0)
-					tipBuilder.Append("\r\n");
-
-				tipBuilder.Append($"· 이 게임은 클라우드를 지원합니다. 클라우드 플레이하시려면 {howToPlayCloud}을 눌러 주십시오.");
-			}
-			else
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
-					menu.Items[1].Visibility = Visibility.Collapsed;
-			}
-
 			if (tipBuilder.Length > 0)
 			{
-				InfoBlock.Text = tipBuilder.ToString();
+				InfoBlock.Inlines.Clear();
+				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString(), FontWeight = FontWeights.Bold });
 				InfoPanel.Visibility = Visibility.Visible;
 			}
 			else
@@ -1527,6 +1467,70 @@ namespace xKorean
 					});
 				}
 			});
+		}
+
+		private async Task OpenLink(Game game, LinkType linkType) {
+			var messageArr = game.Message.Split("\n");
+
+			for (var i = 0; i < messageArr.Length; i++)
+			{
+				if (messageArr[i].IndexOf("=") == -1)
+					continue;
+
+				var parsePart = messageArr[i].Split("=");
+				var code = parsePart[0].Trim().ToLower();
+				switch (code)
+				{
+					case "360market":
+						if (linkType == LinkType.Market360)
+						{
+							await Launcher.LaunchUriAsync(new Uri(parsePart[1]));
+							return;
+						}
+						else
+							break;
+					case "required":
+						if (linkType == LinkType.RequireTitle)
+						{
+							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							return;
+						}
+						else
+							break;
+					case "remaster":
+						if (linkType == LinkType.RemasterTitle)
+						{
+							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							return;
+						}
+						else
+							break;
+					case "collection":
+						if (linkType == LinkType.CollectionTitle)
+						{
+							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							return;
+						}
+						else
+							break;
+					case "onetitle":
+						if (linkType == LinkType.OneTitle)
+						{
+							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							return;
+						}
+						else
+							break;
+					case "merge":
+						if (linkType == LinkType.MergeTitle)
+						{
+							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							return;
+						}
+						else
+							break;
+				}
+			}
 		}
 
 		private async Task ShowErrorReportDialog(GameViewModel game) {
@@ -1638,7 +1642,7 @@ namespace xKorean
 			InfoPanel.Visibility = Visibility.Collapsed;
 		}
 
-		private async void RunCloud_Click(object sender, RoutedEventArgs e)
+		private async void MenuRunCloud_Click(object sender, RoutedEventArgs e)
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
 
@@ -1681,7 +1685,7 @@ namespace xKorean
 			//Debug.WriteLine("테스트 키 눌렀다.");
 		}
 
-		private async void ErrorReport_Click(object sender, RoutedEventArgs e)
+		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
 
@@ -1727,6 +1731,13 @@ namespace xKorean
 			Debug.WriteLine("툴팁 끄기 완료");
 			mTipQueue.Take();
 		}
+
+		private async void Menu360Market_Click(object sender, RoutedEventArgs e)
+		{
+			await OpenLink(((e.OriginalSource as GridViewItem).Content as GameViewModel).Game, LinkType.Market360);
+		}
+
+		
 
 		//private async void ExtraFilterButton_Click(object sender, RoutedEventArgs e)
 		//{
@@ -1798,5 +1809,14 @@ namespace xKorean
 		//        }
 		//    }
 		//}
+
+		enum LinkType {
+			Market360,
+			RequireTitle,
+			MergeTitle,
+			RemasterTitle,
+			CollectionTitle,
+			OneTitle
+		}
 	}
 }
