@@ -58,19 +58,17 @@ namespace xKorean
 		private List<Game> mExistGames = new List<Game>();
 		private List<string> mNewGames = new List<string>();
 
+		private string mEditionLanguage;
+
 		public MainPage()
 		{
 			this.InitializeComponent();
 
 			mMessageTemplateMap["remaster"] = "이 게임의 리마스터가 출시되었습니다: [name]";
 			mMessageTemplateMap["onetitle"] = "이 게임의 엑스박스 원 버전이 출시되었습니다.";
-			mMessageTemplateMap["collection"] = "이 게임의 합본이 출시되었습니다: [name]";
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
-			mMessageTemplateMap["merge"] = "이 게임은 새로운 에디션에 통합되어 더 이상 판매되지 않습니다: [name]";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
-			mMessageTemplateMap["required"] = "이 게임은 다음 항목이 설치되어 있어야 이용할 수 있습니다: [name]";
 			mMessageTemplateMap["menuonly"] = "이 게임은 메뉴만 한국어로 되어 있습니다.";
-			mMessageTemplateMap["hasPrimary"] = "이 게임의 기본 에디션이 게임패스를 지원합니다";
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -141,27 +139,6 @@ namespace xKorean
 		{
 			var settings = Settings.Instance;
 			await settings.Load();
-
-			if (settings.LoadValue("usePlayAnywhere") == "True")
-				PlayAnywhereCheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useDolbyAtmos") == "True")
-				DolbyAtmosCheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useKeyboardMouse") == "True")
-				ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useLocalCoop") == "True")
-				LocalCoopCheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useOnlineCoop") == "True")
-				OnlineCoopCheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useFPS120") == "True")
-				FPS120CheckBox.Visibility = Visibility.Visible;
-
-			if (settings.LoadValue("useFPSBoost") == "True")
-				FPSBoostCheckBox.Visibility = Visibility.Visible;
 
 			mIconSize = settings.LoadValue("iconSize");
 			UpdateItemHeight();
@@ -449,10 +426,12 @@ namespace xKorean
 			{
 				var game = (e.ClickedItem as GameViewModel).Game;
 				if (game.Bundle.Count == 0)
-					GoToStore(game);
+					await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.ID);
 				else {
 					void ShowEditionPanel() {
 						EditionPanelView.Visibility = Visibility.Visible;
+
+						mEditionLanguage = Utils.ConvertLanguageCode(game.StoreLink);
 
 						mEditionViewModel.Clear();
 
@@ -498,243 +477,13 @@ namespace xKorean
 					if (game.IsAvailable || game.Bundle.Count > 1)
 						ShowEditionPanel();
 					else {
-						await GoToEditionStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0].ID);
+						await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0].ID);
 					}
 				}
 			}
 		}
 
-		private async void GoToStore(Game game)
-		{
-			string dlRegionCode = "";
-			string oneStoreUrl = "";
-			string store360Url = "";
-
-			async void OpenStore(string storeUrl, string region = "")
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-				{
-					string baseUri = "ms-windows-store://pdp/?ProductId=" + game.ID;
-					Uri storeUri = new Uri(baseUri);
-					await Launcher.LaunchUriAsync(storeUri);
-				}
-				else
-				{
-					if (region != "")
-					{
-						var startTag = "com/";
-						var startRegionIdx = storeUrl.IndexOf(startTag);
-
-						var endRegionIdx = -1;
-						if (startRegionIdx > 0)
-						{
-							startRegionIdx += startTag.Length;
-							endRegionIdx = storeUrl.IndexOf("/", startRegionIdx);
-						}
-
-						if (endRegionIdx > 0)
-						{
-							var storeUrlBuilder = new StringBuilder();
-							storeUrlBuilder.Append(storeUrl.Substring(0, startRegionIdx));
-							storeUrlBuilder.Append(Utils.ConvertLanguageCode(region));
-							storeUrlBuilder.Append(storeUrl.Substring(endRegionIdx));
-
-							storeUrl = storeUrlBuilder.ToString();
-						}
-					}
-
-					var storeLinkRegion = GetRegionCodeFromUrl(storeUrl).ToLower();
-
-					if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() == storeLinkRegion && !storeUrl.Contains("marketplace"))
-					{
-						string baseUri = "ms-windows-store://pdp/?ProductId=" + game.ID;
-						Uri storeUri = new Uri(baseUri);
-						await Launcher.LaunchUriAsync(storeUri);
-					}
-					else
-						await Launcher.LaunchUriAsync(new Uri(storeUrl));
-				}
-			}
-
-			Game remasterGame = null;
-			Game mergeGame = null;
-			Game collectionGame = null;
-			Game requiredGame = null;
-
-			var messageArr = game.Message.Split("\n");
-			var messageBuilder = new StringBuilder();
-
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-			{
-				var storeRegion = GetRegionCodeFromUrl(game.StoreLink);
-
-				if (storeRegion.ToLower() != Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower())
-				{
-					var template = mMessageTemplateMap["noRegion"];
-					messageBuilder.Append("* ").Append(template.Replace("[name]", ConvertCodeToStr(storeRegion)));
-
-					if (game.Message.Trim() != "" || game.StoreLink.Contains("marketplace") || game.HasPrimary != "")
-						messageBuilder.Append("\r\n");
-				}
-
-				if (game.StoreLink.Contains("marketplace"))
-				{
-					messageBuilder.Append("* ").Append(mMessageTemplateMap["360market"]);
-
-					if (game.Message.Trim() != "" || game.HasPrimary != "")
-						messageBuilder.Append("\r\n");
-				}
-			}
-
-			if (game.HasPrimary != "")
-			{
-				messageBuilder.Append("* ").Append(mMessageTemplateMap["hasPrimary"]);
-
-				if (game.Message.Trim() != "")
-					messageBuilder.Append("\r\n");
-			}
-
-			for (var i = 0; i < messageArr.Length; i++)
-			{
-				var parsePart = messageArr[i].Split("=");
-				var code = parsePart[0].Trim().ToLower();
-				if (mMessageTemplateMap.ContainsKey(code))
-				{
-					var message = mMessageTemplateMap[code];
-					if (message.Contains("[name]") && parsePart.Length > 1)
-					{
-						var strValue = "";
-						switch (code)
-						{
-							case "dlregiononly":
-								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
-								{
-									strValue = ConvertCodeToStr(parsePart[1]);
-									dlRegionCode = parsePart[1];
-								}
-								break;
-							case "required":
-								var requiredID = GetIDFromStoreUrl(parsePart[1]);
-								requiredGame = mGameList.FirstOrDefault(item => item.ID == requiredID);
-								if (requiredGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = requiredGame.Name;
-									else
-										strValue = requiredGame.KoreanName;
-								}
-								break;
-							case "remaster":
-								var remasterID = GetIDFromStoreUrl(parsePart[1]);
-								remasterGame = mGameList.FirstOrDefault(item => item.ID == remasterID);
-								if (remasterGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = remasterGame.Name;
-									else
-										strValue = remasterGame.KoreanName;
-								}
-								break;
-							case "collection":
-								var collectionID = GetIDFromStoreUrl(parsePart[1]);
-								collectionGame = mGameList.FirstOrDefault(item => item.ID == collectionID);
-								if (collectionGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = collectionGame.Name;
-									else
-										strValue = collectionGame.KoreanName;
-								}
-								break;
-							case "merge":
-								var mergeID = GetIDFromStoreUrl(parsePart[1]);
-								mergeGame = mGameList.FirstOrDefault(item => item.ID == mergeID);
-								if (mergeGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = mergeGame.Name;
-									else
-										strValue = mergeGame.KoreanName;
-								}
-								break;
-							default:
-								strValue = parsePart[1];
-								break;
-						}
-
-
-
-						message = message.Replace("[name]", strValue);
-					}
-
-					if ((code == "dlregiononly" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower()) || code != "dlregiononly")
-						messageBuilder.Append("* ").Append(message);
-				}
-				else if (code != "")
-					messageBuilder.Append("* ").Append(parsePart[0]);
-
-				if (i < messageArr.Length - 1)
-					messageBuilder.Append("\r\n");
-
-				if (code == "onetitle" && parsePart.Length > 1)
-					oneStoreUrl = parsePart[1];
-				else if (code == "360market" && parsePart.Length > 1)
-					store360Url = parsePart[1];
-
-			}
-
-			if (messageBuilder.Length > 0)
-			{
-				Game oneGame = null;
-				var dlRegionName = "";
-
-				if (oneStoreUrl != "")
-				{
-					var oneVerionID = GetIDFromStoreUrl(oneStoreUrl);
-					oneGame = mGameList.FirstOrDefault(item => item.ID == oneVerionID);
-				}
-
-				var messageDialog = new StoreInfoDialog(messageBuilder.ToString(), !game.StoreLink.Contains("marketplace"), requiredGame != null, oneGame != null, remasterGame != null, mergeGame != null, collectionGame != null, game.HasPrimary != "", store360Url != "", dlRegionName);
-				await messageDialog.ShowAsync();
-
-				switch(messageDialog.ChooseItem)
-				{
-					case "store":
-						OpenStore(game.StoreLink);
-						break;
-					case "required":
-						GoToStore(requiredGame);
-						break;
-					case "oneStore":
-						GoToStore(oneGame);
-						break;
-					case "DLstore":
-						OpenStore(game.StoreLink, dlRegionCode);
-						break;
-					case "merge":
-						GoToStore(mergeGame);
-						break;
-					case "collection":
-						GoToStore(collectionGame);
-						break;
-					case "remaster":
-						GoToStore(remasterGame);
-						break;
-					case "defaultEdition":
-						string baseUri = "ms-windows-store://pdp/?ProductId=" + game.HasPrimary;
-						Uri storeUri = new Uri(baseUri);
-						await Launcher.LaunchUriAsync(storeUri);
-						break;
-					case "360market":
-						OpenStore(store360Url);
-						break;
-				}
-			}
-			else
-				OpenStore(game.StoreLink);
-		}
-
-		private async Task GoToEditionStore(string language, string id)
+		private async Task GoToStore(string language, string id)
 		{
 			if (language.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
 				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={id}"));
@@ -1114,7 +863,9 @@ namespace xKorean
 			Game[] filteredGames = gamesFilteredByFPS120;
 
 			if (FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked)
+			{
 				filteredGames = (from g in gamesFilteredByFPS120 where g.FPSBoost == "O" select g).ToArray();
+			}
 
 			return filteredGames;
 		}
@@ -1295,6 +1046,12 @@ namespace xKorean
 		}
 
 		private void ShowExtraInfo(Game game, MenuFlyout menu = null) {
+			if (menu != null)
+			{
+				for (var i = 0; i < 4; i++)
+					menu.Items[i].Visibility = Visibility.Collapsed;
+			}
+
 			var tipBuilder = new StringBuilder();
 
 			var messageArr = game.Message.Split("\n");
@@ -1320,25 +1077,17 @@ namespace xKorean
 				if (mMessageTemplateMap.ContainsKey(code))
 				{
 					var message = mMessageTemplateMap[code];
-					if (message.Contains("[name]") && parsePart.Length > 1)
+					if (parsePart.Length > 1)
 					{
 						var strValue = "";
 						switch (code)
 						{
+							case "360market":
+								menu.Items[0].Visibility = Visibility.Visible;
+								break;
 							case "dlregiononly":
 								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
 									strValue = ConvertCodeToStr(parsePart[1]);
-								break;
-							case "required":
-								var requiredID = GetIDFromStoreUrl(parsePart[1]);
-								var requiredGame = mGameList.FirstOrDefault(item => item.ID == requiredID);
-								if (requiredGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = requiredGame.Name;
-									else
-										strValue = requiredGame.KoreanName;
-								}
 								break;
 							case "remaster":
 								var remasterID = GetIDFromStoreUrl(parsePart[1]);
@@ -1350,28 +1099,10 @@ namespace xKorean
 									else
 										strValue = remasterGame.KoreanName;
 								}
+								menu.Items[1].Visibility = Visibility.Visible;
 								break;
-							case "collection":
-								var collectionID = GetIDFromStoreUrl(parsePart[1]);
-								var collectionGame = mGameList.FirstOrDefault(item => item.ID == collectionID);
-								if (collectionGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = collectionGame.Name;
-									else
-										strValue = collectionGame.KoreanName;
-								}
-								break;
-							case "merge":
-								var mergeID = GetIDFromStoreUrl(parsePart[1]);
-								var mergeGame = mGameList.FirstOrDefault(item => item.ID == mergeID);
-								if (mergeGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = mergeGame.Name;
-									else
-										strValue = mergeGame.KoreanName;
-								}
+							case "onetitle":
+								menu.Items[2].Visibility = Visibility.Visible;
 								break;
 							default:
 								strValue = parsePart[1];
@@ -1397,23 +1128,24 @@ namespace xKorean
 
 			}
 
-			//if (tipBuilder.Length > 0)
-			//{
-			//	Game oneGame = null;
-			//	var dlRegionName = "";
-
-			//	if (oneStoreUrl != "")
-			//	{
-			//		var oneVerionID = GetIDFromStoreUrl(oneStoreUrl);
-			//		oneGame = mGameList.FirstOrDefault(item => item.ID == oneVerionID);
-			//	}
-			//}
+			if (game.GamePassCloud != "")
+				menu.Items[3].Visibility = Visibility.Visible;
+			else {
+				foreach (var bundle in game.Bundle) {
+					if (bundle.GamePassCloud != "") {
+						menu.Items[3].Visibility = Visibility.Visible;
+						break;
+					}
+				}
+			}
 
 			if (tipBuilder.Length > 0)
 			{
 				InfoBlock.Inlines.Clear();
-				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString(), FontWeight = FontWeights.Bold });
+				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString().Trim(), FontWeight = FontWeights.Bold });
 				InfoPanel.Visibility = Visibility.Visible;
+
+				Debug.WriteLine(tipBuilder.ToString());
 			}
 			else
 			{
@@ -1489,26 +1221,10 @@ namespace xKorean
 						}
 						else
 							break;
-					case "required":
-						if (linkType == LinkType.RequireTitle)
-						{
-							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
-							return;
-						}
-						else
-							break;
 					case "remaster":
 						if (linkType == LinkType.RemasterTitle)
 						{
-							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
-							return;
-						}
-						else
-							break;
-					case "collection":
-						if (linkType == LinkType.CollectionTitle)
-						{
-							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							await GoToStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
 							return;
 						}
 						else
@@ -1516,15 +1232,7 @@ namespace xKorean
 					case "onetitle":
 						if (linkType == LinkType.OneTitle)
 						{
-							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
-							return;
-						}
-						else
-							break;
-					case "merge":
-						if (linkType == LinkType.MergeTitle)
-						{
-							await GoToEditionStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
+							await GoToStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
 							return;
 						}
 						else
@@ -1542,8 +1250,21 @@ namespace xKorean
 			}
 		}
 
-		private async Task PlayCloud(GameViewModel game) {
-			await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/ko-KR/play/launch/xKorean/{game.ID}"));
+		private async Task PlayCloud(Game game) {
+			if (game.GamePassCloud != "")
+				await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/ko-KR/play/launch/xKorean/{game.ID}"));
+			else
+			{
+				foreach (var bundle in game.Bundle)
+				{
+					if (bundle.GamePassCloud != "")
+					{
+						await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/ko-KR/play/launch/xKorean/{bundle.ID}"));
+						break;
+					}
+				}
+			}
+			
 		}
 
 		private void CategorieCheckBox_Checked(object sender, RoutedEventArgs e)
@@ -1562,6 +1283,8 @@ namespace xKorean
 			{
 				LoadingPanel.Visibility = Visibility.Visible;
 				GamesView.Visibility = Visibility.Collapsed;
+				EditionPanelView.Visibility = Visibility.Collapsed;
+				InfoPanel.Visibility = Visibility.Collapsed;
 			}
 
 			await CheckUpdateTime();
@@ -1638,7 +1361,6 @@ namespace xKorean
 
 		private void Grid_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
 		{
-			//AddInfoTip.Subtitle = "";
 			InfoPanel.Visibility = Visibility.Collapsed;
 		}
 
@@ -1646,7 +1368,7 @@ namespace xKorean
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
 
-			await PlayCloud(game);
+			await PlayCloud(game.Game);
 		}
 
 		private async void ViewMoreEdition_Click(object sender, RoutedEventArgs e)
@@ -1668,8 +1390,7 @@ namespace xKorean
 					await ShowEdition(game);
 				}
 				else if (e.Key == VirtualKey.GamepadY) {
-					if (game.IsGamePassCloud != "")
-						await PlayCloud(game);
+					await PlayCloud(game.Game);
 				}
 			}
 		}
@@ -1694,17 +1415,17 @@ namespace xKorean
 
 		private async void EditionView_ItemClick(object sender, ItemClickEventArgs e)
 		{
-			//if (e.ClickedItem != null)
-			//{
-			//	var bundle = e.ClickedItem as EditionViewModel;
+			if (e.ClickedItem != null)
+			{
+				var bundle = e.ClickedItem as EditionViewModel;
 
-			//	if (mLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
-			//		await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
-			//	else
-			//	{
-			//		await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mLanguage}/p/xkorean/{bundle.ID}"));
-			//	}
-			//}
+				if (mEditionLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
+					await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
+				else
+				{
+					await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mEditionLanguage}/p/xkorean/{bundle.ID}"));
+				}
+			}
 		}
 
 		private void CloseEditionView_Click(object sender, RoutedEventArgs e)
@@ -1726,96 +1447,25 @@ namespace xKorean
 			}
 		}
 
-		private void AddInfoTip_Closed(TeachingTip sender, TeachingTipClosedEventArgs args)
-		{
-			Debug.WriteLine("툴팁 끄기 완료");
-			mTipQueue.Take();
-		}
-
 		private async void Menu360Market_Click(object sender, RoutedEventArgs e)
 		{
-			await OpenLink(((e.OriginalSource as GridViewItem).Content as GameViewModel).Game, LinkType.Market360);
+			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.Market360);
 		}
 
-		
+		private async void MenuRemasterTitle_Click(object sender, RoutedEventArgs e)
+		{
+			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.RemasterTitle);
+		}
 
-		//private async void ExtraFilterButton_Click(object sender, RoutedEventArgs e)
-		//{
-		//    var dialog = new ExtraFilterDialog();
-		//    if (mDialogQueue.TryAdd(dialog, 500))
-		//    {
-		//        var result = await dialog.ShowAsync();
-		//        mDialogQueue.Take();
+		private async void MenuOneTitle_Click(object sender, RoutedEventArgs e)
+		{
+			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.OneTitle);
+		}
 
-		//        if (result == ContentDialogResult.Primary)
-		//        {
-		//            var settings = Settings.Instance;
-		//            if (settings.LoadValue("usePlayAnywhere") == "True")
-		//                PlayAnywhereCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                PlayAnywhereCheckBox.Visibility = Visibility.Collapsed;
-		//                PlayAnywhereCheckBox.IsChecked = false;
-		//            }
-
-
-		//            if (settings.LoadValue("useDolbyAtmos") == "True")
-		//                DolbyAtmosCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                DolbyAtmosCheckBox.Visibility = Visibility.Collapsed;
-		//                DolbyAtmosCheckBox.IsChecked = false;
-		//            }
-
-		//            if (settings.LoadValue("useKeyboardMouse") == "True")
-		//                ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                ConsoleKeyboardMouseCheckBox.Visibility = Visibility.Collapsed;
-		//                ConsoleKeyboardMouseCheckBox.IsChecked = false;
-		//            }
-
-		//            if (settings.LoadValue("useLocalCoop") == "True")
-		//                LocalCoopCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                LocalCoopCheckBox.Visibility = Visibility.Collapsed;
-		//                LocalCoopCheckBox.IsChecked = false;
-		//            }
-
-		//            if (settings.LoadValue("useOnlineCoop") == "True")
-		//                OnlineCoopCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                OnlineCoopCheckBox.Visibility = Visibility.Collapsed;
-		//                OnlineCoopCheckBox.IsChecked = false;
-		//            }
-
-		//            if (settings.LoadValue("useFPS120") == "True")
-		//                FPS120CheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                FPS120CheckBox.Visibility = Visibility.Collapsed;
-		//                FPS120CheckBox.IsChecked = false;
-		//            }
-
-		//            if (settings.LoadValue("useFPSBoost") == "True")
-		//                FPSBoostCheckBox.Visibility = Visibility.Visible;
-		//            else
-		//            {
-		//                FPSBoostCheckBox.Visibility = Visibility.Collapsed;
-		//                FPSBoostCheckBox.IsChecked = false;
-		//            }
-		//        }
-		//    }
-		//}
-
-		enum LinkType {
+		private enum LinkType
+		{
 			Market360,
-			RequireTitle,
-			MergeTitle,
 			RemasterTitle,
-			CollectionTitle,
 			OneTitle
 		}
 	}

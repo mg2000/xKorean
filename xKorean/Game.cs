@@ -72,9 +72,6 @@ namespace xKorean
 		[JsonProperty("consoleKeyboardMouse")]
 		public string ConsoleKeyboardMouse { set; get; } = "";
 
-		[JsonProperty("hasPrimary")]
-		public string HasPrimary { set; get; } = "";
-
 		[JsonProperty("playAnywhere")]
 		public string PlayAnywhere { set; get; } = "";
 

@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>148FC5BB9319205AEC05402966F8AE3B7EA4059A</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>5C4A13A64FFE806C46BD61A3977683B3E072043E</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -140,15 +140,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CategorieViewModel.cs" />
-    <Compile Include="EditionDialog.xaml.cs">
-      <DependentUpon>EditionDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="EditionViewModel.cs" />
     <Compile Include="ErrorReportDialog.xaml.cs">
       <DependentUpon>ErrorReportDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ExtraFilterDialog.xaml.cs">
-      <DependentUpon>ExtraFilterDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="IMemoryBufferByteAccess.cs" />
     <Compile Include="NewControlDialog.xaml.cs">
@@ -164,9 +158,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StoreInfoDialog.xaml.cs">
-      <DependentUpon>StoreInfoDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -196,15 +187,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EditionDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="ErrorReportDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ExtraFilterDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -217,10 +200,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="NewControlDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="StoreInfoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
