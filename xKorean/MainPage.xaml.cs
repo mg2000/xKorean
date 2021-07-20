@@ -19,6 +19,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Popups;
 using Windows.UI.Text;
@@ -63,6 +64,17 @@ namespace xKorean
 		public MainPage()
 		{
 			this.InitializeComponent();
+
+			SystemNavigationManager.GetForCurrentView().BackRequested += (sender, e) =>
+			{
+				//Debug.WriteLine("종료 시도");
+
+				if (EditionPanelView.Visibility == Visibility.Visible)
+				{
+					EditionPanelView.Visibility = Visibility.Collapsed;
+					e.Handled = true;
+				}
+			};
 
 			mMessageTemplateMap["remaster"] = "이 게임의 리마스터가 출시되었습니다: [name]";
 			mMessageTemplateMap["onetitle"] = "이 게임의 엑스박스 원 버전이 출시되었습니다.";
@@ -191,7 +203,7 @@ namespace xKorean
 			try
 			{
 #               if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #               else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #               endif
@@ -267,7 +279,7 @@ namespace xKorean
 			try
 			{
 #               if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				
 #               else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
@@ -428,58 +440,66 @@ namespace xKorean
 				if (game.Bundle.Count == 0)
 					await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.ID);
 				else {
-					void ShowEditionPanel() {
-						EditionPanelView.Visibility = Visibility.Visible;
-
-						mEditionLanguage = Utils.ConvertLanguageCode(game.StoreLink);
-
-						mEditionViewModel.Clear();
-
-						if (game.IsAvailable)
-						{
-							mEditionViewModel.Add(new EditionViewModel
-							{
-								ID = game.ID,
-								Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
-								Discount = game.Discount,
-								SeriesXS = game.SeriesXS,
-								IsGamePassPC = game.GamePassPC,
-								IsGamePassConsole = game.GamePassConsole,
-								IsGamePassCloud = game.GamePassCloud,
-								GamePassNew = game.GamePassNew,
-								GamePassEnd = game.GamePassEnd,
-								ThumbnailUrl = game.Thumbnail,
-								SeriesXSHeader = mSeriesXSHeader,
-								OneSHeader = mOneTitleHeader
-							});
-						}
-
-						foreach (var bundle in game.Bundle)
-						{
-							mEditionViewModel.Add(new EditionViewModel
-							{
-								ID = bundle.ID,
-								Name = bundle.Name,
-								Discount = bundle.DiscountType,
-								SeriesXS = bundle.SeriesXS,
-								IsGamePassPC = bundle.GamePassPC,
-								IsGamePassConsole = bundle.GamePassConsole,
-								IsGamePassCloud = bundle.GamePassCloud,
-								GamePassNew = bundle.GamePassNew,
-								GamePassEnd = bundle.GamePassEnd,
-								ThumbnailUrl = bundle.Thumbnail,
-								SeriesXSHeader = mSeriesXSHeader,
-								OneSHeader = mOneTitleHeader
-							});
-						}
-					}
-
 					if (game.IsAvailable || game.Bundle.Count > 1)
-						ShowEditionPanel();
+						ShowEditionPanel(game);
 					else {
 						await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0].ID);
 					}
 				}
+			}
+		}
+
+		private void ShowEditionPanel(Game game)
+		{
+			EditionPanelView.Visibility = Visibility.Visible;
+
+			mEditionLanguage = Utils.ConvertLanguageCode(game.StoreLink);
+
+			mEditionViewModel.Clear();
+
+			if (game.IsAvailable)
+			{
+				mEditionViewModel.Add(new EditionViewModel
+				{
+					ID = game.ID,
+					Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
+					Discount = game.Discount,
+					SeriesXS = game.SeriesXS,
+					IsGamePassPC = game.GamePassPC,
+					IsGamePassConsole = game.GamePassConsole,
+					IsGamePassCloud = game.GamePassCloud,
+					GamePassNew = game.GamePassNew,
+					GamePassEnd = game.GamePassEnd,
+					ThumbnailUrl = game.Thumbnail,
+					SeriesXSHeader = mSeriesXSHeader,
+					OneSHeader = mOneTitleHeader
+				});
+			}
+
+			foreach (var bundle in game.Bundle)
+			{
+				mEditionViewModel.Add(new EditionViewModel
+				{
+					ID = bundle.ID,
+					Name = bundle.Name,
+					Discount = bundle.DiscountType,
+					SeriesXS = bundle.SeriesXS,
+					IsGamePassPC = bundle.GamePassPC,
+					IsGamePassConsole = bundle.GamePassConsole,
+					IsGamePassCloud = bundle.GamePassCloud,
+					GamePassNew = bundle.GamePassNew,
+					GamePassEnd = bundle.GamePassEnd,
+					ThumbnailUrl = bundle.Thumbnail,
+					SeriesXSHeader = mSeriesXSHeader,
+					OneSHeader = mOneTitleHeader
+				});
+			}
+
+
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+			{
+				EditionView.UpdateLayout();
+				EditionView.Focus(FocusState.Programmatic);
 			}
 		}
 
@@ -1083,7 +1103,8 @@ namespace xKorean
 						switch (code)
 						{
 							case "360market":
-								menu.Items[0].Visibility = Visibility.Visible;
+								if (menu != null)
+									menu.Items[0].Visibility = Visibility.Visible;
 								break;
 							case "dlregiononly":
 								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
@@ -1099,10 +1120,12 @@ namespace xKorean
 									else
 										strValue = remasterGame.KoreanName;
 								}
-								menu.Items[1].Visibility = Visibility.Visible;
+								if (menu != null)
+									menu.Items[1].Visibility = Visibility.Visible;
 								break;
 							case "onetitle":
-								menu.Items[2].Visibility = Visibility.Visible;
+								if (menu != null)
+									menu.Items[2].Visibility = Visibility.Visible;
 								break;
 							default:
 								strValue = parsePart[1];
@@ -1128,13 +1151,19 @@ namespace xKorean
 
 			}
 
-			if (game.GamePassCloud != "")
-				menu.Items[3].Visibility = Visibility.Visible;
-			else {
-				foreach (var bundle in game.Bundle) {
-					if (bundle.GamePassCloud != "") {
-						menu.Items[3].Visibility = Visibility.Visible;
-						break;
+			if (menu != null)
+			{
+				if (game.GamePassCloud != "")
+					menu.Items[3].Visibility = Visibility.Visible;
+				else
+				{
+					foreach (var bundle in game.Bundle)
+					{
+						if (bundle.GamePassCloud != "")
+						{
+							menu.Items[3].Visibility = Visibility.Visible;
+							break;
+						}
 					}
 				}
 			}
@@ -1153,53 +1182,6 @@ namespace xKorean
 			}
 		}
 
-		private async Task ShowEdition(GameViewModel gameModel) {
-			await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
-				EditionPanelView.Visibility = Visibility.Visible;
-
-				mEditionViewModel.Clear();
-
-				var game = gameModel.Game;
-
-				if (game.IsAvailable)
-				{
-					mEditionViewModel.Add(new EditionViewModel
-					{
-						ID = game.ID,
-						Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
-						Discount = game.Discount,
-						SeriesXS = game.SeriesXS,
-						IsGamePassPC = game.GamePassPC,
-						IsGamePassConsole = game.GamePassConsole,
-						IsGamePassCloud = game.GamePassCloud,
-						GamePassNew = game.GamePassNew,
-						GamePassEnd = game.GamePassEnd,
-						ThumbnailUrl = game.Thumbnail,
-						SeriesXSHeader = mSeriesXSHeader,
-						OneSHeader = mOneTitleHeader
-					});
-				}
-
-				foreach (var bundle in game.Bundle)
-				{
-					mEditionViewModel.Add(new EditionViewModel
-					{
-						ID = bundle.ID,
-						Name = bundle.Name,
-						Discount = bundle.DiscountType,
-						SeriesXS = bundle.SeriesXS,
-						IsGamePassPC = bundle.GamePassPC,
-						IsGamePassConsole = bundle.GamePassConsole,
-						IsGamePassCloud = bundle.GamePassCloud,
-						GamePassNew = bundle.GamePassNew,
-						GamePassEnd = bundle.GamePassEnd,
-						ThumbnailUrl = bundle.Thumbnail,
-						SeriesXSHeader = mSeriesXSHeader,
-						OneSHeader = mOneTitleHeader
-					});
-				}
-			});
-		}
 
 		private async Task OpenLink(Game game, LinkType linkType) {
 			var messageArr = game.Message.Split("\n");
@@ -1334,8 +1316,10 @@ namespace xKorean
 			switch (e.Key)
 			{
 				case VirtualKey.GamepadRightShoulder:
+					SearchBox.Focus(FocusState.Programmatic);
 					break;
 				case VirtualKey.GamepadLeftShoulder:
+					DeviceFilterButton.Focus(FocusState.Programmatic);
 					break;
 			}
 		}
@@ -1371,27 +1355,19 @@ namespace xKorean
 			await PlayCloud(game.Game);
 		}
 
-		private async void ViewMoreEdition_Click(object sender, RoutedEventArgs e)
-		{
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-
-			await ShowEdition(game);
-		}
-
 		private async void GamesView_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
 		{
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
-				if (e.Key == VirtualKey.GamepadMenu) {
+				if (e.Key == VirtualKey.GamepadMenu)
 					await ShowErrorReportDialog(game);
-				}
-				else if (e.Key == VirtualKey.GamepadX) {
-					await ShowEdition(game);
-				}
-				else if (e.Key == VirtualKey.GamepadY) {
+				else if (e.Key == VirtualKey.GamepadView)
 					await PlayCloud(game.Game);
-				}
+				else if (e.Key == VirtualKey.GamepadX)
+					await OpenLink(game.Game, LinkType.RemasterTitle);
+				else if (e.Key == VirtualKey.GamepadY)
+					await OpenLink(game.Game, LinkType.OneTitle);
 			}
 		}
 
@@ -1401,7 +1377,9 @@ namespace xKorean
 			{
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
 
-				ShowExtraInfo(game.Game);
+				var menu = (sender as FrameworkElement).ContextFlyout as MenuFlyout;
+
+				ShowExtraInfo(game.Game, menu);
 			}
 			//Debug.WriteLine("테스트 키 눌렀다.");
 		}
