@@ -742,9 +742,13 @@ namespace xKorean
 				gamesFilteredByFPSBoost = Games.ToArray();
 			}
 
+			var gamesFilteredByCloud = FilterByCloud(gamesFilteredByFPSBoost);
+			if (gamesFilteredByCloud == null)
+				gamesFilteredByCloud = Games.ToArray();
+
 
 			// 장르별 검색
-			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByFPSBoost);
+			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByCloud);
 			if (gamesFilteredByCategory == null)
 			{
 				gamesFilteredByCategory = Games.ToArray();
@@ -888,6 +892,27 @@ namespace xKorean
 			}
 
 			return filteredGames;
+		}
+		private Game[] FilterByCloud(Game[] gamesFilteredByCloud)
+		{
+			List<Game> filteredGames = new List<Game>();
+			
+			foreach (var game in gamesFilteredByCloud)
+			{
+				if (game.GamePassCloud == "O")
+					filteredGames.Add(game);
+				else {
+					foreach (var bundle in game.Bundle) {
+						if (bundle.GamePassCloud == "O")
+						{
+							filteredGames.Add(game);
+							break;
+						}
+					}
+				}
+			}
+
+			return filteredGames.ToArray();
 		}
 
 		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
@@ -1445,6 +1470,12 @@ namespace xKorean
 			Market360,
 			RemasterTitle,
 			OneTitle
+		}
+
+		private void SearchBox_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+		{
+			if (e.Key == VirtualKey.Enter || e.Key == VirtualKey.GamepadMenu)
+				SearchBox_TextChanged(SearchBox, null);
 		}
 	}
 }
