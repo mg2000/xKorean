@@ -202,12 +202,13 @@ namespace xKorean
 
 			try
 			{
-#               if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#               else
+#if DEBUG
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#               endif
-				
+#endif
+
 				var str = response.Content.ReadAsStringAsync().GetResults();
 
 				var settingMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
@@ -278,12 +279,13 @@ namespace xKorean
 
 			try
 			{
-#               if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				
-#               else
+#if DEBUG
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+
+#else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#               endif
+#endif
 
 				var str = response.Content.ReadAsStringAsync().GetResults();
 
@@ -438,12 +440,12 @@ namespace xKorean
 			{
 				var game = (e.ClickedItem as GameViewModel).Game;
 				if (game.Bundle.Count == 0)
-					await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.ID);
+					await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.ID);
 				else {
 					if (game.IsAvailable || game.Bundle.Count > 1)
 						ShowEditionPanel(game);
 					else {
-						await GoToStore(Utils.ConvertLanguageCode(game.StoreLink), game.Bundle[0].ID);
+						await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.Bundle[0].ID);
 					}
 				}
 			}
@@ -453,7 +455,7 @@ namespace xKorean
 		{
 			EditionPanelView.Visibility = Visibility.Visible;
 
-			mEditionLanguage = Utils.ConvertLanguageCode(game.StoreLink);
+			mEditionLanguage = GetLanguageCodeFromUrl(game.StoreLink);
 
 			mEditionViewModel.Clear();
 
@@ -804,12 +806,33 @@ namespace xKorean
 
 		private Game[] FilterByGamePass(Game[] gamesFilteredByTiming)
 		{
-			Game[] filteredGames = gamesFilteredByTiming;
+			List<Game> filteredGames = new List<Game>();
 
 			if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByTiming where g.GamePassCloud == "O" || g.GamePassPC == "O" || g.GamePassConsole == "O" select g).ToArray();
-
-			return filteredGames;
+			{
+				foreach (var game in gamesFilteredByTiming)
+				{
+					if (game.GamePassCloud == "O" || game.GamePassPC == "O" || game.GamePassConsole == "O")
+					{
+						filteredGames.Add(game);
+					}
+					else if (game.Bundle.Count > 0)
+					{
+						foreach (var bundle in game.Bundle)
+						{
+							if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
+							{
+								filteredGames.Add(game);
+								break;
+							}
+						}
+					}
+				}
+			
+				return filteredGames.ToArray();
+			}
+			else
+				return gamesFilteredByTiming;
 		}
 
 		private Game[] FilterByDiscount(Game[] gamesFilteredByGamePass)
@@ -893,26 +916,33 @@ namespace xKorean
 
 			return filteredGames;
 		}
-		private Game[] FilterByCloud(Game[] gamesFilteredByCloud)
+		private Game[] FilterByCloud(Game[] gamesFilteredByFPSBoost)
 		{
 			List<Game> filteredGames = new List<Game>();
-			
-			foreach (var game in gamesFilteredByCloud)
+
+			if (CloudCheckBox != null && (bool)CloudCheckBox.IsChecked)
 			{
-				if (game.GamePassCloud == "O")
-					filteredGames.Add(game);
-				else {
-					foreach (var bundle in game.Bundle) {
-						if (bundle.GamePassCloud == "O")
+				foreach (var game in gamesFilteredByFPSBoost)
+				{
+					if (game.GamePassCloud == "O")
+						filteredGames.Add(game);
+					else
+					{
+						foreach (var bundle in game.Bundle)
 						{
-							filteredGames.Add(game);
-							break;
+							if (bundle.GamePassCloud == "O")
+							{
+								filteredGames.Add(game);
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			return filteredGames.ToArray();
+				return filteredGames.ToArray();
+			}
+			else
+				return gamesFilteredByFPSBoost;
 		}
 
 		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
@@ -1198,8 +1228,6 @@ namespace xKorean
 				InfoBlock.Inlines.Clear();
 				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString().Trim(), FontWeight = FontWeights.Bold });
 				InfoPanel.Visibility = Visibility.Visible;
-
-				Debug.WriteLine(tipBuilder.ToString());
 			}
 			else
 			{
