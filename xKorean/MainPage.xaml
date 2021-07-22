@@ -292,6 +292,13 @@
 					</controls:AdaptiveGridView.ItemTemplate>
 				</controls:AdaptiveGridView>
 			</Grid>
+			<Border Grid.Row="2" x:Name="InfoPanel" Background="Yellow" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.8" Visibility="Collapsed" Margin="10">
+				<TextBlock x:Name="InfoBlock" Padding="10" Foreground="Black">
+				테스트1
+				<LineBreak/>
+				테스트2
+				</TextBlock>
+			</Border>
 		</Grid>
 		<Grid x:Name="EditionPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
@@ -307,12 +314,5 @@
 				<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
 			</StackPanel>
 		</Grid>
-		<Border x:Name="InfoPanel" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="0.8" Visibility="Collapsed" Margin="10">
-			<TextBlock x:Name="InfoBlock" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="10" >
-				테스트1
-				<LineBreak/>
-				테스트2
-			</TextBlock>
-		</Border>
 	</Grid>
 </Page>

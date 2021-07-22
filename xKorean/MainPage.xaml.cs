@@ -1434,7 +1434,6 @@ namespace xKorean
 
 				ShowExtraInfo(game.Game, menu);
 			}
-			//Debug.WriteLine("테스트 키 눌렀다.");
 		}
 
 		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
