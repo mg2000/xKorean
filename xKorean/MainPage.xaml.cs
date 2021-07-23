@@ -844,12 +844,28 @@ namespace xKorean
 
 		private Game[] FilterByDiscount(Game[] gamesFilteredByGamePass)
 		{
-			Game[] filteredGames = gamesFilteredByGamePass;
+			List<Game> filteredGames = new List<Game>();
 
-			if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByGamePass where g.Discount != "" && !g.Discount.Contains("출시") && !g.Discount.Contains("판매") select g).ToArray();
 
-			return filteredGames;
+			if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked) {
+				foreach (var game in gamesFilteredByGamePass) {
+					if (game.Discount != "" && !game.Discount.Contains("출시") && !game.Discount.Contains("판매"))
+						filteredGames.Add(game);
+					else {
+						foreach (var bundle in game.Bundle) {
+							if (bundle.DiscountType != "" && !bundle.DiscountType.Contains("출시") && !bundle.DiscountType.Contains("판매"))
+							{
+								filteredGames.Add(game);
+								break;
+							}
+						}
+					}
+				}
+
+				return filteredGames.ToArray();
+			}
+			else
+				return gamesFilteredByGamePass;
 		}
 
 		private Game[] FilterByPlayAnywhere(Game[] gamesFilteredByDiscount)

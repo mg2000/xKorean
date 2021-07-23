@@ -93,15 +93,20 @@ namespace xKorean
 
 			var discount = game.Discount;
 
-			foreach (var bundle in Bundle)
+			if (!game.IsAvailable && Bundle.Count == 1 && (Bundle[0].DiscountType.IndexOf("할인") >= 0 || Bundle[0].DiscountType.IndexOf("출시") >= 0))
+				discount = Bundle[0].DiscountType;
+			else
 			{
-				if (bundle.DiscountType.IndexOf("할인") >= 0)
+				foreach (var bundle in Bundle)
 				{
-					discount = "에디션 할인";
-					break;
+					if (bundle.DiscountType.IndexOf("할인") >= 0)
+					{
+						discount = "에디션 할인";
+						break;
+					}
+					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
+						discount = "";
 				}
-				else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
-					discount = "";
 			}
 
 			Discount = discount;
