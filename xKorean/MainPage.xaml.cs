@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
 using System;
@@ -61,6 +62,8 @@ namespace xKorean
 
 		private string mEditionLanguage;
 
+		private int mSelectedIdx = 0;
+
 		public MainPage()
 		{
 			this.InitializeComponent();
@@ -72,6 +75,7 @@ namespace xKorean
 				if (EditionPanelView.Visibility == Visibility.Visible)
 				{
 					EditionPanelView.Visibility = Visibility.Collapsed;
+					(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
 					e.Handled = true;
 				}
 			};
@@ -264,7 +268,7 @@ namespace xKorean
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
 
-				var dialog = new MessageDialog("서버에서 한글화 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
+				var dialog = new MessageDialog("서버에서 한국어 지원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
 				if (mDialogQueue.TryAdd(dialog, 500))
 				{
 					await dialog.ShowAsync();
@@ -291,7 +295,7 @@ namespace xKorean
 
 				if (str == "[]")
 				{
-					var dialog = new MessageDialog("서버에서 한글화 정보를 업데이트 중입니다. 잠시후에 다시 시도해 주십시오.", "정보 업데이트 중");
+					var dialog = new MessageDialog("서버에서 한국어 지원 정보를 업데이트 중입니다. 잠시후에 다시 시도해 주십시오.", "정보 업데이트 중");
 					await dialog.ShowAsync();
 				}
 				else
@@ -436,6 +440,9 @@ namespace xKorean
 		UIElement animatingElement;
 		private async void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		{
+			var gridView = sender as AdaptiveGridView;
+			mSelectedIdx = gridView.Items.IndexOf(e.ClickedItem);
+
 			if (e.ClickedItem != null)
 			{
 				var game = (e.ClickedItem as GameViewModel).Game;
@@ -773,7 +780,7 @@ namespace xKorean
 					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
 				}
 
-				TitleBlock.Text = $"한국어화 타이틀 목록 ({games.Length}개)";
+				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Length:#,#0}개)";
 
 			}
 			else
@@ -784,7 +791,7 @@ namespace xKorean
 					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
 				}
 
-				TitleBlock.Text = $"한국어화 타이틀 목록 ({Games.Count}개)";
+				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({Games.Count:#,#0}개)";
 			}
 		}
 
@@ -1461,6 +1468,8 @@ namespace xKorean
 		private void CloseEditionView_Click(object sender, RoutedEventArgs e)
 		{
 			EditionPanelView.Visibility = Visibility.Collapsed;
+			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
+			
 		}
 
 		private void EditionPosterImage_ImageOpened(object sender, RoutedEventArgs e)
