@@ -200,10 +200,10 @@
 					<muxc:ProgressRing HorizontalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True" Margin="0,10,0,0"></muxc:ProgressRing>
 				</StackPanel>
 				<controls:AdaptiveGridView Name="GamesView" ItemsSource="{x:Bind GamesViewModel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyUp="GamesView_KeyUp" GotFocus="GamesView_GotFocus">
+								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyUp="GamesView_KeyUp">
 					<controls:AdaptiveGridView.ItemTemplate>
 						<DataTemplate x:DataType="local:Game">
-							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited">
+							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerEntered="Grid_PointerEntered">
 								<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
 								<Viewbox Grid.Row="0" MaxWidth="{Binding MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
 									<Image x:Name="ThumbnailImage" Source="{Binding ThumbnailPath}" Tag="{Binding ID}" ImageOpened="PosterImage_ImageOpened"></Image>
@@ -280,9 +280,6 @@
 								</Grid>
 								<Grid.ContextFlyout>
 									<MenuFlyout>
-										<MenuFlyoutItem x:Name="Menu360Market" Text="360 마켓플레이스 열기" Click="Menu360Market_Click" Visibility="Collapsed"/>
-										<MenuFlyoutItem x:Name="MenuRemasterTitle" Text="리마스터 타이틀 보기" Visibility="Collapsed" Click="MenuRemasterTitle_Click" />
-										<MenuFlyoutItem x:Name="MenuOneTitle" Text="엑스박스 원 버전 보기" Visibility="Collapsed" Click="MenuOneTitle_Click" />
 										<MenuFlyoutItem x:Name="MenuRunCloud" Text="클라우드로 실행" Click="MenuRunCloud_Click" Visibility="Collapsed" />
 										<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 									</MenuFlyout>
@@ -292,13 +289,6 @@
 					</controls:AdaptiveGridView.ItemTemplate>
 				</controls:AdaptiveGridView>
 			</Grid>
-			<Border Grid.Row="2" x:Name="InfoPanel" Background="Yellow" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.8" Visibility="Collapsed" Margin="10">
-				<TextBlock x:Name="InfoBlock" Padding="10" Foreground="Black">
-				테스트1
-				<LineBreak/>
-				테스트2
-				</TextBlock>
-			</Border>
 		</Grid>
 		<Grid x:Name="EditionPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
@@ -312,6 +302,18 @@
 					</GridView.ItemsPanel>
 				</GridView>
 				<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
+			</StackPanel>
+		</Grid>
+		<Grid x:Name="InfoPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
+				<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">스토어 정보 확인전에...</TextBlock>
+				<TextBlock x:Name="InfoBlock" Margin="10">
+				</TextBlock>
+				<Button x:Name="GotoStoreButton" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoStoreButton_Click">스토어로 이동</Button>
+				<Button x:Name="Goto360Market" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="Goto360Market_Click">360 마켓플레이스로 이동</Button>
+				<Button x:Name="GotoRemaster" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoRemaster_Click">리마스터로 이동</Button>
+				<Button x:Name="GotoOneTitle" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoOneTitle_Click">엑원 버전으로 이동</Button>
+				<Button x:Name="CloseInfoPanel" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="CloseInfoPanel_Click">돌아가기</Button>
 			</StackPanel>
 		</Grid>
 	</Grid>

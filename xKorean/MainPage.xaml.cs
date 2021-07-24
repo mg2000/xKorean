@@ -70,11 +70,14 @@ namespace xKorean
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += (sender, e) =>
 			{
-				//Debug.WriteLine("종료 시도");
-
 				if (EditionPanelView.Visibility == Visibility.Visible)
 				{
 					EditionPanelView.Visibility = Visibility.Collapsed;
+					(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
+					e.Handled = true;
+				}
+				else if (InfoPanelView.Visibility == Visibility.Visible) {
+					InfoPanelView.Visibility = Visibility.Collapsed;
 					(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
 					e.Handled = true;
 				}
@@ -207,8 +210,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -284,8 +287,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
@@ -446,15 +449,7 @@ namespace xKorean
 			if (e.ClickedItem != null)
 			{
 				var game = (e.ClickedItem as GameViewModel).Game;
-				if (game.Bundle.Count == 0)
-					await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.ID);
-				else {
-					if (game.IsAvailable || game.Bundle.Count > 1)
-						ShowEditionPanel(game);
-					else {
-						await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.Bundle[0].ID);
-					}
-				}
+				await CheckExtraInfo(game);
 			}
 		}
 
@@ -1143,17 +1138,16 @@ namespace xKorean
 			}
 		}
 
-		private void ShowExtraInfo(Game game, MenuFlyout menu = null) {
-			if (menu != null)
-			{
-				for (var i = 0; i < 4; i++)
-					menu.Items[i].Visibility = Visibility.Collapsed;
-			}
-
+		private async Task CheckExtraInfo(Game game) {
 			var tipBuilder = new StringBuilder();
 
+			GotoStoreButton.Tag = game;
+			Goto360Market.Visibility = Visibility.Collapsed;
+			GotoRemaster.Visibility = Visibility.Collapsed;
+			GotoOneTitle.Visibility = Visibility.Collapsed;
+
 			var messageArr = game.Message.Split("\n");
-			
+
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				var storeRegion = GetRegionCodeFromUrl(game.StoreLink);
@@ -1181,8 +1175,10 @@ namespace xKorean
 						switch (code)
 						{
 							case "360market":
-								if (menu != null)
-									menu.Items[0].Visibility = Visibility.Visible;
+								if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop") {
+									Goto360Market.Tag = parsePart[1];
+									Goto360Market.Visibility = Visibility;
+								}
 								break;
 							case "dlregiononly":
 								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
@@ -1198,12 +1194,29 @@ namespace xKorean
 									else
 										strValue = remasterGame.KoreanName;
 								}
-								if (menu != null)
-									menu.Items[1].Visibility = Visibility.Visible;
+
+								var remasterMap = new Dictionary<string, string>();
+								remasterMap["language"] = GetLanguageCodeFromUrl(parsePart[1]);
+								remasterMap["id"] = remasterID;
+								GotoRemaster.Tag = remasterMap;
+								GotoRemaster.Visibility = Visibility.Visible;
 								break;
 							case "onetitle":
-								if (menu != null)
-									menu.Items[2].Visibility = Visibility.Visible;
+								var oneTitleID = GetIDFromStoreUrl(parsePart[1]);
+								var oneTitleGame = mGameList.FirstOrDefault(item => item.ID == oneTitleID);
+								if (oneTitleGame != null)
+								{
+									if (mGameNameDisplayLanguage == "English")
+										strValue = oneTitleGame.Name;
+									else
+										strValue = oneTitleGame.KoreanName;
+								}
+
+								var oneTitleMap = new Dictionary<string, string>();
+								oneTitleMap["language"] = GetLanguageCodeFromUrl(parsePart[1]);
+								oneTitleMap["id"] = oneTitleID;
+								GotoOneTitle.Tag = oneTitleMap;
+								GotoOneTitle.Visibility = Visibility.Visible;
 								break;
 							default:
 								strValue = parsePart[1];
@@ -1221,40 +1234,36 @@ namespace xKorean
 
 				if (i < messageArr.Length - 1)
 					tipBuilder.Append("\r\n");
-
-				//if (code == "onetitle" && parsePart.Length > 1)
-				//	oneStoreUrl = parsePart[1];
-				//else if (code == "360market" && parsePart.Length > 1)
-				//	store360Url = parsePart[1];
-
-			}
-
-			if (menu != null)
-			{
-				if (game.GamePassCloud != "")
-					menu.Items[3].Visibility = Visibility.Visible;
-				else
-				{
-					foreach (var bundle in game.Bundle)
-					{
-						if (bundle.GamePassCloud != "")
-						{
-							menu.Items[3].Visibility = Visibility.Visible;
-							break;
-						}
-					}
-				}
 			}
 
 			if (tipBuilder.Length > 0)
 			{
 				InfoBlock.Inlines.Clear();
 				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString().Trim(), FontWeight = FontWeights.Bold });
-				InfoPanel.Visibility = Visibility.Visible;
+				InfoPanelView.Visibility = Visibility.Visible;
+
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				{
+					GotoStoreButton.Focus(FocusState.Programmatic);
+				}
 			}
 			else
 			{
-				InfoPanel.Visibility = Visibility.Collapsed;
+				await CheckEditionPanel(game);
+			}
+		}
+
+		private async Task CheckEditionPanel(Game game) {
+			if (game.Bundle.Count == 0)
+				await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.ID);
+			else
+			{
+				if (game.IsAvailable || game.Bundle.Count > 1)
+					ShowEditionPanel(game);
+				else
+				{
+					await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.Bundle[0].ID);
+				}
 			}
 		}
 
@@ -1342,7 +1351,7 @@ namespace xKorean
 				LoadingPanel.Visibility = Visibility.Visible;
 				GamesView.Visibility = Visibility.Collapsed;
 				EditionPanelView.Visibility = Visibility.Collapsed;
-				InfoPanel.Visibility = Visibility.Collapsed;
+				InfoPanelView.Visibility = Visibility.Collapsed;
 			}
 
 			await CheckUpdateTime();
@@ -1400,30 +1409,6 @@ namespace xKorean
 			}
 		}
 
-		private void Grid_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-		{
-			GameViewModel game;
-			if (e.OriginalSource as Grid != null)
-				game = (e.OriginalSource as Grid).DataContext as GameViewModel;
-			else if (e.OriginalSource as Image != null)
-				game = (e.OriginalSource as Image).DataContext as GameViewModel;
-			else if ((e.OriginalSource as TextBlock) != null)
-				game = (e.OriginalSource as TextBlock).DataContext as GameViewModel;
-			else if ((e.OriginalSource as GridViewItem) != null)
-				game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
-			else
-				game = (e.OriginalSource as ListViewItemPresenter).DataContext as GameViewModel;
-
-			var menu = (sender as FrameworkElement).ContextFlyout as MenuFlyout;
-
-			ShowExtraInfo(game.Game, menu);
-		}
-
-		private void Grid_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-		{
-			InfoPanel.Visibility = Visibility.Collapsed;
-		}
-
 		private async void MenuRunCloud_Click(object sender, RoutedEventArgs e)
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
@@ -1444,18 +1429,6 @@ namespace xKorean
 					await OpenLink(game.Game, LinkType.RemasterTitle);
 				else if (e.Key == VirtualKey.GamepadY)
 					await OpenLink(game.Game, LinkType.OneTitle);
-			}
-		}
-
-		private void GamesView_GotFocus(object sender, RoutedEventArgs e)
-		{
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-			{
-				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
-
-				var menu = (sender as FrameworkElement).ContextFlyout as MenuFlyout;
-
-				ShowExtraInfo(game.Game, menu);
 			}
 		}
 
@@ -1528,6 +1501,78 @@ namespace xKorean
 		{
 			if (e.Key == VirtualKey.Enter || e.Key == VirtualKey.GamepadMenu)
 				SearchBox_TextChanged(SearchBox, null);
+		}
+
+		private async void GotoStoreButton_Click(object sender, RoutedEventArgs e)
+		{
+			InfoPanelView.Visibility = Visibility.Collapsed;
+
+			var gotoStoreButton = sender as Button;
+			await CheckEditionPanel(gotoStoreButton.Tag as Game);
+		}
+
+		private async void Goto360Market_Click(object sender, RoutedEventArgs e)
+		{
+			InfoPanelView.Visibility = Visibility.Collapsed;
+
+			var goto360market = sender as Button;
+			await Launcher.LaunchUriAsync(new Uri(goto360market.Tag as string));
+		}
+
+		private async void GotoRemaster_Click(object sender, RoutedEventArgs e)
+		{
+			InfoPanelView.Visibility = Visibility.Collapsed;
+
+			var gotoRemaster = sender as Button;
+			var remasterMap = gotoRemaster.Tag as Dictionary<string, string>;
+			await GoToStore(remasterMap["language"], remasterMap["id"]);
+		}
+
+		private async void GotoOneTitle_Click(object sender, RoutedEventArgs e)
+		{
+			InfoPanelView.Visibility = Visibility.Collapsed;
+
+			var gotoOneTitle = sender as Button;
+			var oneTitleMap = gotoOneTitle.Tag as Dictionary<string, string>;
+			await GoToStore(oneTitleMap["language"], oneTitleMap["id"]);
+		}
+
+		private void CloseInfoPanel_Click(object sender, RoutedEventArgs e)
+		{
+			InfoPanelView.Visibility = Visibility.Collapsed;
+			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
+		}
+
+		private void Grid_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+		{
+			GameViewModel game;
+			if (e.OriginalSource as Grid != null)
+				game = (e.OriginalSource as Grid).DataContext as GameViewModel;
+			else if (e.OriginalSource as Image != null)
+				game = (e.OriginalSource as Image).DataContext as GameViewModel;
+			else if ((e.OriginalSource as TextBlock) != null)
+				game = (e.OriginalSource as TextBlock).DataContext as GameViewModel;
+			else if ((e.OriginalSource as GridViewItem) != null)
+				game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
+			else
+				game = (e.OriginalSource as ListViewItemPresenter).DataContext as GameViewModel;
+
+			var menu = (sender as FrameworkElement).ContextFlyout as MenuFlyout;
+
+			menu.Items[0].Visibility = Visibility.Collapsed;
+			if (game.Game.GamePassCloud != "")
+				menu.Items[0].Visibility = Visibility.Visible;
+			else
+			{
+				foreach (var bundle in game.Bundle)
+				{
+					if (bundle.GamePassCloud != "")
+					{
+						menu.Items[0].Visibility = Visibility.Visible;
+						break;
+					}
+				}
+			}
 		}
 	}
 }
