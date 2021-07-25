@@ -509,7 +509,7 @@ namespace xKorean
 
 		private async Task GoToStore(string language, string id)
 		{
-			if (language.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" || language.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
 				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={id}"));
 			else
 			{
