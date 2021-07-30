@@ -499,7 +499,6 @@ namespace xKorean
 				});
 			}
 
-
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				EditionView.UpdateLayout();
@@ -1445,12 +1444,7 @@ namespace xKorean
 			{
 				var bundle = e.ClickedItem as EditionViewModel;
 
-				if (mEditionLanguage.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
-					await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={bundle.ID}"));
-				else
-				{
-					await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{mEditionLanguage}/p/xkorean/{bundle.ID}"));
-				}
+				await GoToStore(mEditionLanguage, bundle.ID);
 			}
 		}
 
