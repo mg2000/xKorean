@@ -1,7 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
-using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -10,12 +8,12 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
@@ -27,7 +25,6 @@ using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
@@ -42,7 +39,7 @@ namespace xKorean
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
-		private string mIconSize = "Normal";
+		private string mIconSize = "Small";
 		private string mGameNameDisplayLanguage = "Korean";
 
 		private Dictionary<string, string> mMessageTemplateMap = new Dictionary<string, string>();
@@ -53,7 +50,9 @@ namespace xKorean
 
 		private byte[] mOneTitleHeader = null;
 		private byte[] mSeriesXSHeader = null;
+		private byte[] mWindowsHeader = null;
 
+		private const string windowsTitlePath = "ms-appx:///Assets/windows_title.png";
 		private const string oneTitlePath = "ms-appx:///Assets/xbox_one_title.png";
 		private const string seriesTitlePath = "ms-appx:///Assets/xbox_series_xs_title.png";
 
@@ -83,6 +82,29 @@ namespace xKorean
 				}
 			};
 
+			var localSettings = ApplicationData.Current.LocalSettings;
+
+			if (localSettings.Values["seriesXS"] != null)
+				CategorySeriesXSCheckBox.IsChecked = (bool)localSettings.Values["seriesXS"];
+
+			if (localSettings.Values["oneXEnhanced"] != null)
+				CategoryOneXEnhancedCheckBox.IsChecked = (bool)localSettings.Values["oneXEnhanced"];
+			
+			if (localSettings.Values["oneS"] != null)
+				CategoryOneCheckBox.IsChecked = (bool)localSettings.Values["oneS"];
+
+			if (localSettings.Values["x360"] != null)
+				CategoryX360CheckBox.IsChecked = (bool)localSettings.Values["x360"];
+			
+			if (localSettings.Values["og"] != null)
+				CategoryOGCheckBox.IsChecked = (bool)localSettings.Values["og"];
+
+			if (localSettings.Values["windows"] != null)
+				CategoryWindowsCheckBox.IsChecked = (bool)localSettings.Values["windows"];
+
+			if (localSettings.Values["cloud"] != null)
+				CategoryCloudCheckBox.IsChecked = (bool)localSettings.Values["cloud"];
+
 			mMessageTemplateMap["remaster"] = "이 게임의 리마스터가 출시되었습니다: [name]";
 			mMessageTemplateMap["onetitle"] = "이 게임의 엑스박스 원 버전이 출시되었습니다.";
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
@@ -110,6 +132,9 @@ namespace xKorean
 			Debug.WriteLine($"디바이스 정보 {eas.SystemManufacturer}, {eas.SystemProductName}");
 			Debug.WriteLine($"지역 정보: {Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion}");
 
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				CategoryWindowsCheckBox.Visibility = Visibility.Collapsed;
+
 			LoadTitleImage(oneTitlePath);
 		}
 
@@ -134,8 +159,10 @@ namespace xKorean
 							byte[] titleBuffer = new byte[capacity];
 							if (fileName == oneTitlePath)
 								mOneTitleHeader = titleBuffer;
-							else
+							else if (fileName == seriesTitlePath)
 								mSeriesXSHeader = titleBuffer;
+							else
+								mWindowsHeader = titleBuffer;
 
 							BitmapPlaneDescription bufferLayout = buffer.GetPlaneDescription(0);
 							for (var i = 0; i < capacity; i++)
@@ -149,6 +176,8 @@ namespace xKorean
 
 			if (fileName == oneTitlePath)
 				LoadTitleImage(seriesTitlePath);
+			else if (fileName == seriesTitlePath)
+				LoadTitleImage(windowsTitlePath);
 			else
 				CheckCacheFolder();
 		}
@@ -196,9 +225,30 @@ namespace xKorean
 		}
 
 		private event EventHandler CacheFolderChecked;
-		private void App_CacheFolderChecked(object sender, EventArgs e)
+		private async void App_CacheFolderChecked(object sender, EventArgs e)
 		{
-			CheckUpdateTime();
+			var updateManager = StoreContext.GetDefault();
+			var updates = await updateManager.GetAppAndOptionalStorePackageUpdatesAsync();
+
+			if (updates.Count > 0)
+			{
+				var dialog = new MessageDialog("업데이트가 스토어에 등록되었습니다. 업데이트 후에 앱을 다시 실행해 주십시오.", "업데이트 있음");
+
+				var updateButton = new UICommand("업데이트");
+				updateButton.Invoked += async (command) =>
+				{
+					await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId=9P6ZT4WKCCCH"));
+				};
+				dialog.Commands.Add(updateButton);
+
+				if (mDialogQueue.TryAdd(dialog, 500))
+				{
+					await dialog.ShowAsync();
+					mDialogQueue.Take();
+				}
+			}
+			else
+				await CheckUpdateTime();
 		}
 
 		private async Task CheckUpdateTime()
@@ -353,6 +403,16 @@ namespace xKorean
 			var jsonString = await FileIO.ReadTextAsync(jsonFile);
 			var games = JsonConvert.DeserializeObject<List<Game>>(jsonString).OrderBy(g => g.ID).ToList();
 
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") {
+				for (var i = 0; i < games.Count; i++) {
+					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O")
+					{
+						games.RemoveAt(i);
+						i--;
+					}
+				}
+			}
+
 			if (mExistGames.Count > 0)
 			{
 				mNewGames.Clear();
@@ -469,6 +529,8 @@ namespace xKorean
 					Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
 					Discount = game.Discount,
 					SeriesXS = game.SeriesXS,
+					OneS = game.OneS,
+					PC = game.PC,
 					IsGamePassPC = game.GamePassPC,
 					IsGamePassConsole = game.GamePassConsole,
 					IsGamePassCloud = game.GamePassCloud,
@@ -476,7 +538,8 @@ namespace xKorean
 					GamePassEnd = game.GamePassEnd,
 					ThumbnailUrl = game.Thumbnail,
 					SeriesXSHeader = mSeriesXSHeader,
-					OneSHeader = mOneTitleHeader
+					OneSHeader = mOneTitleHeader,
+					PCHeader = mWindowsHeader
 				});
 			}
 
@@ -488,6 +551,8 @@ namespace xKorean
 					Name = bundle.Name,
 					Discount = bundle.DiscountType,
 					SeriesXS = bundle.SeriesXS,
+					OneS = bundle.OneS,
+					PC = bundle.PC,
 					IsGamePassPC = bundle.GamePassPC,
 					IsGamePassConsole = bundle.GamePassConsole,
 					IsGamePassCloud = bundle.GamePassCloud,
@@ -495,7 +560,8 @@ namespace xKorean
 					GamePassEnd = bundle.GamePassEnd,
 					ThumbnailUrl = bundle.Thumbnail,
 					SeriesXSHeader = mSeriesXSHeader,
-					OneSHeader = mOneTitleHeader
+					OneSHeader = mOneTitleHeader,
+					PCHeader = mWindowsHeader
 				});
 			}
 
@@ -745,13 +811,8 @@ namespace xKorean
 				gamesFilteredByFPSBoost = Games.ToArray();
 			}
 
-			var gamesFilteredByCloud = FilterByCloud(gamesFilteredByFPSBoost);
-			if (gamesFilteredByCloud == null)
-				gamesFilteredByCloud = Games.ToArray();
-
-
 			// 장르별 검색
-			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByCloud);
+			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByFPSBoost);
 			if (gamesFilteredByCategory == null)
 			{
 				gamesFilteredByCategory = Games.ToArray();
@@ -771,7 +832,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var g in games)
 				{
-					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
+					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Length:#,#0}개)";
@@ -782,7 +843,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var game in Games)
 				{
-					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader));
+					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({Games.Count:#,#0}개)";
@@ -933,35 +994,7 @@ namespace xKorean
 
 			return filteredGames;
 		}
-		private Game[] FilterByCloud(Game[] gamesFilteredByFPSBoost)
-		{
-			List<Game> filteredGames = new List<Game>();
-
-			if (CloudCheckBox != null && (bool)CloudCheckBox.IsChecked)
-			{
-				foreach (var game in gamesFilteredByFPSBoost)
-				{
-					if (game.GamePassCloud == "O")
-						filteredGames.Add(game);
-					else
-					{
-						foreach (var bundle in game.Bundle)
-						{
-							if (bundle.GamePassCloud == "O")
-							{
-								filteredGames.Add(game);
-								break;
-							}
-						}
-					}
-				}
-
-				return filteredGames.ToArray();
-			}
-			else
-				return gamesFilteredByFPSBoost;
-		}
-
+		
 		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
 		{
 			var image = sender as Image;
@@ -1026,29 +1059,47 @@ namespace xKorean
 
 		private Game[] FilterByDevices(Game[] games)
 		{
-			//Game[] selectedGames = null;
-			var selectGamesList = new List<Game>();
+			if (CategorySeriesXSCheckBox.IsChecked == true ||
+				CategoryOneXEnhancedCheckBox.IsChecked == true ||
+				CategoryOneCheckBox.IsChecked == true ||
+				CategoryX360CheckBox.IsChecked == true ||
+				CategoryOGCheckBox.IsChecked == true ||
+				CategoryWindowsCheckBox.IsChecked == true ||
+				CategoryCloudCheckBox.IsChecked == true ||
+				CategoryCloudCheckBox.IsChecked == true) {
+				var selectGamesList = new List<Game>();
 
-			HashSet<string> checkedcategories = new HashSet<string>();
+				foreach (var game in games) {
+					if ((CategorySeriesXSCheckBox.IsChecked == true && game.SeriesXS == "O") ||
+						(CategoryOneXEnhancedCheckBox.IsChecked == true && game.OneXEnhanced == "O") ||
+						(CategoryOneCheckBox.IsChecked == true && game.OneS == "O") ||
+						(CategoryX360CheckBox.IsChecked == true && game.X360 == "O") ||
+						(CategoryOGCheckBox.IsChecked == true && game.OG == "O") ||
+						(CategoryWindowsCheckBox.IsChecked == true && game.PC == "O"))
+						selectGamesList.Add(game);
+					else if (CategoryCloudCheckBox.IsChecked == true)
+					{
+						if (game.GamePassCloud == "O")
+							selectGamesList.Add(game);
+						else
+						{
+							foreach (var bundle in game.Bundle)
+							{
+								if (bundle.GamePassCloud == "O")
+								{
+									selectGamesList.Add(game);
+									break;
+								}
+							}
+						}
+					}
+				}
 
-			selectGamesList.AddRange((from g in games
-									  where ((bool)CategorySeriesXSCheckBox.IsChecked && g.SeriesXS == "O") || 
-									  ((bool)CategoryOneXEnhancedCheckBox.IsChecked && g.OneXEnhanced == "O") ||
-									  ((bool)CategoryOneCheckBox.IsChecked && g.OneS == "O") ||
-									  ((bool)CategoryX360CheckBox.IsChecked && g.X360 == "O") ||
-									  ((bool)CategoryOGCheckBox.IsChecked && g.OG == "O")
-									  select g).ToList());
-
-			var isChecked = false;
-			if ((bool)CategorySeriesXSCheckBox.IsChecked || (bool)CategoryOneXEnhancedCheckBox.IsChecked || (bool)CategoryOneCheckBox.IsChecked ||
-				(bool)CategoryX360CheckBox.IsChecked || (bool)CategoryOGCheckBox.IsChecked)
-				isChecked = true;
-
-			if (isChecked == false)
+				return selectGamesList.ToArray();
+			}
+			else
 				return (from g in games
 						select g).ToArray();
-			else
-				return selectGamesList.ToArray();
 		}
 
 		private Game[] FilterByCategory(Game[] games)
@@ -1104,7 +1155,22 @@ namespace xKorean
 
 		private void UpdateItemHeight()
 		{
-			if (mIconSize == "Small")
+			if (mIconSize == "Normal")
+			{
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+				{
+					case "Windows.Xbox":
+						GamesView.ItemHeight = 205;
+						break;
+					default:
+						GamesView.ItemHeight = 277;
+						break;
+				}
+
+				GamesView.Padding = new Thickness(20, 0, 20, 0);
+				GamesView.Margin = new Thickness(0, 10, 0, 0);
+			}
+			else
 			{
 				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
@@ -1119,21 +1185,6 @@ namespace xKorean
 						GamesView.Margin = new Thickness(0, 10, 0, 0);
 						break;
 				}
-			}
-			else
-			{
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-				{
-					case "Windows.Xbox":
-						GamesView.ItemHeight = 205;
-						break;
-					default:
-						GamesView.ItemHeight = 277;
-						break;
-				}
-
-				GamesView.Padding = new Thickness(20, 0, 20, 0);
-				GamesView.Margin = new Thickness(0, 10, 0, 0);
 			}
 		}
 
@@ -1335,12 +1386,26 @@ namespace xKorean
 
 		private void CategorieCheckBox_Checked(object sender, RoutedEventArgs e)
 		{
+			UpdateCategoriesState();
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
 		private void CategorieCheckBox_Unchecked(object sender, RoutedEventArgs e)
 		{
+			UpdateCategoriesState();
 			SearchBox_TextChanged(SearchBox, null);
+		}
+
+		private void UpdateCategoriesState() {
+			var localSettings = ApplicationData.Current.LocalSettings;
+
+			localSettings.Values["seriesXS"] = CategorySeriesXSCheckBox.IsChecked;
+			localSettings.Values["oneXEnhanced"] = CategoryOneXEnhancedCheckBox.IsChecked;
+			localSettings.Values["oneS"] = CategoryOneCheckBox.IsChecked;
+			localSettings.Values["x360"] = CategoryX360CheckBox.IsChecked;
+			localSettings.Values["og"] = CategoryOGCheckBox.IsChecked;
+			localSettings.Values["windows"] = CategoryWindowsCheckBox.IsChecked;
+			localSettings.Values["cloud"] = CategoryCloudCheckBox.IsChecked;
 		}
 
 		private async void RefreshButton_Click(object sender, RoutedEventArgs e)

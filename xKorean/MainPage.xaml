@@ -103,7 +103,9 @@
 									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
 									<CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
 									<CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" XYFocusDown="{x:Bind GamePassCheckBox}"/>
+									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+									<CheckBox x:Name="CategoryWindowsCheckBox" Width="180" Content="Windows" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
+									<CheckBox x:Name="CategoryCloudCheckBox" Width="180" Content="Xbox Cloud Gaming" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -124,7 +126,6 @@
 									<CheckBox x:Name="OnlineCoopCheckBox" Width="170" Content="온라인 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 									<CheckBox x:Name="FPS120CheckBox" Width="170" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 									<CheckBox x:Name="FPSBoostCheckBox" Width="170" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="CloudCheckBox" Width="170" Content="클라우드 지원" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>

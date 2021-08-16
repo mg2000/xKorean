@@ -214,6 +214,16 @@ namespace xKorean
 			set;
 		}
 
+		public string OneS {
+			private get;
+			set;
+		}
+
+		public string PC {
+			private get;
+			set;
+		}
+
 		public string ThumbnailUrl {
 			private get;
 			set;
@@ -229,6 +239,11 @@ namespace xKorean
 			set;
 		}
 
+		public byte[] PCHeader {
+			private get;
+			set;
+		}
+
 		public string ThumbnailPath
 		{
 			get
@@ -236,8 +251,10 @@ namespace xKorean
 				var fileName = ID;
 				if (SeriesXS == "O")
 					fileName += "_xs";
-				else
+				else if (OneS == "O")
 					fileName += "_os";
+				else if (PC == "O")
+					fileName += "_pc";
 
 				FileInfo thumbnailCacheInfo = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{fileName}.jpg");
 
@@ -271,11 +288,9 @@ namespace xKorean
 			{
 				if (!mThumbnailCached)
 				{
-					await Utils.DownloadImage(ThumbnailUrl, ID, SeriesXS, "O", SeriesXSHeader, OneSHeader);
-				}
-
-				NotifyPropertyChanged("ThumbnailPath");
-
+					if (await Utils.DownloadImage(ThumbnailUrl, ID, SeriesXS, OneS, PC, SeriesXSHeader, OneSHeader, PCHeader))
+						NotifyPropertyChanged("ThumbnailPath");
+				}	
 			}
 			catch (Exception exception)
 			{

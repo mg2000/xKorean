@@ -15,11 +15,12 @@ namespace xKorean
 {
 	public class GameViewModel : INotifyPropertyChanged
 	{
-		private string mIconSize = "Normal";
+		private string mIconSize = "Small";
 		private string mGameNameDisplayLanguage = "Korean";
 
 		private byte[] mOneTitleHeader;
 		private byte[] mSeriesXSTitleHeader;
+		private byte[] mPCTitleHeader;
 
 		public Game Game { set; get; } = new Game();
 		public string Title {
@@ -47,6 +48,8 @@ namespace xKorean
 					fileName += "_xs";
 				else if (Game.OneS == "O")
 					fileName += "_os";
+				else if (Game.PC == "O")
+					fileName += "_pc";
 
 				FileInfo thumbnailCacheInfo = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\ThumbnailCache\\" + fileName + ".jpg");
 
@@ -76,12 +79,13 @@ namespace xKorean
 
 		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, string iconSize, byte[] oneTitleHeader, byte[] seriesXSTitleHeader)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, string iconSize, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] pcTitleHeader)
 		{
 			Game = game;
 
 			mOneTitleHeader = oneTitleHeader;
 			mSeriesXSTitleHeader = seriesXSTitleHeader;
+			mPCTitleHeader = pcTitleHeader;
 
 			ThumbnailUrl = game.Thumbnail;
 			ID = game.ID;
@@ -331,142 +335,15 @@ namespace xKorean
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()
 		{
-			var httpClient = new Windows.Web.Http.HttpClient();
-
-			try
-			{
-				var buffer = await httpClient.GetBufferAsync(new Uri(ThumbnailUrl));
-
-				if (!IsThumbnailCached)
-				{
-					try
-					{
-						var fileName = ID;
-						if (Game.SeriesXS == "O")
-							fileName += "_xs";
-						else if (Game.OneS == "O")
-							fileName += "_os";
-
-						var file = await App.CacheFolder.CreateFileAsync(fileName + ".jpg", CreationCollisionOption.ReplaceExisting);
-
-						await FileIO.WriteBufferAsync(file, buffer);
-
-						if (Game.SeriesXS == "O" || Game.OneS == "O")
-						{
-							var oldImageFile = new FileInfo($"{ApplicationData.Current.LocalFolder.Path}\\ThumbnailCache\\{ID}.jpg");
-							if (oldImageFile.Exists)
-							{
-								var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
-								await oriFile.DeleteAsync();
-							}
-
-							if (Game.SeriesXS == "O")
-								oldImageFile = new FileInfo($"{ApplicationData.Current.LocalFolder.Path}\\ThumbnailCache\\{ID}_os.jpg");
-							else
-								oldImageFile = new FileInfo($"{ApplicationData.Current.LocalFolder.Path}\\ThumbnailCache\\{ID}_xs.jpg");
-
-							if (oldImageFile.Exists)
-							{
-								var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
-								await oriFile.DeleteAsync();
-							}
-
-							using (var imageStream = await file.OpenReadAsync())
-							{
-								var decoder = await BitmapDecoder.CreateAsync(imageStream);
-								if (decoder.PixelWidth != 584)
-								{
-									var resizedImageFile = await App.CacheFolder.CreateFileAsync(fileName + ".resize", CreationCollisionOption.ReplaceExisting);
-									using (var resizedStream = await resizedImageFile.OpenAsync(FileAccessMode.ReadWrite))
-									{
-										var encoder = await BitmapEncoder.CreateForTranscodingAsync(resizedStream, decoder);
-										encoder.BitmapTransform.InterpolationMode = BitmapInterpolationMode.Linear;
-										encoder.BitmapTransform.ScaledWidth = 584;
-										encoder.BitmapTransform.ScaledHeight = 800;
-										await encoder.FlushAsync();
-									}
-								}
-							}
-
-							var resizeImageInfo = new FileInfo($"{ApplicationData.Current.LocalFolder.Path}\\ThumbnailCache\\{fileName}.resize");
-							if (resizeImageInfo.Exists)
-							{
-								var oriFile = await App.CacheFolder.GetFileAsync($"{fileName}.jpg");
-								await oriFile.DeleteAsync();
-								var resizeImage = await App.CacheFolder.GetFileAsync($"{fileName}.resize");
-								await resizeImage.RenameAsync($"{fileName}.jpg");
-							}
-							
-							using (IRandomAccessStream readStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-							{
-								var decoder = await BitmapDecoder.CreateAsync(readStream);
-								var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-
-								using (var bitmapBuffer = softwareBitmap.LockBuffer(BitmapBufferAccessMode.ReadWrite))
-								{
-									using (var reference = bitmapBuffer.CreateReference())
-									{
-										unsafe
-										{
-											((IMemoryBufferByteAccess)reference).GetBuffer(out byte* dataInBytes, out uint capacity);
-											BitmapPlaneDescription bufferLayout = bitmapBuffer.GetPlaneDescription(0);
-
-											byte[] titleHeader;
-											if (Game.SeriesXS == "O")
-												titleHeader = mSeriesXSTitleHeader;
-											else
-												titleHeader = mOneTitleHeader;
-
-											for (var i = 0; i < titleHeader.Length; i++)
-											{
-												dataInBytes[bufferLayout.StartIndex + i] = titleHeader[i];
-											}
-										}
-									}
-								}
-
-								readStream.Seek(0);
-								var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, readStream);
-								encoder.SetSoftwareBitmap(softwareBitmap);
-								await encoder.FlushAsync();
-							}
-						}
-					}
-					catch (Exception exception)
-					{
-						switch ((uint)exception.HResult)
-						{
-							case 0x800700B7:
-								System.Diagnostics.Debug.WriteLine($"이미지를 저장할 수 없습니다: {exception.Message}");
-								break;
-						}
-					}
-				}
-
+			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.SeriesXS, Game.OneS, Game.PC, mSeriesXSTitleHeader, mOneTitleHeader, mPCTitleHeader))
 				NotifyPropertyChanged("ThumbnailPath");
-
-			}
-			catch (Exception exception)
-			{
-				System.Diagnostics.Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
-			}
 		}
 
 		public double MaxWidth
 		{
 			get
 			{
-				if (mIconSize == "Small")
-				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 130;
-						default:
-							return 160;
-					}
-				}
-				else
+				if (mIconSize == "Normal")
 				{
 					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 					{
@@ -476,6 +353,16 @@ namespace xKorean
 							return 202.5;
 					}
 				}
+				else
+				{
+					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+					{
+						case "Windows.Xbox":
+							return 130;
+						default:
+							return 160;
+					}
+				}
 			}
 		}
 
@@ -483,17 +370,7 @@ namespace xKorean
 		{
 			get
 			{
-				if (mIconSize == "Small")
-				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 9;
-						default:
-							return 12;
-					}
-				}
-				else
+				if (mIconSize == "Normal")
 				{
 					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 					{
@@ -503,14 +380,7 @@ namespace xKorean
 							return 15;
 					}
 				}
-			}
-		}
-
-		public double MetadataFontSize
-		{
-			get
-			{
-				if (mIconSize == "Small")
+				else
 				{
 					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 					{
@@ -520,7 +390,14 @@ namespace xKorean
 							return 12;
 					}
 				}
-				else
+			}
+		}
+
+		public double MetadataFontSize
+		{
+			get
+			{
+				if (mIconSize == "Normal")
 				{
 					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 					{
@@ -528,6 +405,16 @@ namespace xKorean
 							return 11;
 						default:
 							return 15;
+					}
+				}
+				else
+				{
+					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+					{
+						case "Windows.Xbox":
+							return 9;
+						default:
+							return 12;
 					}
 				}
 			}

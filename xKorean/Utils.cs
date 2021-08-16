@@ -12,7 +12,7 @@ namespace xKorean
 {
 	class Utils
 	{
-		public static async Task DownloadImage(string thumbnailUrl, string id, string seriesXS, string oneS, byte[] seriesXSHeader, byte[] oneSHeader) {
+		public static async Task<bool> DownloadImage(string thumbnailUrl, string id, string seriesXS, string oneS, string pc, byte[] seriesXSHeader, byte[] oneSHeader, byte[] pcHeader) {
 			var httpClient = new Windows.Web.Http.HttpClient();
 
 			try
@@ -26,12 +26,14 @@ namespace xKorean
 					fileName += "_xs";
 				else if (oneS == "O")
 					fileName += "_os";
+				else if (pc == "O")
+					fileName += "_pc";
 
 				var file = await App.CacheFolder.CreateFileAsync(fileName + ".jpg", CreationCollisionOption.ReplaceExisting);
 
 				await FileIO.WriteBufferAsync(file, buffer);
 
-				if (seriesXS == "O" || oneS == "O")
+				if (seriesXS == "O" || oneS == "O" || pc == "O")
 				{
 					var oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}.jpg");
 					if (oldImageFile.Exists)
@@ -40,16 +42,18 @@ namespace xKorean
 						await oriFile.DeleteAsync();
 					}
 
-					if (seriesXS == "O")
-						oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_os.jpg");
-					else
-						oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_xs.jpg");
+					//if (seriesXS == "O")
+					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_os.jpg");
+					//else if (oneS == "O")
+					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_xs.jpg");
+					//else
+					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_pc.jpg");
 
-					if (oldImageFile.Exists)
-					{
-						var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
-						await oriFile.DeleteAsync();
-					}
+					//if (oldImageFile.Exists)
+					//{
+					//	var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
+					//	await oriFile.DeleteAsync();
+					//}
 
 					using (var imageStream = await file.OpenReadAsync())
 					{
@@ -94,8 +98,10 @@ namespace xKorean
 									byte[] titleHeader;
 									if (seriesXS == "O")
 										titleHeader = seriesXSHeader;
-									else
+									else if (oneS == "O")
 										titleHeader = oneSHeader;
+									else
+										titleHeader = pcHeader;
 
 									for (var i = 0; i < titleHeader.Length; i++)
 									{
@@ -111,6 +117,8 @@ namespace xKorean
 						await encoder.FlushAsync();
 					}
 				}
+
+				return true;
 			}
 			catch (Exception exception)
 			{
@@ -120,6 +128,8 @@ namespace xKorean
 						System.Diagnostics.Debug.WriteLine($"이미지를 저장할 수 없습니다: {exception.Message}");
 						break;
 				}
+
+				return false;
 			}
 		}
 

@@ -43,10 +43,10 @@ namespace xKorean
                 KoreanRadioButton.IsChecked = true;
 
             mIconSize = settings.LoadValue("iconSize");
-            if (mIconSize == "Small")
-                SmallRadioButton.IsChecked = true;
-            else
+            if (mIconSize == "Normal")
                 NormalRadioButton.IsChecked = true;
+            else
+                SmallRadioButton.IsChecked = true;
 
             if (settings.LoadValue("ShowNewTitle") != "False")
                 ShowNewTitle.IsChecked = true;

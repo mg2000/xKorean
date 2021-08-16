@@ -30,6 +30,9 @@ namespace xKorean
 		[JsonProperty("oneS")]
 		public string OneS { set; get; } = string.Empty;
 
+		[JsonProperty("pc")]
+		public string PC { set; get; } = string.Empty;
+
 		[JsonProperty("x360")]
 		public string X360 { set; get; } = string.Empty;
 
@@ -148,6 +151,20 @@ namespace xKorean
 
 		[JsonProperty("seriesXS")]
 		public string SeriesXS
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("oneS")]
+		public string OneS
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("pc")]
+		public string PC
 		{
 			get;
 			set;
