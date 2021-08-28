@@ -217,11 +217,11 @@
 										<RowDefinition Height="1*"></RowDefinition>
 										<RowDefinition Height="2*"></RowDefinition>
 									</Grid.RowDefinitions>
-									<Grid Grid.Row="0" Visibility="{Binding IsSupporting}">
+									<Grid Grid.Row="0" Visibility="{Binding Unavailable}">
 										<Grid.Background>
 											<SolidColorBrush Color="Red" Opacity="0.9"></SolidColorBrush>
 										</Grid.Background>
-										<TextBlock Text="미지원 타이틀" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+										<TextBlock Text="{Binding UnavailableReason}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
 										<Grid.Background>

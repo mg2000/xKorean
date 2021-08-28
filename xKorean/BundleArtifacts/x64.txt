@@ -1,2 +1,2 @@
-MainPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\xKorean_0.36.45.0_x64.msix
-SymbolPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\obj\x64\Release\Symbols\xKorean_0.36.45.0_x64.appxsym
+MainPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\bin\x64\Release\xKorean_0.38.46.0_x64.msix
+SymbolPackage=D:\My Documents\Visual Studio Projects\xKorean\xKorean\obj\x64\Release\Symbols\xKorean_0.38.46.0_x64.appxsym

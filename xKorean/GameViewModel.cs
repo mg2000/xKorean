@@ -22,6 +22,8 @@ namespace xKorean
 		private byte[] mSeriesXSTitleHeader;
 		private byte[] mPCTitleHeader;
 
+		private bool mRegionAvailable = true;
+
 		public Game Game { set; get; } = new Game();
 		public string Title {
 			get
@@ -32,7 +34,7 @@ namespace xKorean
 					return Game.KoreanName;
 			}
 		}
-		
+
 		public string ThumbnailUrl { set; get; }
 
 		public Dictionary<string, long> DownloadSize { set; get; } = new Dictionary<string, long>();
@@ -114,6 +116,26 @@ namespace xKorean
 			}
 
 			Discount = discount;
+
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+			{
+				var region = Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper();
+				if (Game.Message.ToLower().IndexOf("dlregiononly") >= 0)
+				{
+					var messageArr = Game.Message.Split("\n");
+					foreach (var message in messageArr)
+					{
+						if (message.ToLower().IndexOf("dlregiononly") >= 0)
+						{
+							var parsePart = message.Split("=");
+							if (parsePart.Length > 1 && parsePart[1].ToUpper() != region)
+								mRegionAvailable = false;
+
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		public string Message
@@ -306,15 +328,29 @@ namespace xKorean
 			}
 		}
 
-		public bool IsSupporting
+		public bool Unavailable
+		{
+			get
+			{
+				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
+				if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X") || !mRegionAvailable)
+					return true;
+				else
+					return false;
+			}
+		}
+
+		public string UnavailableReason
 		{
 			get
 			{
 				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
 				if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X"))
-					return true;
+					return "미지원 기기";
+				else if (!mRegionAvailable)
+					return "한국어 미지원 지역";
 				else
-					return false;
+					return "알 수 없음";
 			}
 		}
 
