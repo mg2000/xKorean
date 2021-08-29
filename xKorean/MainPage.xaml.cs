@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
@@ -305,10 +306,11 @@ namespace xKorean
 					// And show it!
 					ToastNotificationManager.History.Clear();
 					ToastNotificationManager.CreateToastNotifier().Show(notif);
-					
+
 					if (mGameList.Count == 0)
 						ReadGamesFromJson();
-					else {
+					else
+					{
 						LoadingPanel.Visibility = Visibility.Collapsed;
 						GamesView.Visibility = Visibility.Visible;
 					}
@@ -336,15 +338,38 @@ namespace xKorean
 
 			try
 			{
+				var client = new HttpClient();
+
+
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"));
+				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
-				var str = response.Content.ReadAsStringAsync().GetResults();
+				await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+				{
+					ProgressReady.Visibility = Visibility.Collapsed;
+					ProgressDownload.Visibility = Visibility.Visible;
+				});
+
+				var progressCallback = new Progress<HttpProgress>(HttpProgressCallback);
+				var tokenSource = new CancellationTokenSource();
+				var response = await client.SendRequestAsync(request).AsTask(tokenSource.Token, progressCallback);
+
+				var inputStream = await response.Content.ReadAsInputStreamAsync();
+				var outputStream = new MemoryStream();
+
+				await RandomAccessStream.CopyAndCloseAsync(inputStream, outputStream.AsOutputStream());
+
+				var data = outputStream.ToArray();
+
+
+				var str = Encoding.UTF8.GetString(outputStream.ToArray());
 
 				if (str == "[]")
 				{
@@ -1384,6 +1409,15 @@ namespace xKorean
 			
 		}
 
+		private void HttpProgressCallback(HttpProgress progress) {
+			if (progress.TotalBytesToReceive == null)
+				return;
+
+			ProgressDownload.Minimum = 0;
+			ProgressDownload.Maximum = (double)progress.TotalBytesToReceive;
+			ProgressDownload.Value = progress.BytesReceived;
+		}
+
 		private void CategorieCheckBox_Checked(object sender, RoutedEventArgs e)
 		{
 			UpdateCategoriesState();
@@ -1416,6 +1450,9 @@ namespace xKorean
 				GamesView.Visibility = Visibility.Collapsed;
 				EditionPanelView.Visibility = Visibility.Collapsed;
 				InfoPanelView.Visibility = Visibility.Collapsed;
+
+				ProgressReady.Visibility = Visibility.Visible;
+				ProgressReady.Visibility = Visibility.Collapsed;
 			}
 
 			await CheckUpdateTime();
