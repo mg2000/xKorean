@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
+using Windows.Security.Cryptography;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -40,7 +42,6 @@ namespace xKorean
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
-		private string mIconSize = "Small";
 		private string mGameNameDisplayLanguage = "Korean";
 
 		private Dictionary<string, string> mMessageTemplateMap = new Dictionary<string, string>();
@@ -189,7 +190,6 @@ namespace xKorean
 			var settings = Settings.Instance;
 			await settings.Load();
 
-			mIconSize = settings.LoadValue("iconSize");
 			UpdateItemHeight();
 
 			mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
@@ -228,27 +228,27 @@ namespace xKorean
 		private event EventHandler CacheFolderChecked;
 		private async void App_CacheFolderChecked(object sender, EventArgs e)
 		{
-			var updateManager = StoreContext.GetDefault();
-			var updates = await updateManager.GetAppAndOptionalStorePackageUpdatesAsync();
+			//var updateManager = StoreContext.GetDefault();
+			//var updates = await updateManager.GetAppAndOptionalStorePackageUpdatesAsync();
 
-			if (updates.Count > 0)
-			{
-				var dialog = new MessageDialog("업데이트가 스토어에 등록되었습니다. 업데이트 후에 앱을 다시 실행해 주십시오.", "업데이트 있음");
+			//if (updates.Count > 0)
+			//{
+			//	var dialog = new MessageDialog("업데이트가 스토어에 등록되었습니다. 업데이트 후에 앱을 다시 실행해 주십시오.", "업데이트 있음");
 
-				var updateButton = new UICommand("업데이트");
-				updateButton.Invoked += async (command) =>
-				{
-					await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId=9P6ZT4WKCCCH"));
-				};
-				dialog.Commands.Add(updateButton);
+			//	var updateButton = new UICommand("업데이트");
+			//	updateButton.Invoked += async (command) =>
+			//	{
+			//		await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId=9P6ZT4WKCCCH"));
+			//	};
+			//	dialog.Commands.Add(updateButton);
 
-				if (mDialogQueue.TryAdd(dialog, 500))
-				{
-					await dialog.ShowAsync();
-					mDialogQueue.Take();
-				}
-			}
-			else
+			//	if (mDialogQueue.TryAdd(dialog, 500))
+			//	{
+			//		await dialog.ShowAsync();
+			//		mDialogQueue.Take();
+			//	}
+			//}
+			//else
 				await CheckUpdateTime();
 		}
 
@@ -288,33 +288,33 @@ namespace xKorean
 
 					return;
 				}
-				else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
-				{
+				//else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
+				//{
 					await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
 
 					UpateJsonData();
-				}
-				else
-				{
-					var content = new ToastContentBuilder()
-						.AddText("업데이트 완료", hintMaxLines: 1)
-						.AddText("이미 모든 정보가 최신입니다.")
-						.GetToastContent();
+				//}
+				//else
+				//{
+				//	var content = new ToastContentBuilder()
+				//		.AddText("업데이트 완료", hintMaxLines: 1)
+				//		.AddText("이미 모든 정보가 최신입니다.")
+				//		.GetToastContent();
 
-					var notif = new ToastNotification(content.GetXml());
+				//	var notif = new ToastNotification(content.GetXml());
 
-					// And show it!
-					ToastNotificationManager.History.Clear();
-					ToastNotificationManager.CreateToastNotifier().Show(notif);
+				//	// And show it!
+				//	ToastNotificationManager.History.Clear();
+				//	ToastNotificationManager.CreateToastNotifier().Show(notif);
 
-					if (mGameList.Count == 0)
-						ReadGamesFromJson();
-					else
-					{
-						LoadingPanel.Visibility = Visibility.Collapsed;
-						GamesView.Visibility = Visibility.Visible;
-					}
-				}
+				//	if (mGameList.Count == 0)
+				//		ReadGamesFromJson();
+				//	else
+				//	{
+				//		LoadingPanel.Visibility = Visibility.Collapsed;
+				//		GamesView.Visibility = Visibility.Visible;
+				//	}
+				//}
 			}
 			catch (Exception exception)
 			{
@@ -342,13 +342,9 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list"));
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"));
-				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
 
 				await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -366,36 +362,38 @@ namespace xKorean
 
 				await RandomAccessStream.CopyAndCloseAsync(inputStream, outputStream.AsOutputStream());
 
-				var data = outputStream.ToArray();
 
+				var buffer = CryptographicBuffer.DecodeFromBase64String(Encoding.UTF8.GetString(outputStream.ToArray()));
 
-				var str = Encoding.UTF8.GetString(outputStream.ToArray());
-
-				if (str == "[]")
+				// 저장 전에 이전 데이터 가져오기
+				if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
 				{
-					var dialog = new MessageDialog("서버에서 한국어 지원 정보를 업데이트 중입니다. 잠시후에 다시 시도해 주십시오.", "정보 업데이트 중");
-					await dialog.ShowAsync();
-				}
-				else
-				{
-					if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
+					var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+
+					if (downloadedJsonFile.Exists)
 					{
-						var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+						var existFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.OpenIfExists);
 
-						if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
+						if (downloadedJsonFile.Length > 0)
 						{
-							var existFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.OpenIfExists);
 							var existStr = await FileIO.ReadTextAsync(existFile);
 							mExistGames = JsonConvert.DeserializeObject<List<Game>>(existStr).OrderBy(g => g.ID).ToList();
 						}
+
+						await existFile.DeleteAsync();
 					}
-
-					var file = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.ReplaceExisting);
-
-					await FileIO.WriteTextAsync(file, str);
-
-					ReadGamesFromJson();
 				}
+
+				var plainStream = new MemoryStream();
+				using (var arc = new ZipArchive(buffer.AsStream()))
+				{				
+					foreach (var entry in arc.Entries)
+					{
+						entry.ExtractToFile(ApplicationData.Current.LocalFolder.Path + "\\games.json");						
+					}
+				}
+
+				ReadGamesFromJson();
 			}
 			catch (Exception exception)
 			{
@@ -857,7 +855,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var g in games)
 				{
-					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
+					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Length:#,#0}개)";
@@ -868,7 +866,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var game in Games)
 				{
-					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mIconSize, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
+					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({Games.Count:#,#0}개)";
@@ -1180,36 +1178,18 @@ namespace xKorean
 
 		private void UpdateItemHeight()
 		{
-			if (mIconSize == "Normal")
+			switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 			{
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-				{
-					case "Windows.Xbox":
-						GamesView.ItemHeight = 205;
-						break;
-					default:
-						GamesView.ItemHeight = 277;
-						break;
-				}
-
-				GamesView.Padding = new Thickness(20, 0, 20, 0);
-				GamesView.Margin = new Thickness(0, 10, 0, 0);
-			}
-			else
-			{
-				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-				{
-					case "Windows.Xbox":
-						GamesView.ItemHeight = 190;
-						GamesView.Padding = new Thickness(0, 0, 0, 0);
-						GamesView.Margin = new Thickness(0, 5, 0, 0);
-						break;
-					default:
-						GamesView.ItemHeight = 239;
-						GamesView.Padding = new Thickness(0, 0, 0, 0);
-						GamesView.Margin = new Thickness(0, 10, 0, 0);
-						break;
-				}
+				case "Windows.Xbox":
+					GamesView.ItemHeight = 190;
+					GamesView.Padding = new Thickness(0, 0, 0, 0);
+					GamesView.Margin = new Thickness(0, 5, 0, 0);
+					break;
+				default:
+					GamesView.ItemHeight = 239;
+					GamesView.Padding = new Thickness(0, 0, 0, 0);
+					GamesView.Margin = new Thickness(0, 10, 0, 0);
+					break;
 			}
 		}
 
@@ -1475,13 +1455,11 @@ namespace xKorean
 				{
 					var settings = Settings.Instance;
 
-					mIconSize = settings.LoadValue("iconSize");
 					mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
 
 					for (int i = 0; i < GamesViewModel.Count; i++)
 					{
 						GamesViewModel[i].GameNameDisplayLanguage = mGameNameDisplayLanguage;
-						GamesViewModel[i].IconSize = mIconSize;
 					}
 
 					UpdateItemHeight();

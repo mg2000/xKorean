@@ -15,7 +15,6 @@ namespace xKorean
 {
 	public class GameViewModel : INotifyPropertyChanged
 	{
-		private string mIconSize = "Small";
 		private string mGameNameDisplayLanguage = "Korean";
 
 		private byte[] mOneTitleHeader;
@@ -81,7 +80,7 @@ namespace xKorean
 
 		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, string iconSize, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] pcTitleHeader)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] pcTitleHeader)
 		{
 			Game = game;
 
@@ -93,7 +92,6 @@ namespace xKorean
 			ID = game.ID;
 			Localize = game.Localize.Replace("/", "\r\n");
 			StoreUri = game.StoreLink;
-			mIconSize = iconSize;
 			mGameNameDisplayLanguage = gameNameDisplayLanguage;
 			Bundle = game.Bundle;
 
@@ -379,25 +377,12 @@ namespace xKorean
 		{
 			get
 			{
-				if (mIconSize == "Normal")
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 150;
-						default:
-							return 202.5;
-					}
-				}
-				else
-				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 130;
-						default:
-							return 160;
-					}
+					case "Windows.Xbox":
+						return 130;
+					default:
+						return 160;
 				}
 			}
 		}
@@ -406,25 +391,12 @@ namespace xKorean
 		{
 			get
 			{
-				if (mIconSize == "Normal")
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 10;
-						default:
-							return 15;
-					}
-				}
-				else
-				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 9;
-						default:
-							return 12;
-					}
+					case "Windows.Xbox":
+						return 9;
+					default:
+						return 12;
 				}
 			}
 		}
@@ -433,36 +405,13 @@ namespace xKorean
 		{
 			get
 			{
-				if (mIconSize == "Normal")
+				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 11;
-						default:
-							return 15;
-					}
+					case "Windows.Xbox":
+						return 9;
+					default:
+						return 12;
 				}
-				else
-				{
-					switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-					{
-						case "Windows.Xbox":
-							return 9;
-						default:
-							return 12;
-					}
-				}
-			}
-		}
-
-		public string IconSize
-		{
-			set {
-				mIconSize = value;
-				NotifyPropertyChanged("MaxWidth");
-				NotifyPropertyChanged("MetadataFontSize");
-				NotifyPropertyChanged("TitleFontSize");
 			}
 		}
 
