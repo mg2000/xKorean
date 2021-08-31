@@ -8,8 +8,8 @@
 
   <Identity
     Name="3765mg2000.xKorean"
-    Publisher="CN=mg2000"
-    Version="1.0.48.0" />
+    Publisher="CN=12E3275F-582E-483B-9C22-EF47E03481D6"
+    Version="1.0.50.0" />
 
   <mp:PhoneIdentity PhoneProductId="7b167409-b53b-4cbb-bd8b-d9ca4115168f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
