@@ -261,8 +261,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -288,33 +288,33 @@ namespace xKorean
 
 					return;
 				}
-				//else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
-				//{
+				else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
+				{
 					await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
 
 					UpateJsonData();
-				//}
-				//else
-				//{
-				//	var content = new ToastContentBuilder()
-				//		.AddText("업데이트 완료", hintMaxLines: 1)
-				//		.AddText("이미 모든 정보가 최신입니다.")
-				//		.GetToastContent();
+				}
+				else
+				{
+					var content = new ToastContentBuilder()
+						.AddText("업데이트 완료", hintMaxLines: 1)
+						.AddText("이미 모든 정보가 최신입니다.")
+						.GetToastContent();
 
-				//	var notif = new ToastNotification(content.GetXml());
+					var notif = new ToastNotification(content.GetXml());
 
-				//	// And show it!
-				//	ToastNotificationManager.History.Clear();
-				//	ToastNotificationManager.CreateToastNotifier().Show(notif);
+					// And show it!
+					ToastNotificationManager.History.Clear();
+					ToastNotificationManager.CreateToastNotifier().Show(notif);
 
-				//	if (mGameList.Count == 0)
-				//		ReadGamesFromJson();
-				//	else
-				//	{
-				//		LoadingPanel.Visibility = Visibility.Collapsed;
-				//		GamesView.Visibility = Visibility.Visible;
-				//	}
-				//}
+					if (mGameList.Count == 0)
+						ReadGamesFromJson();
+					else
+					{
+						LoadingPanel.Visibility = Visibility.Collapsed;
+						GamesView.Visibility = Visibility.Visible;
+					}
+				}
 			}
 			catch (Exception exception)
 			{
@@ -342,7 +342,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -1400,13 +1401,11 @@ namespace xKorean
 
 		private void CategorieCheckBox_Checked(object sender, RoutedEventArgs e)
 		{
-			UpdateCategoriesState();
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
 		private void CategorieCheckBox_Unchecked(object sender, RoutedEventArgs e)
 		{
-			UpdateCategoriesState();
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
@@ -1647,6 +1646,12 @@ namespace xKorean
 					}
 				}
 			}
+		}
+
+		private void CategoryCheckBox_Click(object sender, RoutedEventArgs e)
+		{
+			UpdateCategoriesState();
+			SearchBox_TextChanged(SearchBox, null);
 		}
 	}
 }

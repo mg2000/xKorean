@@ -99,13 +99,13 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<CheckBox x:Name="CategorySeriesXSCheckBox" Width="180" Content="Xbox Series X|S" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryWindowsCheckBox" Width="180" Content="Windows" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"/>
-									<CheckBox x:Name="CategoryCloudCheckBox" Width="180" Content="Xbox Cloud Gaming" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+									<CheckBox x:Name="CategorySeriesXSCheckBox" Width="180" Content="Xbox Series X|S" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryWindowsCheckBox" Width="180" Content="Windows" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryCloudCheckBox" Width="180" Content="Xbox Cloud Gaming" Click="CategoryCheckBox_Click"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
