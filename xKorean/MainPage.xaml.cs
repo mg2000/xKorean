@@ -442,6 +442,9 @@ namespace xKorean
 				mNewGames.Clear();
 				foreach (Game game in games)
 				{
+					if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && game.PC == "O" && game.PlayAnywhere != "O")
+						continue;
+
 					bool oldTitle = false;
 					for (var i = 0; i < mExistGames.Count; i++)
 					{
@@ -1431,7 +1434,7 @@ namespace xKorean
 				InfoPanelView.Visibility = Visibility.Collapsed;
 
 				ProgressReady.Visibility = Visibility.Visible;
-				ProgressReady.Visibility = Visibility.Collapsed;
+				ProgressDownload.Visibility = Visibility.Collapsed;
 			}
 
 			await CheckUpdateTime();
