@@ -113,6 +113,9 @@ namespace xKorean
 				}
 			}
 
+			if (discount == "곧 출시")
+				discount = Utils.GetReleaseStr(game.ReleaseDate);
+
 			Discount = discount;
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")

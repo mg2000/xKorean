@@ -204,6 +204,13 @@ namespace xKorean
 			set;
 		} = "";
 
+		[JsonProperty("releaseDate")]
+		public string ReleaseDate
+		{
+			get;
+			set;
+		} = "";
+
 		public bool IsAvailable
 		{
 			get

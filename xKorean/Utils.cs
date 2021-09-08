@@ -148,5 +148,14 @@ namespace xKorean
 					return "ko-kr";
 			}
 		}
+
+		public static string GetReleaseStr(string releaseDateStr) {
+			var releaseDate = DateTime.Parse(releaseDateStr);
+
+			if (releaseDate > DateTime.Now)
+				return $"{releaseDate.Month}월 {releaseDate.Day}일 {releaseDate.Hour}시 출시";
+			else
+				return "";
+		}
 	}
 }
