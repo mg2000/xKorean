@@ -125,7 +125,7 @@ namespace xKorean
 				switch ((uint)exception.HResult)
 				{
 					case 0x800700B7:
-						System.Diagnostics.Debug.WriteLine($"이미지를 저장할 수 없습니다: {exception.Message}");
+						Debug.WriteLine($"이미지를 저장할 수 없습니다: {exception.Message}");
 						break;
 				}
 
