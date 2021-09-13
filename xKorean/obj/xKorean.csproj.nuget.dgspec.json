@@ -62,7 +62,7 @@
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
-              "version": "[2.6.1, )"
+              "version": "[2.6.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",

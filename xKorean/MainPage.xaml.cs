@@ -576,7 +576,7 @@ namespace xKorean
 				{
 					ID = bundle.ID,
 					Name = bundle.Name,
-					Discount = bundle.DiscountType == "곧 출시" ? Utils.GetReleaseStr(bundle.ReleaseDate) : game.Discount,
+					Discount = bundle.DiscountType == "곧 출시" ? Utils.GetReleaseStr(bundle.ReleaseDate) : bundle.DiscountType,
 					SeriesXS = bundle.SeriesXS,
 					OneS = bundle.OneS,
 					PC = bundle.PC,
