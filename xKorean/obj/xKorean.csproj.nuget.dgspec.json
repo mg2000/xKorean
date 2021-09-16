@@ -1,34 +1,35 @@
 {
   "format": 1,
   "restore": {
-    "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj": {}
+    "D:\\xKorean\\xKorean\\xKorean.csproj": {}
   },
   "projects": {
-    "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj": {
+    "D:\\xKorean\\xKorean\\xKorean.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj",
+        "projectUniqueName": "D:\\xKorean\\xKorean\\xKorean.csproj",
         "projectName": "xKorean",
-        "projectPath": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj",
-        "packagesPath": "C:\\Users\\mg200\\.nuget\\packages\\",
-        "outputPath": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\obj\\",
+        "projectPath": "D:\\xKorean\\xKorean\\xKorean.csproj",
+        "packagesPath": "C:\\Users\\mg2000\\.nuget\\packages\\",
+        "outputPath": "D:\\xKorean\\xKorean\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\mg200\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mg2000\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "uap10.0.18362"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

@@ -126,6 +126,7 @@
 									<CheckBox x:Name="OnlineCoopCheckBox" Width="170" Content="온라인 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 									<CheckBox x:Name="FPS120CheckBox" Width="170" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 									<CheckBox x:Name="FPSBoostCheckBox" Width="170" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+									<CheckBox x:Name="F2PCheckBox" Width="170" Content="무료(F2P)" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>

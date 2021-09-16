@@ -261,8 +261,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -342,8 +342,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -845,14 +845,21 @@ namespace xKorean
 				gamesFilteredByCategory = Games.ToArray();
 			}
 
-
-			if (text.Trim() != string.Empty || gamesFilteredByCategory != null)
+			// 장르별 검색
+			var gamesFilteredByF2P = FilterByF2P(gamesFilteredByCategory);
+			if (gamesFilteredByF2P == null)
 			{
-				if (gamesFilteredByCategory == null)
+				gamesFilteredByF2P = Games.ToArray();
+			}
+
+
+			if (text.Trim() != string.Empty || gamesFilteredByF2P != null)
+			{
+				if (gamesFilteredByF2P == null)
 				{
-					gamesFilteredByCategory = Games.ToArray();
+					gamesFilteredByF2P = Games.ToArray();
 				}
-				var games = (from g in gamesFilteredByCategory
+				var games = (from g in gamesFilteredByF2P
 							 where g.KoreanName.ToLower().Contains(text.ToLower().Trim()) || g.Name.ToLower().Contains(text.ToLower().Trim())
 							 select g).ToArray();
 
@@ -1156,28 +1163,46 @@ namespace xKorean
 
 			HashSet<string> checkedcategories = new HashSet<string>();
 
-			selectGamesList.AddRange((from g in games
-									  where (FamilyKidsCheckBox.IsChecked == true && g.Category == "family & kids") ||
-										(FightingCheckBox.IsChecked == true && g.Category == "fighting") ||
-										(EducationalCheckBox.IsChecked == true && g.Category == "educational") ||
-										(RacingFlyingCheckBox.IsChecked == true && g.Category == "racing & flying") ||
-										(RolePlayingCheckBox.IsChecked == true && g.Category == "role playing") ||
-										(MultiplayCheckBox.IsChecked == true && g.Category == "multi-player online battle arena") ||
-										(ShooterCheckBox.IsChecked == true && g.Category == "shooter") ||
-										(SportsCheckBox.IsChecked == true && g.Category == "sports") ||
-										(SimulationCheckBox.IsChecked == true && g.Category == "simulation") ||
-										(ActionAdventureCheckBox.IsChecked == true && g.Category == "action & adventure") ||
-										(MusicCheckBox.IsChecked == true && g.Category == "music") ||
-										(StrategyCheckBox.IsChecked == true && g.Category == "strategy") ||
-										(CardBoardCheckBox.IsChecked == true && g.Category == "card + board") ||
-										(ClassicsCheckBox.IsChecked == true && g.Category == "classics") ||
-										(PuzzleTriviaCheckBox.IsChecked == true && g.Category == "puzzle & trivia") ||
-										(PlatformerCheckBox.IsChecked == true && g.Category == "platformer") ||
-										(CasinoCheckBox.IsChecked == true && g.Category == "casino") ||
-										(OtherCheckBox.IsChecked == true && g.Category == "other")
-									  select g).ToList());
+			foreach (var g in games) {
+				foreach (var category in g.Categories) {
+					if ((FamilyKidsCheckBox.IsChecked == true && category == "family & kids") ||
+						(FightingCheckBox.IsChecked == true && category == "fighting") ||
+						(EducationalCheckBox.IsChecked == true && category == "educational") ||
+						(RacingFlyingCheckBox.IsChecked == true && category == "racing & flying") ||
+						(RolePlayingCheckBox.IsChecked == true && category == "role playing") ||
+						(MultiplayCheckBox.IsChecked == true && category == "multi-player online battle arena") ||
+						(ShooterCheckBox.IsChecked == true && category == "shooter") ||
+						(SportsCheckBox.IsChecked == true && category == "sports") ||
+						(SimulationCheckBox.IsChecked == true && category == "simulation") ||
+						(ActionAdventureCheckBox.IsChecked == true && category == "action & adventure") ||
+						(MusicCheckBox.IsChecked == true && category == "music") ||
+						(StrategyCheckBox.IsChecked == true && category == "strategy") ||
+						(CardBoardCheckBox.IsChecked == true && category == "card + board") ||
+						(ClassicsCheckBox.IsChecked == true && category == "classics") ||
+						(PuzzleTriviaCheckBox.IsChecked == true && category == "puzzle & trivia") ||
+						(PlatformerCheckBox.IsChecked == true && category == "platformer") ||
+						(CasinoCheckBox.IsChecked == true && category == "casino") ||
+						(OtherCheckBox.IsChecked == true && category == "other"))
+					{
+						selectGamesList.Add(g);
+						break;
+					}
+				}
+			}
 
 			return selectGamesList.ToArray();
+		}
+
+		private Game[] FilterByF2P(Game[] games)
+		{
+			Game[] filteredGames = games;
+
+			if (FPSBoostCheckBox != null && (bool)F2PCheckBox.IsChecked)
+			{
+				filteredGames = (from g in games where g.Discount.IndexOf("무료") >= 0 select g).ToArray();
+			}
+
+			return filteredGames;
 		}
 
 		private void UpdateItemHeight()

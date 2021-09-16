@@ -90,8 +90,8 @@ namespace xKorean
 		[JsonProperty("fpsBoost")]
 		public string FPSBoost { set; get; } = "";
 
-		[JsonProperty("category")]
-		public string Category { set; get; } = "";
+		[JsonProperty("categories")]
+		public string[] Categories { set; get; } = null;
 
 		[JsonProperty("price")]
 		public float Price
