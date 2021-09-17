@@ -100,7 +100,7 @@ namespace xKorean
 			set;
 		} = -1;
 
-		[JsonProperty("Bundle")]
+		[JsonProperty("bundle")]
 		public List<Bundle> Bundle
 		{
 			get;

@@ -97,9 +97,7 @@ namespace xKorean
 
 			var discount = game.Discount;
 
-			if (!game.IsAvailable && Bundle.Count == 1 && (Bundle[0].DiscountType.IndexOf("할인") >= 0 || Bundle[0].DiscountType.IndexOf("출시") >= 0))
-				discount = Bundle[0].DiscountType;
-			else
+			if (Bundle.Count > 1)
 			{
 				foreach (var bundle in Bundle)
 				{

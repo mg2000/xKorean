@@ -532,7 +532,7 @@ namespace xKorean
 		{
 			var gridView = sender as AdaptiveGridView;
 			mSelectedIdx = gridView.Items.IndexOf(e.ClickedItem);
-
+			
 			if (e.ClickedItem != null)
 			{
 				var game = (e.ClickedItem as GameViewModel).Game;
