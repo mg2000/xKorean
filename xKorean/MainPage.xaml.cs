@@ -342,10 +342,10 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"));
 #endif
 
 				await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -357,14 +357,6 @@ namespace xKorean
 				var progressCallback = new Progress<HttpProgress>(HttpProgressCallback);
 				var tokenSource = new CancellationTokenSource();
 				var response = await client.SendRequestAsync(request).AsTask(tokenSource.Token, progressCallback);
-
-				var inputStream = await response.Content.ReadAsInputStreamAsync();
-				var outputStream = new MemoryStream();
-
-				await RandomAccessStream.CopyAndCloseAsync(inputStream, outputStream.AsOutputStream());
-
-
-				var buffer = CryptographicBuffer.DecodeFromBase64String(Encoding.UTF8.GetString(outputStream.ToArray()));
 
 				// 저장 전에 이전 데이터 가져오기
 				if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
@@ -385,14 +377,8 @@ namespace xKorean
 					}
 				}
 
-				var plainStream = new MemoryStream();
-				using (var arc = new ZipArchive(buffer.AsStream()))
-				{				
-					foreach (var entry in arc.Entries)
-					{
-						entry.ExtractToFile(ApplicationData.Current.LocalFolder.Path + "\\games.json");						
-					}
-				}
+				var str = response.Content.ReadAsStringAsync().GetResults();
+				File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "\\games.json", str);
 
 				ReadGamesFromJson();
 			}
