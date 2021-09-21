@@ -97,7 +97,7 @@ namespace xKorean
 
 			var discount = game.Discount;
 
-			if (Bundle.Count > 1)
+			if (Bundle.Count >= 1)
 			{
 				foreach (var bundle in Bundle)
 				{
@@ -109,6 +109,9 @@ namespace xKorean
 					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
 						discount = "";
 				}
+
+				if (!game.IsAvailable && discount == "")
+					discount = Bundle[0].DiscountType;
 			}
 
 			if (discount == "곧 출시")

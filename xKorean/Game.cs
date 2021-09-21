@@ -109,7 +109,7 @@ namespace xKorean
 
 		public bool IsAvailable {
 			get {
-				return (Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "") && !(Discount.IndexOf("출시") >= 0 && Price == -1);
+				return Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || (Discount.IndexOf("출시") >= 0 && Price == -1 && Bundle.Count > 0);
 			}
 		}
 	}
@@ -215,7 +215,7 @@ namespace xKorean
 		{
 			get
 			{
-				return (DiscountType != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "") && !(DiscountType.IndexOf("출시") >= 0 && Price == -1);
+				return DiscountType != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || Price > 0;
 			}
 		}
 	}

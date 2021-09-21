@@ -112,6 +112,7 @@ namespace xKorean
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
 			mMessageTemplateMap["menuonly"] = "이 게임은 메뉴만 한국어로 되어 있습니다.";
+			mMessageTemplateMap["windowsmod"] = "윈도우에서 한글 패치를 적용하셔야 한국어가 지원됩니다.";
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -415,7 +416,7 @@ namespace xKorean
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") {
 				for (var i = 0; i < games.Count; i++) {
-					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O")
+					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O" || games[i].Message.ToLower().IndexOf("windowsmod") >= 0)
 					{
 						games.RemoveAt(i);
 						i--;
@@ -1096,7 +1097,10 @@ namespace xKorean
 						(CategoryX360CheckBox.IsChecked == true && game.X360 == "O") ||
 						(CategoryOGCheckBox.IsChecked == true && game.OG == "O") ||
 						(CategoryWindowsCheckBox.IsChecked == true && game.PC == "O"))
-						selectGamesList.Add(game);
+					{
+						if (CategoryWindowsCheckBox.IsChecked == true || game.Message.ToLower().IndexOf("windowsmod") == -1)
+							selectGamesList.Add(game);
+					}
 					else if (CategoryCloudCheckBox.IsChecked == true)
 					{
 						if (game.GamePassCloud == "O")
