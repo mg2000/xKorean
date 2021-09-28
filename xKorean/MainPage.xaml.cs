@@ -925,11 +925,11 @@ namespace xKorean
 
 			if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked) {
 				foreach (var game in gamesFilteredByGamePass) {
-					if (game.Discount != "" && !game.Discount.Contains("출시") && !game.Discount.Contains("판매"))
+					if (game.Discount != "" && !game.Discount.Contains("출시") && !game.Discount.Contains("판매") && game.Discount != "무료")
 						filteredGames.Add(game);
 					else {
 						foreach (var bundle in game.Bundle) {
-							if (bundle.DiscountType != "" && !bundle.DiscountType.Contains("출시") && !bundle.DiscountType.Contains("판매"))
+							if (bundle.DiscountType != "" && !bundle.DiscountType.Contains("출시") && !bundle.DiscountType.Contains("판매") && game.Discount != "무료")
 							{
 								filteredGames.Add(game);
 								break;
