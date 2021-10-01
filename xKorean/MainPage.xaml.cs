@@ -194,7 +194,9 @@ namespace xKorean
 			UpdateItemHeight();
 
 			mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
-			
+			if (mGameNameDisplayLanguage == "")
+				mGameNameDisplayLanguage = "Korean";
+
 			var orderType = settings.LoadValue("orderType");
 			switch (orderType)
 			{
