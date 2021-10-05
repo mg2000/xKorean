@@ -107,12 +107,9 @@ namespace xKorean
 			if (localSettings.Values["cloud"] != null)
 				CategoryCloudCheckBox.IsChecked = (bool)localSettings.Values["cloud"];
 
-			mMessageTemplateMap["remaster"] = "이 게임의 리마스터가 출시되었습니다: [name]";
-			mMessageTemplateMap["onetitle"] = "이 게임의 엑스박스 원 버전이 출시되었습니다.";
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
-			mMessageTemplateMap["menuonly"] = "이 게임은 메뉴만 한국어로 되어 있습니다.";
-			mMessageTemplateMap["windowsmod"] = "윈도우에서 한글 패치를 적용하셔야 한국어가 지원됩니다.";
+			mMessageTemplateMap["windowsmod"] = "이 게임은 윈도우에서 한글 패치를 설치하셔야 한국어가 지원됩니다.";
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
