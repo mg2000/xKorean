@@ -97,7 +97,9 @@ namespace xKorean
 
 			var discount = game.Discount;
 
-			if (Bundle.Count >= 1)
+			if (!game.IsAvailable && Bundle.Count == 1)
+				discount = Bundle[0].DiscountType;
+			else if (Bundle.Count >= 1)
 			{
 				foreach (var bundle in Bundle)
 				{
