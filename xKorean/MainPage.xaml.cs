@@ -261,8 +261,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -342,8 +342,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"));
 #endif
@@ -357,6 +357,15 @@ namespace xKorean
 				var progressCallback = new Progress<HttpProgress>(HttpProgressCallback);
 				var tokenSource = new CancellationTokenSource();
 				var response = await client.SendRequestAsync(request).AsTask(tokenSource.Token, progressCallback);
+
+				var inputStream = (await response.Content.ReadAsInputStreamAsync()).AsStreamForRead();
+				var decompressor = new GZipStream(inputStream, CompressionMode.Decompress);
+				var decompressStream = new MemoryStream();
+				decompressor.CopyTo(decompressStream);
+				decompressStream.Seek(0, SeekOrigin.Begin);
+
+				var streamReader = new StreamReader(decompressStream);
+				var str = streamReader.ReadToEnd();
 
 				// 저장 전에 이전 데이터 가져오기
 				if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
@@ -377,7 +386,6 @@ namespace xKorean
 					}
 				}
 
-				var str = response.Content.ReadAsStringAsync().GetResults();
 				File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "\\games.json", str);
 
 				ReadGamesFromJson();
