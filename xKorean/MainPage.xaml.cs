@@ -345,7 +345,7 @@ namespace xKorean
 				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
 
 				await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
