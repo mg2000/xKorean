@@ -12,7 +12,7 @@ namespace xKorean
 {
 	class Utils
 	{
-		public static async Task<bool> DownloadImage(string thumbnailUrl, string id, string seriesXS, string oneS, string pc, byte[] seriesXSHeader, byte[] oneSHeader, byte[] pcHeader) {
+		public static async Task<bool> DownloadImage(string thumbnailUrl, string id, string seriesXS, string oneS, string pc, string playAnywhere, byte[] seriesXSHeader, byte[] oneSHeader, byte[] playAnywhereSeriesHeader, byte[] playAnywhereHeader, byte[] pcHeader) {
 			var httpClient = new Windows.Web.Http.HttpClient();
 
 			try
@@ -22,7 +22,13 @@ namespace xKorean
 				Debug.WriteLine($"이미지 다운로드: {thumbnailUrl}");
 
 				var fileName = id;
-				if (seriesXS == "O")
+				if (playAnywhere == "O") {
+					if (seriesXS == "O")
+						fileName += "_playanywhere_xs";
+					else if (oneS == "O")
+						fileName += "_playanywhere_os";
+				}
+				else if (seriesXS == "O")
 					fileName += "_xs";
 				else if (oneS == "O")
 					fileName += "_os";
@@ -41,19 +47,6 @@ namespace xKorean
 						var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
 						await oriFile.DeleteAsync();
 					}
-
-					//if (seriesXS == "O")
-					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_os.jpg");
-					//else if (oneS == "O")
-					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_xs.jpg");
-					//else
-					//	oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}_pc.jpg");
-
-					//if (oldImageFile.Exists)
-					//{
-					//	var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
-					//	await oriFile.DeleteAsync();
-					//}
 
 					using (var imageStream = await file.OpenReadAsync())
 					{
@@ -96,7 +89,13 @@ namespace xKorean
 									BitmapPlaneDescription bufferLayout = bitmapBuffer.GetPlaneDescription(0);
 
 									byte[] titleHeader;
-									if (seriesXS == "O")
+									if (playAnywhere == "O") {
+										if (seriesXS == "O")
+											titleHeader = playAnywhereSeriesHeader;
+										else
+											titleHeader = playAnywhereHeader;
+									}
+									else if (seriesXS == "O")
 										titleHeader = seriesXSHeader;
 									else if (oneS == "O")
 										titleHeader = oneSHeader;

@@ -52,11 +52,15 @@ namespace xKorean
 
 		private byte[] mOneTitleHeader = null;
 		private byte[] mSeriesXSHeader = null;
+		private byte[] mPlayAnywhereHeader = null;
+		private byte[] mPlayAnywhereSeriesHeader = null;
 		private byte[] mWindowsHeader = null;
 
 		private const string windowsTitlePath = "ms-appx:///Assets/windows_title.png";
 		private const string oneTitlePath = "ms-appx:///Assets/xbox_one_title.png";
 		private const string seriesTitlePath = "ms-appx:///Assets/xbox_series_xs_title.png";
+		private const string playAnywherePath = "ms-appx:///Assets/xbox_playanywhere_title.png";
+		private const string playAnywhereSeriesPath = "ms-appx:///Assets/xbox_playanywhere_xs_title.png";
 
 		private List<Game> mExistGames = new List<Game>();
 		private List<string> mNewGames = new List<string>();
@@ -161,6 +165,10 @@ namespace xKorean
 								mOneTitleHeader = titleBuffer;
 							else if (fileName == seriesTitlePath)
 								mSeriesXSHeader = titleBuffer;
+							else if (fileName == playAnywherePath)
+								mPlayAnywhereHeader = titleBuffer;
+							else if (fileName == playAnywhereSeriesPath)
+								mPlayAnywhereSeriesHeader = titleBuffer;
 							else
 								mWindowsHeader = titleBuffer;
 
@@ -177,6 +185,10 @@ namespace xKorean
 			if (fileName == oneTitlePath)
 				LoadTitleImage(seriesTitlePath);
 			else if (fileName == seriesTitlePath)
+				LoadTitleImage(playAnywherePath);
+			else if (fileName == playAnywherePath)
+				LoadTitleImage(playAnywhereSeriesPath);
+			else if (fileName == playAnywhereSeriesPath)
 				LoadTitleImage(windowsTitlePath);
 			else
 				CheckCacheFolder();
@@ -552,6 +564,7 @@ namespace xKorean
 					SeriesXS = game.SeriesXS,
 					OneS = game.OneS,
 					PC = game.PC,
+					PlayAnywhere = game.PlayAnywhere,
 					IsGamePassPC = game.GamePassPC,
 					IsGamePassConsole = game.GamePassConsole,
 					IsGamePassCloud = game.GamePassCloud,
@@ -560,6 +573,8 @@ namespace xKorean
 					ThumbnailUrl = game.Thumbnail,
 					SeriesXSHeader = mSeriesXSHeader,
 					OneSHeader = mOneTitleHeader,
+					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
+					PlayAnywhereHeader = mPlayAnywhereHeader,
 					PCHeader = mWindowsHeader
 				});
 			}
@@ -574,6 +589,7 @@ namespace xKorean
 					SeriesXS = bundle.SeriesXS,
 					OneS = bundle.OneS,
 					PC = bundle.PC,
+					PlayAnywhere = game.PlayAnywhere,
 					IsGamePassPC = bundle.GamePassPC,
 					IsGamePassConsole = bundle.GamePassConsole,
 					IsGamePassCloud = bundle.GamePassCloud,
@@ -582,6 +598,8 @@ namespace xKorean
 					ThumbnailUrl = bundle.Thumbnail,
 					SeriesXSHeader = mSeriesXSHeader,
 					OneSHeader = mOneTitleHeader,
+					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
+					PlayAnywhereHeader = mPlayAnywhereHeader,
 					PCHeader = mWindowsHeader
 				});
 			}
@@ -860,7 +878,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var g in games)
 				{
-					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
+					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Length:#,#0}개)";
@@ -871,7 +889,7 @@ namespace xKorean
 				GamesViewModel.Clear();
 				foreach (var game in Games)
 				{
-					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mWindowsHeader));
+					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
 				}
 
 				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({Games.Count:#,#0}개)";

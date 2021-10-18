@@ -19,6 +19,8 @@ namespace xKorean
 
 		private byte[] mOneTitleHeader;
 		private byte[] mSeriesXSTitleHeader;
+		private byte[] mPlayAnywhereTitleHeader;
+		private byte[] mPlayAnywhereSeriesTitleHeader;
 		private byte[] mPCTitleHeader;
 
 		private bool mRegionAvailable = true;
@@ -45,7 +47,13 @@ namespace xKorean
 			get
 			{
 				var fileName = ID;
-				if (Game.SeriesXS == "O")
+				if (Game.PlayAnywhere == "O") {
+					if (Game.SeriesXS == "O")
+						fileName += "_playanywhere_xs";
+					else if (Game.OneS == "O")
+						fileName += "_playanywhere_os";
+				}
+				else if (Game.SeriesXS == "O")
 					fileName += "_xs";
 				else if (Game.OneS == "O")
 					fileName += "_os";
@@ -80,12 +88,14 @@ namespace xKorean
 
 		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] pcTitleHeader)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader)
 		{
 			Game = game;
 
 			mOneTitleHeader = oneTitleHeader;
 			mSeriesXSTitleHeader = seriesXSTitleHeader;
+			mPlayAnywhereTitleHeader = playanywhereTitleHeader;
+			mPlayAnywhereSeriesTitleHeader = playanywhereSeriesTitleHeader;
 			mPCTitleHeader = pcTitleHeader;
 
 			ThumbnailUrl = game.Thumbnail;
@@ -375,7 +385,7 @@ namespace xKorean
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()
 		{
-			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.SeriesXS, Game.OneS, Game.PC, mSeriesXSTitleHeader, mOneTitleHeader, mPCTitleHeader))
+			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere, mSeriesXSTitleHeader, mOneTitleHeader, mPlayAnywhereSeriesTitleHeader, mPlayAnywhereTitleHeader, mPCTitleHeader))
 				NotifyPropertyChanged("ThumbnailPath");
 		}
 

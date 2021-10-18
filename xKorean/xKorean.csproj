@@ -169,6 +169,8 @@
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\windows_title.png" />
     <Content Include="Assets\xbox_one_title.png" />
+    <Content Include="Assets\xbox_playanywhere_title.png" />
+    <Content Include="Assets\xbox_playanywhere_xs_title.png" />
     <Content Include="Assets\xbox_series_xs_title.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />

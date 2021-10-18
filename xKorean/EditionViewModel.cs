@@ -224,6 +224,11 @@ namespace xKorean
 			set;
 		}
 
+		public string PlayAnywhere {
+			private get;
+			set;
+		}
+
 		public string ThumbnailUrl {
 			private get;
 			set;
@@ -239,6 +244,18 @@ namespace xKorean
 			set;
 		}
 
+		public byte[] PlayAnywhereSeriesHeader
+		{
+			private get;
+			set;
+		}
+
+		public byte[] PlayAnywhereHeader
+		{
+			private get;
+			set;
+		}
+
 		public byte[] PCHeader {
 			private get;
 			set;
@@ -249,7 +266,13 @@ namespace xKorean
 			get
 			{
 				var fileName = ID;
-				if (SeriesXS == "O")
+				if (PlayAnywhere == "O") {
+					if (SeriesXS == "O")
+						fileName += "_playanywhere_xs";
+					else if (OneS == "O")
+						fileName += "_playanywhere_os";
+				}
+				else if (SeriesXS == "O")
 					fileName += "_xs";
 				else if (OneS == "O")
 					fileName += "_os";
@@ -288,7 +311,7 @@ namespace xKorean
 			{
 				if (!mThumbnailCached)
 				{
-					if (await Utils.DownloadImage(ThumbnailUrl, ID, SeriesXS, OneS, PC, SeriesXSHeader, OneSHeader, PCHeader))
+					if (await Utils.DownloadImage(ThumbnailUrl, ID, SeriesXS, OneS, PC, PlayAnywhere, SeriesXSHeader, OneSHeader, PlayAnywhereSeriesHeader, PlayAnywhereHeader, PCHeader))
 						NotifyPropertyChanged("ThumbnailPath");
 				}	
 			}
