@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\xKorean\\xKorean\\xKorean.csproj": {}
+    "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj": {}
   },
   "projects": {
-    "D:\\xKorean\\xKorean\\xKorean.csproj": {
+    "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\xKorean\\xKorean\\xKorean.csproj",
+        "projectUniqueName": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj",
         "projectName": "xKorean",
-        "projectPath": "D:\\xKorean\\xKorean\\xKorean.csproj",
-        "packagesPath": "C:\\Users\\mg2000\\.nuget\\packages\\",
-        "outputPath": "D:\\xKorean\\xKorean\\obj\\",
+        "projectPath": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\xKorean.csproj",
+        "packagesPath": "C:\\Users\\mg200\\.nuget\\packages\\",
+        "outputPath": "D:\\My Documents\\Visual Studio Projects\\xKorean\\xKorean\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "fallbackFolders": [
@@ -20,7 +20,7 @@
           "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\mg2000\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mg200\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
@@ -30,6 +30,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "D:\\nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,27 +44,27 @@
           "dependencies": {
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
-              "version": "[6.2.12, )"
+              "version": "[6.2.13, )"
             },
             "Microsoft.Toolkit.Uwp": {
               "target": "Package",
-              "version": "[7.0.2, )"
+              "version": "[7.1.1, )"
             },
             "Microsoft.Toolkit.Uwp.Notifications": {
               "target": "Package",
-              "version": "[7.0.2, )"
+              "version": "[7.1.1, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Animations": {
               "target": "Package",
-              "version": "[7.0.2, )"
+              "version": "[7.1.1, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Controls": {
               "target": "Package",
-              "version": "[7.0.2, )"
+              "version": "[7.1.1, )"
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
-              "version": "[2.6.2, )"
+              "version": "[2.7.0, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",

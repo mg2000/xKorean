@@ -273,8 +273,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -330,12 +330,14 @@ namespace xKorean
 			}
 			catch (Exception exception)
 			{
-				Debug.WriteLine($"다운로드 에러: {exception.Message}");
-
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
 
-				var dialog = new MessageDialog("서버에서 한국어 지원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.", "데이터 수신 오류");
+				var additionalMessage = "";
+				if (exception.Message != null && exception.Message.Trim() != "")
+					additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
+
+				var dialog = new MessageDialog($"서버에서 한국어 지원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.{additionalMessage}", "데이터 수신 오류");
 				if (mDialogQueue.TryAdd(dialog, 500))
 				{
 					await dialog.ShowAsync();
@@ -354,8 +356,8 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -404,13 +406,14 @@ namespace xKorean
 			}
 			catch (Exception exception)
 			{
-				Debug.WriteLine($"다운로드 에러: {exception.Message}");
-				Debug.WriteLine(exception.StackTrace);
-
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
 
-				var dialog = new MessageDialog("서버에서 한글화 정보를 다운로드할 수 없습니다.", "데이터 수신 오류");
+				var additionalMessage = "";
+				if (exception.Message != null && exception.Message.Trim() != "")
+					additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
+
+				var dialog = new MessageDialog($"서버에서 한글화 정보를 다운로드할 수 없습니다.{additionalMessage}", "데이터 수신 오류");
 				await dialog.ShowAsync();
 			}
 		}
@@ -1416,23 +1419,6 @@ namespace xKorean
 			}
 		}
 
-		private async Task PlayCloud(Game game) {
-			if (game.GamePassCloud != "")
-				await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/ko-KR/play/launch/xKorean/{game.ID}"));
-			else
-			{
-				foreach (var bundle in game.Bundle)
-				{
-					if (bundle.GamePassCloud != "")
-					{
-						await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/ko-KR/play/launch/xKorean/{bundle.ID}"));
-						break;
-					}
-				}
-			}
-			
-		}
-
 		private void HttpProgressCallback(HttpProgress progress) {
 			if (progress.TotalBytesToReceive == null)
 				return;
@@ -1530,13 +1516,6 @@ namespace xKorean
 			}
 		}
 
-		private async void MenuRunCloud_Click(object sender, RoutedEventArgs e)
-		{
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-
-			await PlayCloud(game.Game);
-		}
-
 		private async void GamesView_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
 		{
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
@@ -1544,12 +1523,6 @@ namespace xKorean
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
 				if (e.Key == VirtualKey.GamepadMenu)
 					await ShowErrorReportDialog(game);
-				else if (e.Key == VirtualKey.GamepadView)
-					await PlayCloud(game.Game);
-				else if (e.Key == VirtualKey.GamepadX)
-					await OpenLink(game.Game, LinkType.RemasterTitle);
-				else if (e.Key == VirtualKey.GamepadY)
-					await OpenLink(game.Game, LinkType.OneTitle);
 			}
 		}
 

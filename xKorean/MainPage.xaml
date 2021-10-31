@@ -283,7 +283,6 @@
 								</Grid>
 								<Grid.ContextFlyout>
 									<MenuFlyout>
-										<MenuFlyoutItem x:Name="MenuRunCloud" Text="클라우드로 실행" Click="MenuRunCloud_Click" Visibility="Collapsed" />
 										<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 									</MenuFlyout>
 								</Grid.ContextFlyout>
