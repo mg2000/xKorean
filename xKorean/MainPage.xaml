@@ -206,7 +206,7 @@
 								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyUp="GamesView_KeyUp">
 					<controls:AdaptiveGridView.ItemTemplate>
 						<DataTemplate x:DataType="local:Game">
-							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerEntered="Grid_PointerEntered">
+							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black">
 								<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
 								<Viewbox Grid.Row="0" MaxWidth="{Binding MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
 									<Image x:Name="ThumbnailImage" Source="{Binding ThumbnailPath}" Tag="{Binding ID}" ImageOpened="PosterImage_ImageOpened"></Image>
