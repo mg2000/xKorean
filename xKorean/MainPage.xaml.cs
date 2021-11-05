@@ -620,7 +620,8 @@ namespace xKorean
 				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={id}"));
 			else
 			{
-				await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/{language}/games/store/xkorean/{id}"));
+				//await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/{language}/games/store/xkorean/{id}"));
+				await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{language}/p/xkorean/{id}"));
 			}
 		}
 
