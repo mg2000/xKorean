@@ -167,9 +167,9 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<RadioButton x:Name="AllRadioButton" Content="한국어 지원" Checked="TimingRadioButton_Checked" IsChecked="True" GroupName="InVaultTimeRadioButtons"/>
-									<RadioButton x:Name="KoreanVoiceRadioButton" Content="한국어 음성 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
-									<RadioButton x:Name="KoreanSubtitleRadioButton" Content="한국어 자막 지원" Checked="TimingRadioButton_Checked" GroupName="InVaultTimeRadioButtons"/>
+									<RadioButton x:Name="AllRadioButton" Content="한국어 지원" IsChecked="True" GroupName="InVaultTimeRadioButtons" Click="TimingRadioButton_Click"/>
+									<RadioButton x:Name="KoreanVoiceRadioButton" Content="한국어 음성 지원" GroupName="InVaultTimeRadioButtons" Click="TimingRadioButton_Click"/>
+									<RadioButton x:Name="KoreanSubtitleRadioButton" Content="한국어 자막 지원" GroupName="InVaultTimeRadioButtons" Click="TimingRadioButton_Click"/>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -177,12 +177,15 @@
 					<AppBarSeparator/>
 					<AppBarButton Icon="Sort" Label="정렬">
 						<AppBarButton.Flyout>
-							<MenuFlyout>
-								<muxc:RadioMenuFlyoutItem x:Name="OrderByNameAscendItem" Text="이름 순 오름차순" Click="OrderByNameAscendItem_Click"></muxc:RadioMenuFlyoutItem>
-								<muxc:RadioMenuFlyoutItem x:Name="OrderByNameDescendItem" Text="이름 순 내림차순" Click="OrderByNameDescendItem_Click"></muxc:RadioMenuFlyoutItem>
-								<muxc:RadioMenuFlyoutItem x:Name="OrderByReleaseAscendItem" Text="출시일 오름차순" Click="OrderByReleaseAscendItem_Click"></muxc:RadioMenuFlyoutItem>
-								<muxc:RadioMenuFlyoutItem x:Name="OrderByReleaseDescendItem" Text="출시일 내림차순" Click="OrderByReleaseDescendItem_Click"></muxc:RadioMenuFlyoutItem>
-							</MenuFlyout>
+							<Flyout>
+								<StackPanel Orientation="Vertical">
+									<RadioButton x:Name="OrderByNameAscendItem" Content="이름 순 오름차순" Click="OrderByNameAscendItem_Click" GroupName="OrderRadioButtons"/>
+									<RadioButton x:Name="OrderByNameDescendItem" Content="이름 순 내림차순" Click="OrderByNameDescendItem_Click" GroupName="OrderRadioButtons"/>
+									<RadioButton x:Name="OrderByReleaseAscendItem" Content="출시일 오름차순" Click="OrderByReleaseAscendItem_Click" GroupName="OrderRadioButtons"/>
+									<RadioButton x:Name="OrderByReleaseDescendItem" Content="출시일 내림차순" Click="OrderByReleaseDescendItem_Click" GroupName="OrderRadioButtons"/>
+									<CheckBox x:Name="RecommendCheckBox" Click="RecommendCheckBox_Click" Content="추천 게임 우선" IsChecked="True"/>
+								</StackPanel>
+							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
 					<AppBarButton x:Name="RefreshButton"  Label="새로고침" Click="RefreshButton_Click">
@@ -224,6 +227,9 @@
 											<SolidColorBrush Color="Red" Opacity="0.9"></SolidColorBrush>
 										</Grid.Background>
 										<TextBlock Text="{Binding UnavailableReason}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+									</Grid>
+									<Grid Grid.Row="1">
+										<Image x:Name="RecommandImage" Source="ms-appx:///Assets/recommend.png" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>
 									</Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
 										<Grid.Background>
@@ -283,6 +289,7 @@
 								</Grid>
 								<Grid.ContextFlyout>
 									<MenuFlyout>
+										<MenuFlyoutItem x:Name="MenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
 										<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 									</MenuFlyout>
 								</Grid.ContextFlyout>

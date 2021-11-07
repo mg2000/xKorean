@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>DFEB066D77B63F8668FBA5B6CD268B99F48FCA8E</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>148FC5BB9319205AEC05402966F8AE3B7EA4059A</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -167,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Package.StoreAssociation.xml" />
+    <Content Include="Assets\recommend.png" />
     <Content Include="Assets\windows_title.png" />
     <Content Include="Assets\xbox_one_title.png" />
     <Content Include="Assets\xbox_playanywhere_title.png" />

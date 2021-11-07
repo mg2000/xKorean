@@ -69,6 +69,9 @@ namespace xKorean
 
 		private int mSelectedIdx = 0;
 
+		private string mDeviceID = "";
+		private int mRecommendCount = 5;
+
 		public MainPage()
 		{
 			this.InitializeComponent();
@@ -111,6 +114,9 @@ namespace xKorean
 			if (localSettings.Values["cloud"] != null)
 				CategoryCloudCheckBox.IsChecked = (bool)localSettings.Values["cloud"];
 
+			if (localSettings.Values["recommendPriority"] != null)
+				RecommendCheckBox.IsChecked = (bool)localSettings.Values["recommendPriority"];
+
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
 			mMessageTemplateMap["windowsmod"] = "이 게임은 윈도우에서 한글 패치를 설치하셔야 한국어가 지원됩니다.";
@@ -132,8 +138,9 @@ namespace xKorean
 			CacheFolderChecked += App_CacheFolderChecked;
 			
 			EasClientDeviceInformation eas = new EasClientDeviceInformation();
+			mDeviceID = eas.Id.ToString().ToUpper();
 
-			Debug.WriteLine($"디바이스 정보 {eas.SystemManufacturer}, {eas.SystemProductName}");
+			Debug.WriteLine($"디바이스 정보 {mDeviceID}");
 			Debug.WriteLine($"지역 정보: {Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion}");
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
@@ -273,8 +280,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -356,8 +363,8 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -414,7 +421,11 @@ namespace xKorean
 					additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
 
 				var dialog = new MessageDialog($"서버에서 한글화 정보를 다운로드할 수 없습니다.{additionalMessage}", "데이터 수신 오류");
-				await dialog.ShowAsync();
+				if (mDialogQueue.TryAdd(dialog, 500))
+				{
+					await dialog.ShowAsync();
+					mDialogQueue.Take();
+				}
 			}
 		}
 		private async void ReadGamesFromJson()
@@ -480,41 +491,18 @@ namespace xKorean
 				mExistGames.Clear();
 			}
 
-			HashSet<string> genre = new HashSet<string>();
+			var recommendCount = 0;
+			foreach (var recommendGame in games.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
+			{
+				recommendGame.ShowRecommend = true;
+				recommendCount++;
+
+				if (recommendCount >= 10)
+					break;
+			}
 
 			mGameList.Clear();
 			mGameList.AddRange(games);
-
-			Games = games;
-
-			if (OrderByNameAscendItem.IsChecked)
-			{
-				if (mGameNameDisplayLanguage == "English")
-					Games = Games.OrderBy(g => g.Name).ToList();
-				else
-					Games = Games.OrderBy(g => g.KoreanName).ToList();
-			}
-			else if (OrderByNameDescendItem.IsChecked)
-			{
-				if (mGameNameDisplayLanguage == "English")
-					Games = Games.OrderByDescending(g => g.Name).ToList();
-				else
-					Games = Games.OrderByDescending(g => g.KoreanName).ToList();
-			}
-			else if (OrderByReleaseAscendItem.IsChecked)
-			{
-				if (mGameNameDisplayLanguage == "English")
-					Games = Games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
-				else
-					Games = Games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
-			}
-			else
-			{
-				if (mGameNameDisplayLanguage == "English")
-					Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
-				else
-					Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
-			}
 
 			LoadingPanel.Visibility = Visibility.Collapsed;
 			GamesView.Visibility = Visibility.Visible;
@@ -532,7 +520,6 @@ namespace xKorean
 			}
 		}
 
-		public List<Game> Games = new List<Game>();
 		public ObservableCollection<GameViewModel> GamesViewModel { get; set; } = new ObservableCollection<GameViewModel>();
 		public ObservableCollection<EditionViewModel> mEditionViewModel { get; set; } = new ObservableCollection<EditionViewModel>();
 
@@ -784,6 +771,54 @@ namespace xKorean
 
 		private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
+			List<Game> SortList(List<Game> games) {
+				var sortedList = new List<Game>();
+				if (RecommendCheckBox != null && RecommendCheckBox.IsChecked == true)
+				{
+					var recommendCount = 0;
+					foreach (var recommendGame in games.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
+					{
+						sortedList.Add(recommendGame);
+						games.Remove(recommendGame);
+						recommendCount++;
+
+						if (recommendCount >= 10)
+							break;
+					}
+				}
+
+				if (OrderByNameAscendItem.IsChecked == true)
+				{
+					if (mGameNameDisplayLanguage == "English")
+						sortedList.AddRange(games.OrderBy(g => g.Name).ToList());
+					else
+						sortedList.AddRange(games.OrderBy(g => g.KoreanName).ToList());
+				}
+				else if (OrderByNameDescendItem.IsChecked == true)
+				{
+					if (mGameNameDisplayLanguage == "English")
+						sortedList.AddRange(games.OrderByDescending(g => g.Name).ToList());
+					else
+						sortedList.AddRange(games.OrderByDescending(g => g.KoreanName).ToList());
+				}
+				else if (OrderByReleaseAscendItem.IsChecked == true)
+				{
+					if (mGameNameDisplayLanguage == "English")
+						sortedList.AddRange(games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
+					else
+						sortedList.AddRange(games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
+				}
+				else
+				{
+					if (mGameNameDisplayLanguage == "English")
+						sortedList.AddRange(games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
+					else
+						sortedList.AddRange(games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
+				}
+
+				return sortedList;
+			}
+
 			TextBox searchBlock = sender as TextBox;
 			string text;
 			if (searchBlock == null)
@@ -791,81 +826,83 @@ namespace xKorean
 			else
 				text = searchBlock.Text;
 
-			var gamesFilteredByCategories = FilterByDevices(Games.ToArray());
+			
+
+			var gamesFilteredByCategories = FilterByDevices(mGameList.ToArray());
 			if (gamesFilteredByCategories == null)
 			{
-				gamesFilteredByCategories = Games.ToArray();
+				gamesFilteredByCategories = mGameList.ToArray();
 			}
 			var gamesFilteredByTiming = FilterByTiming(gamesFilteredByCategories);
 			if (gamesFilteredByTiming == null)
 			{
-				gamesFilteredByTiming = Games.ToArray();
+				gamesFilteredByTiming = mGameList.ToArray();
 			}
 			var gamesFilteredByGamePass = FilterByGamePass(gamesFilteredByTiming);
 			if (gamesFilteredByGamePass == null)
 			{
-				gamesFilteredByGamePass = Games.ToArray();
+				gamesFilteredByGamePass = mGameList.ToArray();
 			}
 			var gamesFilteredByDiscount = FilterByDiscount(gamesFilteredByGamePass);
 			if (gamesFilteredByDiscount == null)
 			{
-				gamesFilteredByDiscount = Games.ToArray();
+				gamesFilteredByDiscount = mGameList.ToArray();
 			}
 
 			var gamesFilteredByPlayAnywhere = FilterByPlayAnywhere(gamesFilteredByDiscount);
 			if (gamesFilteredByPlayAnywhere == null)
 			{
-				gamesFilteredByPlayAnywhere = Games.ToArray();
+				gamesFilteredByPlayAnywhere = mGameList.ToArray();
 			}
 
 			var gamesFilteredByDolbyAtmos = FilterByDolbyAtmos(gamesFilteredByPlayAnywhere);
 			if (gamesFilteredByDolbyAtmos == null)
 			{
-				gamesFilteredByDolbyAtmos = Games.ToArray();
+				gamesFilteredByDolbyAtmos = mGameList.ToArray();
 			}
 
 			var gamesFilteredByUseKeyboardMouse = FilterByKeyboardMouse(gamesFilteredByDolbyAtmos);
 			if (gamesFilteredByUseKeyboardMouse == null)
 			{
-				gamesFilteredByUseKeyboardMouse = Games.ToArray();
+				gamesFilteredByUseKeyboardMouse = mGameList.ToArray();
 			}
 
 			var gamesFilteredByLocalCoop = FilterByLocalCoop(gamesFilteredByUseKeyboardMouse);
 			if (gamesFilteredByLocalCoop == null)
 			{
-				gamesFilteredByLocalCoop = Games.ToArray();
+				gamesFilteredByLocalCoop = mGameList.ToArray();
 			}
 
 			var gamesFilteredByOnlineCoop = FilterByOnlineCoop(gamesFilteredByLocalCoop);
 			if (gamesFilteredByOnlineCoop == null)
 			{
-				gamesFilteredByOnlineCoop = Games.ToArray();
+				gamesFilteredByOnlineCoop = mGameList.ToArray();
 			}
 
 			var gamesFilteredByFPS120 = FilterByFPS120(gamesFilteredByOnlineCoop);
 			if (gamesFilteredByFPS120 == null)
 			{
-				gamesFilteredByFPS120 = Games.ToArray();
+				gamesFilteredByFPS120 = mGameList.ToArray();
 			}
 
 			var gamesFilteredByFPSBoost = FilterByFPSBoost(gamesFilteredByFPS120);
 			if (gamesFilteredByFPSBoost == null)
 			{
-				gamesFilteredByFPSBoost = Games.ToArray();
+				gamesFilteredByFPSBoost = mGameList.ToArray();
 			}
 
 			// 장르별 검색
 			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByFPSBoost);
 			if (gamesFilteredByCategory == null)
 			{
-				gamesFilteredByCategory = Games.ToArray();
+				gamesFilteredByCategory = mGameList.ToArray();
 			}
 
 			// 장르별 검색
 			var gamesFilteredByF2P = FilterByF2P(gamesFilteredByCategory);
 			if (gamesFilteredByF2P == null)
 			{
-				gamesFilteredByF2P = Games.ToArray();
+				gamesFilteredByF2P = mGameList.ToArray();
 			}
 
 
@@ -873,11 +910,11 @@ namespace xKorean
 			{
 				if (gamesFilteredByF2P == null)
 				{
-					gamesFilteredByF2P = Games.ToArray();
+					gamesFilteredByF2P = mGameList.ToArray();
 				}
-				var games = (from g in gamesFilteredByF2P
+				var games = SortList((from g in gamesFilteredByF2P
 							 where g.KoreanName.ToLower().Contains(text.ToLower().Trim()) || g.Name.ToLower().Contains(text.ToLower().Trim())
-							 select g).ToArray();
+							 select g).ToList());
 
 				GamesViewModel.Clear();
 				foreach (var g in games)
@@ -885,18 +922,18 @@ namespace xKorean
 					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
 				}
 
-				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Length:#,#0}개)";
+				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
 
 			}
 			else
 			{
 				GamesViewModel.Clear();
-				foreach (var game in Games)
+				foreach (var game in SortList(mGameList))
 				{
 					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
 				}
 
-				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({Games.Count:#,#0}개)";
+				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({mGameList.Count:#,#0}개)";
 			}
 		}
 
@@ -1061,11 +1098,6 @@ namespace xKorean
 				
 		private async void OrderByNameAscendItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (mGameNameDisplayLanguage == "English")
-				Games = Games.OrderBy(g => g.Name).ToList();
-			else
-				Games = Games.OrderBy(g => g.KoreanName).ToList();
-
 			SearchBox_TextChanged(SearchBox, null);
 
 			await Settings.Instance.SetValue("orderType", "name_asc");
@@ -1073,11 +1105,6 @@ namespace xKorean
 
 		private async void OrderByNameDescendItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (mGameNameDisplayLanguage == "English")
-				Games = Games.OrderByDescending(g => g.Name).ToList();
-			else
-				Games = Games.OrderByDescending(g => g.KoreanName).ToList();
-
 			SearchBox_TextChanged(SearchBox, null);
 
 			await Settings.Instance.SetValue("orderType", "name_desc");
@@ -1085,11 +1112,6 @@ namespace xKorean
 
 		private async void OrderByReleaseAscendItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (mGameNameDisplayLanguage == "English")
-				Games = Games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
-			else
-				Games = Games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
-
 			SearchBox_TextChanged(SearchBox, null);
 
 			await Settings.Instance.SetValue("orderType", "release_asc");
@@ -1097,11 +1119,6 @@ namespace xKorean
 
 		private async void OrderByReleaseDescendItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (mGameNameDisplayLanguage == "English")
-				Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList();
-			else
-				Games = Games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList();
-
 			SearchBox_TextChanged(SearchBox, null);
 
 			await Settings.Instance.SetValue("orderType", "release_desc");
@@ -1439,6 +1456,15 @@ namespace xKorean
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
+		private void RecommendCheckBox_Click(object sender, RoutedEventArgs e)
+		{
+			SearchBox_TextChanged(SearchBox, null);
+
+			var localSettings = ApplicationData.Current.LocalSettings;
+
+			localSettings.Values["recommendPriority"] = (sender as CheckBox).IsChecked;
+		}
+
 		private void UpdateCategoriesState() {
 			var localSettings = ApplicationData.Current.LocalSettings;
 
@@ -1467,11 +1493,7 @@ namespace xKorean
 			await CheckUpdateTime();
 		}
 
-		private void TimingRadioButton_Checked(object sender, RoutedEventArgs e)
-		{
-			SearchBox_TextChanged(SearchBox, null);
-		}
-
+		
 		private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
 		{
 			var dialog = new SettingDialog();
@@ -1522,9 +1544,88 @@ namespace xKorean
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
-				if (e.Key == VirtualKey.GamepadMenu)
-					await ShowErrorReportDialog(game);
+				switch (e.Key)
+				{
+					case VirtualKey.GamepadMenu:
+						await ShowErrorReportDialog(game);
+						break;
+					case VirtualKey.GamepadX:
+						await RecommendGame(game);
+						break;
+				}
 			}
+		}
+
+		private async void MenuRecommend_Click(object sender, RoutedEventArgs e)
+		{
+			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+			await RecommendGame(game);
+		}
+
+		private async Task RecommendGame(GameViewModel game) {
+			var message = "";
+
+			if (mRecommendCount == 0)
+				message = "추천은 한번에 5번까지만 하실 수 있습니다.";
+			else
+			{
+				var requestParam = new Dictionary<string, string>
+				{
+					["product_id"] = game.ID,
+					["device_id"] = mDeviceID
+				};
+
+
+				try
+				{
+					var httpClient = new HttpClient();
+
+#if DEBUG
+					var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#else
+					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#endif
+
+					var str = await response.Content.ReadAsStringAsync();
+
+					var resultMap = new Dictionary<string, string>();
+
+					try
+					{
+						resultMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
+					}
+					catch (JsonReaderException jsonErr)
+					{
+						resultMap["code"] = "PARSE_ERROR";
+					}
+
+					if (resultMap["code"] == "SUCCESS")
+					{
+						message = "해당 게임을 추천하였습니다.";
+						mRecommendCount--;
+					}
+					else if (resultMap["code"] == "ALREADY_RECOMMEND")
+						message = "이미 추천한 게임입니다.";
+					else
+						message = "해당 게임을 추천할 수 없습니다. 잠시 후 다시 시도해 주십시오.";
+				}
+				catch (Exception err)
+				{
+					message = "서버와 연결할 수 없습니다. 잠시 후 다시 시도해 주십시오.";
+				}
+			}
+
+			var content = new ToastContentBuilder()
+				.AddText("추천 결과", hintMaxLines: 1)
+				.AddText(message)
+				.GetToastContent();
+
+			var notif = new ToastNotification(content.GetXml());
+
+			// And show it!
+			ToastNotificationManager.History.Clear();
+			ToastNotificationManager.CreateToastNotifier().Show(notif);
 		}
 
 		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
@@ -1637,6 +1738,11 @@ namespace xKorean
 		private void CategoryCheckBox_Click(object sender, RoutedEventArgs e)
 		{
 			UpdateCategoriesState();
+			SearchBox_TextChanged(SearchBox, null);
+		}
+
+		private void TimingRadioButton_Click(object sender, RoutedEventArgs e)
+		{
 			SearchBox_TextChanged(SearchBox, null);
 		}
 	}

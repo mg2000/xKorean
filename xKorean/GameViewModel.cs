@@ -257,6 +257,12 @@ namespace xKorean
 			}
 		}
 
+		public bool ShowRecommend {
+			get {
+				return Game.ShowRecommend;
+			}
+		}
+
 		public string GamePass
 		{
 			get
