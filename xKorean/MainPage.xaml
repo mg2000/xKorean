@@ -230,8 +230,8 @@
 									</Grid>
 									<Grid Grid.Row="1">
 										<controls:WrapPanel Margin="3">
-											<Border Background="Red">
-												<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top"  Visibility="{Binding ShowRecommend}">추천</TextBlock>
+											<Border Background="Yellow">
+												<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top"  Visibility="{Binding ShowRecommend}">추천</TextBlock>
 											</Border>
 										</controls:WrapPanel>
 <!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
