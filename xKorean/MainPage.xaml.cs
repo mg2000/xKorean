@@ -491,16 +491,6 @@ namespace xKorean
 				mExistGames.Clear();
 			}
 
-			var recommendCount = 0;
-			foreach (var recommendGame in games.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
-			{
-				recommendGame.ShowRecommend = true;
-				recommendCount++;
-
-				if (recommendCount >= 10)
-					break;
-			}
-
 			mGameList.Clear();
 			mGameList.AddRange(games);
 
@@ -771,18 +761,50 @@ namespace xKorean
 
 		private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			List<Game> SortList(List<Game> games) {
+			List<Game> SortList(List<Game> unSortedGames) {
 				var sortedList = new List<Game>();
 				if (RecommendCheckBox != null && RecommendCheckBox.IsChecked == true)
 				{
-					var recommendCount = 0;
-					foreach (var recommendGame in games.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
+					var recommendUnsortedCount = 0;
+
+					var recommendedList = unSortedGames.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend);
+
+					if (OrderByNameAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							recommendedList = recommendedList.ThenBy(g => g.Name);
+						else
+							recommendedList = recommendedList.ThenBy(g => g.KoreanName);
+					}
+					else if (OrderByNameDescendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							recommendedList = recommendedList.ThenByDescending(g => g.Name);
+						else
+							recommendedList = recommendedList.ThenByDescending(g => g.KoreanName);
+					}
+					else if (OrderByReleaseAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							recommendedList = recommendedList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+						else
+							recommendedList = recommendedList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+					}
+					else
+					{
+						if (mGameNameDisplayLanguage == "English")
+							recommendedList = recommendedList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+						else
+							recommendedList = recommendedList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+					}
+
+					foreach (var recommendGame in recommendedList)
 					{
 						sortedList.Add(recommendGame);
-						games.Remove(recommendGame);
-						recommendCount++;
+						unSortedGames.Remove(recommendGame);
+						recommendUnsortedCount++;
 
-						if (recommendCount >= 10)
+						if (recommendUnsortedCount >= 10)
 							break;
 					}
 				}
@@ -790,30 +812,32 @@ namespace xKorean
 				if (OrderByNameAscendItem.IsChecked == true)
 				{
 					if (mGameNameDisplayLanguage == "English")
-						sortedList.AddRange(games.OrderBy(g => g.Name).ToList());
+					{
+						sortedList.AddRange(unSortedGames.OrderBy(g => g.Name).ToList());
+					}
 					else
-						sortedList.AddRange(games.OrderBy(g => g.KoreanName).ToList());
+						sortedList.AddRange(unSortedGames.OrderBy(g => g.KoreanName).ToList());
 				}
 				else if (OrderByNameDescendItem.IsChecked == true)
 				{
 					if (mGameNameDisplayLanguage == "English")
-						sortedList.AddRange(games.OrderByDescending(g => g.Name).ToList());
+						sortedList.AddRange(unSortedGames.OrderByDescending(g => g.Name).ToList());
 					else
-						sortedList.AddRange(games.OrderByDescending(g => g.KoreanName).ToList());
+						sortedList.AddRange(unSortedGames.OrderByDescending(g => g.KoreanName).ToList());
 				}
 				else if (OrderByReleaseAscendItem.IsChecked == true)
 				{
 					if (mGameNameDisplayLanguage == "English")
-						sortedList.AddRange(games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
+						sortedList.AddRange(unSortedGames.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
 					else
-						sortedList.AddRange(games.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
+						sortedList.AddRange(unSortedGames.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
 				}
 				else
 				{
 					if (mGameNameDisplayLanguage == "English")
-						sortedList.AddRange(games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
+						sortedList.AddRange(unSortedGames.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name).ToList());
 					else
-						sortedList.AddRange(games.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
+						sortedList.AddRange(unSortedGames.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName).ToList());
 				}
 
 				return sortedList;
@@ -826,262 +850,194 @@ namespace xKorean
 			else
 				text = searchBlock.Text;
 
-			
-
-			var gamesFilteredByCategories = FilterByDevices(mGameList.ToArray());
-			if (gamesFilteredByCategories == null)
+			var gamesFilteredByDevices = FilterByDevices(mGameList);
+			if (gamesFilteredByDevices == null)
 			{
-				gamesFilteredByCategories = mGameList.ToArray();
-			}
-			var gamesFilteredByTiming = FilterByTiming(gamesFilteredByCategories);
-			if (gamesFilteredByTiming == null)
-			{
-				gamesFilteredByTiming = mGameList.ToArray();
-			}
-			var gamesFilteredByGamePass = FilterByGamePass(gamesFilteredByTiming);
-			if (gamesFilteredByGamePass == null)
-			{
-				gamesFilteredByGamePass = mGameList.ToArray();
-			}
-			var gamesFilteredByDiscount = FilterByDiscount(gamesFilteredByGamePass);
-			if (gamesFilteredByDiscount == null)
-			{
-				gamesFilteredByDiscount = mGameList.ToArray();
+				gamesFilteredByDevices = mGameList;
 			}
 
-			var gamesFilteredByPlayAnywhere = FilterByPlayAnywhere(gamesFilteredByDiscount);
-			if (gamesFilteredByPlayAnywhere == null)
+			var recommendCount = 0;
+			foreach (var recommendGame in gamesFilteredByDevices.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
 			{
-				gamesFilteredByPlayAnywhere = mGameList.ToArray();
-			}
-
-			var gamesFilteredByDolbyAtmos = FilterByDolbyAtmos(gamesFilteredByPlayAnywhere);
-			if (gamesFilteredByDolbyAtmos == null)
-			{
-				gamesFilteredByDolbyAtmos = mGameList.ToArray();
-			}
-
-			var gamesFilteredByUseKeyboardMouse = FilterByKeyboardMouse(gamesFilteredByDolbyAtmos);
-			if (gamesFilteredByUseKeyboardMouse == null)
-			{
-				gamesFilteredByUseKeyboardMouse = mGameList.ToArray();
-			}
-
-			var gamesFilteredByLocalCoop = FilterByLocalCoop(gamesFilteredByUseKeyboardMouse);
-			if (gamesFilteredByLocalCoop == null)
-			{
-				gamesFilteredByLocalCoop = mGameList.ToArray();
-			}
-
-			var gamesFilteredByOnlineCoop = FilterByOnlineCoop(gamesFilteredByLocalCoop);
-			if (gamesFilteredByOnlineCoop == null)
-			{
-				gamesFilteredByOnlineCoop = mGameList.ToArray();
-			}
-
-			var gamesFilteredByFPS120 = FilterByFPS120(gamesFilteredByOnlineCoop);
-			if (gamesFilteredByFPS120 == null)
-			{
-				gamesFilteredByFPS120 = mGameList.ToArray();
-			}
-
-			var gamesFilteredByFPSBoost = FilterByFPSBoost(gamesFilteredByFPS120);
-			if (gamesFilteredByFPSBoost == null)
-			{
-				gamesFilteredByFPSBoost = mGameList.ToArray();
-			}
-
-			// 장르별 검색
-			var gamesFilteredByCategory = FilterByCategory(gamesFilteredByFPSBoost);
-			if (gamesFilteredByCategory == null)
-			{
-				gamesFilteredByCategory = mGameList.ToArray();
-			}
-
-			// 장르별 검색
-			var gamesFilteredByF2P = FilterByF2P(gamesFilteredByCategory);
-			if (gamesFilteredByF2P == null)
-			{
-				gamesFilteredByF2P = mGameList.ToArray();
-			}
-
-
-			if (text.Trim() != string.Empty || gamesFilteredByF2P != null)
-			{
-				if (gamesFilteredByF2P == null)
+				if (recommendCount < 10)
 				{
-					gamesFilteredByF2P = mGameList.ToArray();
+					recommendGame.ShowRecommend = true;
+					recommendCount++;
 				}
-				var games = SortList((from g in gamesFilteredByF2P
-							 where g.KoreanName.ToLower().Contains(text.ToLower().Trim()) || g.Name.ToLower().Contains(text.ToLower().Trim())
-							 select g).ToList());
+				else
+					recommendGame.ShowRecommend = false;
+			}
 
-				GamesViewModel.Clear();
-				foreach (var g in games)
+			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
+            {
+				// 한국어 지원 범위 필터링
+				if ((KoreanVoiceRadioButton != null && (bool)KoreanVoiceRadioButton.IsChecked && !gamesFilteredByDevices[i].Localize.Contains("음성")) ||
+					(KoreanSubtitleRadioButton != null && (bool)KoreanSubtitleRadioButton.IsChecked && !gamesFilteredByDevices[i].Localize.Contains("자막")))
 				{
-					GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
+					gamesFilteredByDevices.RemoveAt(i);
+					i--;
+					continue;
 				}
 
-				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
-
-			}
-			else
-			{
-				GamesViewModel.Clear();
-				foreach (var game in SortList(mGameList))
+				// 게임패스 필터링
+				if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
 				{
-					GamesViewModel.Add(new GameViewModel(game, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
-				}
-
-				TitleBlock.Text = $"한국어 지원 타이틀 목록 ({mGameList.Count:#,#0}개)";
-			}
-		}
-
-		private Game[] FilterByTiming(Game[] gamesFilteredByCategories)
-		{
-			Game[] filteredGames = gamesFilteredByCategories;
-
-			if (KoreanVoiceRadioButton != null && (bool)KoreanVoiceRadioButton.IsChecked)
-			{
-				filteredGames = (from g in gamesFilteredByCategories where g.Localize.Contains("음성") select g).ToArray();
-			}
-			else if (KoreanSubtitleRadioButton != null && (bool)KoreanSubtitleRadioButton.IsChecked)
-			{
-				filteredGames = (from g in gamesFilteredByCategories where g.Localize.Contains("자막") select g).ToArray();
-			}
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByGamePass(Game[] gamesFilteredByTiming)
-		{
-			List<Game> filteredGames = new List<Game>();
-
-			if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
-			{
-				foreach (var game in gamesFilteredByTiming)
-				{
-					if (game.GamePassCloud == "O" || game.GamePassPC == "O" || game.GamePassConsole == "O")
+					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" || gamesFilteredByDevices[i].GamePassConsole == "")
 					{
-						filteredGames.Add(game);
+						if (gamesFilteredByDevices[i].Bundle.Count > 0)
+                        {
+							var gamePass = false;
+							foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+							{
+								
+								if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
+								{
+									gamePass = true;
+									break;
+								}
+							}
+
+							if (!gamePass)
+                            {
+								gamesFilteredByDevices.RemoveAt(i);
+								i--;
+								continue;
+							}
+						}
+						else
+                        {
+							gamesFilteredByDevices.RemoveAt(i);
+							i--;
+							continue;
+						}
 					}
-					else if (game.Bundle.Count > 0)
+				}
+
+				if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked)
+				{
+					if (gamesFilteredByDevices[i].Discount.Contains("출시"))
 					{
-						foreach (var bundle in game.Bundle)
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+
+					if ((gamesFilteredByDevices[i].Discount == "" || gamesFilteredByDevices[i].Discount == "판매 중지" || gamesFilteredByDevices[i].Discount.Contains("무료")) && gamesFilteredByDevices[i].Bundle.Count == 0)
+					{
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+
+					if (!gamesFilteredByDevices[i].Discount.Contains("할인") && gamesFilteredByDevices[i].Bundle.Count > 0)
+                    {
+						var discount = false;
+						foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+                        {
+							if (bundle.DiscountType.Contains("할인"))
+                            {
+								discount = true;
+								break;
+                            }
+                        }
+
+						if (!discount)
 						{
-							if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
-							{
-								filteredGames.Add(game);
-								break;
-							}
-						}
-					}
-				}
-			
-				return filteredGames.ToArray();
-			}
-			else
-				return gamesFilteredByTiming;
-		}
-
-		private Game[] FilterByDiscount(Game[] gamesFilteredByGamePass)
-		{
-			List<Game> filteredGames = new List<Game>();
-
-
-			if (DiscountCheckBox != null && (bool)DiscountCheckBox.IsChecked) {
-				foreach (var game in gamesFilteredByGamePass) {
-					if (game.Discount != "" && !game.Discount.Contains("출시") && !game.Discount.Contains("판매") && game.Discount.IndexOf("무료") == -1)
-						filteredGames.Add(game);
-					else {
-						foreach (var bundle in game.Bundle) {
-							if (bundle.DiscountType != "" && !bundle.DiscountType.Contains("출시") && !bundle.DiscountType.Contains("판매") && game.Discount.IndexOf("무료") == -1)
-							{
-								filteredGames.Add(game);
-								break;
-							}
+							gamesFilteredByDevices.RemoveAt(i);
+							i--;
+							continue;
 						}
 					}
 				}
 
-				return filteredGames.ToArray();
+				if (PlayAnywhereCheckBox != null && (bool)PlayAnywhereCheckBox.IsChecked && gamesFilteredByDevices[i].PlayAnywhere == "" ||
+					DolbyAtmosCheckBox != null && (bool)DolbyAtmosCheckBox.IsChecked && gamesFilteredByDevices[i].DolbyAtmos == "" ||
+					ConsoleKeyboardMouseCheckBox != null && (bool)ConsoleKeyboardMouseCheckBox.IsChecked && gamesFilteredByDevices[i].ConsoleKeyboardMouse == "" ||
+					LocalCoopCheckBox != null && (bool)LocalCoopCheckBox.IsChecked && gamesFilteredByDevices[i].LocalCoop == "" ||
+					OnlineCoopCheckBox != null && (bool)OnlineCoopCheckBox.IsChecked && gamesFilteredByDevices[i].OnlineCoop == "" ||
+					FPS120CheckBox != null && (bool)FPS120CheckBox.IsChecked && gamesFilteredByDevices[i].FPS120 == "" ||
+					FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked && gamesFilteredByDevices[i].FPSBoost == "" ||
+					F2PCheckBox != null && (bool)F2PCheckBox.IsChecked && !gamesFilteredByDevices[i].Discount.Contains("무료")) {
+					gamesFilteredByDevices.RemoveAt(i);
+					i--;
+					continue;
+				}
+
+				if (FamilyKidsCheckBox.IsChecked == true ||
+					FightingCheckBox.IsChecked == true ||
+					EducationalCheckBox.IsChecked == true ||
+					RacingFlyingCheckBox.IsChecked == true ||
+					RolePlayingCheckBox.IsChecked == true ||
+					MultiplayCheckBox.IsChecked == true ||
+					ShooterCheckBox.IsChecked == true ||
+					SportsCheckBox.IsChecked == true ||
+					SimulationCheckBox.IsChecked == true ||
+					ActionAdventureCheckBox.IsChecked == true ||
+					MusicCheckBox.IsChecked == true ||
+					StrategyCheckBox.IsChecked == true ||
+					CardBoardCheckBox.IsChecked == true ||
+					ClassicsCheckBox.IsChecked == true ||
+					PuzzleTriviaCheckBox.IsChecked == true ||
+					PlatformerCheckBox.IsChecked == true ||
+					CasinoCheckBox.IsChecked == true ||
+					OtherCheckBox.IsChecked == true)
+				{
+					var hasCateogry = false;
+					foreach (var category in gamesFilteredByDevices[i].Categories)
+					{
+						if ((FamilyKidsCheckBox.IsChecked == true && category == "family & kids") ||
+							(FightingCheckBox.IsChecked == true && category == "fighting") ||
+							(EducationalCheckBox.IsChecked == true && category == "educational") ||
+							(RacingFlyingCheckBox.IsChecked == true && category == "racing & flying") ||
+							(RolePlayingCheckBox.IsChecked == true && category == "role playing") ||
+							(MultiplayCheckBox.IsChecked == true && category == "multi-player online battle arena") ||
+							(ShooterCheckBox.IsChecked == true && category == "shooter") ||
+							(SportsCheckBox.IsChecked == true && category == "sports") ||
+							(SimulationCheckBox.IsChecked == true && category == "simulation") ||
+							(ActionAdventureCheckBox.IsChecked == true && category == "action & adventure") ||
+							(MusicCheckBox.IsChecked == true && category == "music") ||
+							(StrategyCheckBox.IsChecked == true && category == "strategy") ||
+							(CardBoardCheckBox.IsChecked == true && category == "card + board") ||
+							(ClassicsCheckBox.IsChecked == true && category == "classics") ||
+							(PuzzleTriviaCheckBox.IsChecked == true && category == "puzzle & trivia") ||
+							(PlatformerCheckBox.IsChecked == true && category == "platformer") ||
+							(CasinoCheckBox.IsChecked == true && category == "casino") ||
+							(OtherCheckBox.IsChecked == true && category == "other"))
+						{
+							hasCateogry = true;
+							break;
+						}
+					}
+
+					if (!hasCateogry)
+                    {
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+				}
+
+				if (text.Trim() != "" && 
+					!gamesFilteredByDevices[i].KoreanName.ToLower().Contains(text.ToLower().Trim()) &&
+					!gamesFilteredByDevices[i].Name.ToLower().Contains(text.ToLower().Trim()))
+				{
+					gamesFilteredByDevices.RemoveAt(i);
+					i--;
+					continue;
+				}
 			}
-			else
-				return gamesFilteredByGamePass;
-		}
 
-		private Game[] FilterByPlayAnywhere(Game[] gamesFilteredByDiscount)
-		{
-			Game[] filteredGames = gamesFilteredByDiscount;
+			var games = SortList(gamesFilteredByDevices);
 
-			if (PlayAnywhereCheckBox != null && (bool)PlayAnywhereCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByDiscount where g.PlayAnywhere == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByDolbyAtmos(Game[] gamesFilteredByPlayAnywhere)
-		{
-			Game[] filteredGames = gamesFilteredByPlayAnywhere;
-
-			if (DolbyAtmosCheckBox != null && (bool)DolbyAtmosCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByPlayAnywhere where g.DolbyAtmos == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByKeyboardMouse(Game[] gamesFilteredByDolbyAtmos)
-		{
-			Game[] filteredGames = gamesFilteredByDolbyAtmos;
-
-			if (ConsoleKeyboardMouseCheckBox != null && (bool)ConsoleKeyboardMouseCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByDolbyAtmos where g.ConsoleKeyboardMouse == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByLocalCoop(Game[] gamesFilteredByKeyboardMouse)
-		{
-			Game[] filteredGames = gamesFilteredByKeyboardMouse;
-
-			if (LocalCoopCheckBox != null && (bool)LocalCoopCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByKeyboardMouse where g.LocalCoop == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByOnlineCoop(Game[] gamesFilteredByLocalCoop)
-		{
-			Game[] filteredGames = gamesFilteredByLocalCoop;
-
-			if (OnlineCoopCheckBox != null && (bool)OnlineCoopCheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByLocalCoop where g.OnlineCoop == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByFPS120(Game[] gamesFilteredByOnlineCoop)
-		{
-			Game[] filteredGames = gamesFilteredByOnlineCoop;
-
-			if (FPS120CheckBox != null && (bool)FPS120CheckBox.IsChecked)
-				filteredGames = (from g in gamesFilteredByOnlineCoop where g.FPS120 == "O" select g).ToArray();
-
-			return filteredGames;
-		}
-
-		private Game[] FilterByFPSBoost(Game[] gamesFilteredByFPS120)
-		{
-			Game[] filteredGames = gamesFilteredByFPS120;
-
-			if (FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked)
+			GamesViewModel.Clear();
+			foreach (var g in games)
 			{
-				filteredGames = (from g in gamesFilteredByFPS120 where g.FPSBoost == "O" select g).ToArray();
+				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
 			}
 
-			return filteredGames;
+			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
 		}
-		
+
 		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
 		{
 			var image = sender as Image;
@@ -1124,7 +1080,7 @@ namespace xKorean
 			await Settings.Instance.SetValue("orderType", "release_desc");
 		}
 
-		private Game[] FilterByDevices(Game[] games)
+		private List<Game> FilterByDevices(List<Game> games)
 		{
 			if (CategorySeriesXSCheckBox.IsChecked == true ||
 				CategoryOneXEnhancedCheckBox.IsChecked == true ||
@@ -1165,80 +1121,11 @@ namespace xKorean
 					}
 				}
 
-				return selectGamesList.ToArray();
+				return selectGamesList;
 			}
 			else
 				return (from g in games
-						select g).ToArray();
-		}
-
-		private Game[] FilterByCategory(Game[] games)
-		{
-			if (FamilyKidsCheckBox.IsChecked != true &&
-				FightingCheckBox.IsChecked != true &&
-				EducationalCheckBox.IsChecked != true &&
-				RacingFlyingCheckBox.IsChecked != true &&
-				RolePlayingCheckBox.IsChecked != true &&
-				MultiplayCheckBox.IsChecked != true &&
-				ShooterCheckBox.IsChecked != true &&
-				SportsCheckBox.IsChecked != true &&
-				SimulationCheckBox.IsChecked != true &&
-				ActionAdventureCheckBox.IsChecked != true &&
-				MusicCheckBox.IsChecked != true &&
-				StrategyCheckBox.IsChecked != true &&
-				CardBoardCheckBox.IsChecked != true &&
-				ClassicsCheckBox.IsChecked != true &&
-				PuzzleTriviaCheckBox.IsChecked != true &&
-				PlatformerCheckBox.IsChecked != true &&
-				CasinoCheckBox.IsChecked != true &&
-				OtherCheckBox.IsChecked != true)
-				return games;
-
-			//Game[] selectedGames = null;
-			var selectGamesList = new List<Game>();
-
-			HashSet<string> checkedcategories = new HashSet<string>();
-
-			foreach (var g in games) {
-				foreach (var category in g.Categories) {
-					if ((FamilyKidsCheckBox.IsChecked == true && category == "family & kids") ||
-						(FightingCheckBox.IsChecked == true && category == "fighting") ||
-						(EducationalCheckBox.IsChecked == true && category == "educational") ||
-						(RacingFlyingCheckBox.IsChecked == true && category == "racing & flying") ||
-						(RolePlayingCheckBox.IsChecked == true && category == "role playing") ||
-						(MultiplayCheckBox.IsChecked == true && category == "multi-player online battle arena") ||
-						(ShooterCheckBox.IsChecked == true && category == "shooter") ||
-						(SportsCheckBox.IsChecked == true && category == "sports") ||
-						(SimulationCheckBox.IsChecked == true && category == "simulation") ||
-						(ActionAdventureCheckBox.IsChecked == true && category == "action & adventure") ||
-						(MusicCheckBox.IsChecked == true && category == "music") ||
-						(StrategyCheckBox.IsChecked == true && category == "strategy") ||
-						(CardBoardCheckBox.IsChecked == true && category == "card + board") ||
-						(ClassicsCheckBox.IsChecked == true && category == "classics") ||
-						(PuzzleTriviaCheckBox.IsChecked == true && category == "puzzle & trivia") ||
-						(PlatformerCheckBox.IsChecked == true && category == "platformer") ||
-						(CasinoCheckBox.IsChecked == true && category == "casino") ||
-						(OtherCheckBox.IsChecked == true && category == "other"))
-					{
-						selectGamesList.Add(g);
-						break;
-					}
-				}
-			}
-
-			return selectGamesList.ToArray();
-		}
-
-		private Game[] FilterByF2P(Game[] games)
-		{
-			Game[] filteredGames = games;
-
-			if (FPSBoostCheckBox != null && (bool)F2PCheckBox.IsChecked)
-			{
-				filteredGames = (from g in games where g.Discount.IndexOf("무료") >= 0 select g).ToArray();
-			}
-
-			return filteredGames;
+						select g).ToList();
 		}
 
 		private void UpdateItemHeight()
