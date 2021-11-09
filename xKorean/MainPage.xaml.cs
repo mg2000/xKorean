@@ -767,7 +767,7 @@ namespace xKorean
 				{
 					var recommendUnsortedCount = 0;
 
-					var recommendedList = unSortedGames.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend);
+					var recommendedList = unSortedGames.FindAll(g => g.ShowRecommend == true).OrderByDescending(g => g.Recommend);
 
 					if (OrderByNameAscendItem.IsChecked == true)
 					{
