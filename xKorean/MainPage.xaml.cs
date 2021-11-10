@@ -882,7 +882,7 @@ namespace xKorean
 				// 게임패스 필터링
 				if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
 				{
-					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" || gamesFilteredByDevices[i].GamePassConsole == "")
+					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "")
 					{
 						if (gamesFilteredByDevices[i].Bundle.Count > 0)
                         {
