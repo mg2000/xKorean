@@ -388,6 +388,28 @@ namespace xKorean
 			set;
 		} = "";
 
+		public bool ShowRecommendMeta
+		{
+			get
+			{
+				if (Game.Metascore >= 75)
+					return true;
+				else
+					return false;
+			}
+		}
+
+		public string RecommendMeta
+		{
+			get
+			{
+				if (Game.Metascore >= 90)
+					return "웹진 강력 추천";
+				else
+					return "웹진 추천";
+			}
+		}
+
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()
 		{
