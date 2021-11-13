@@ -60,7 +60,7 @@
 
 						</Grid>
 					</Grid>
-					<Grid Grid.Row="4">
+					<Grid Grid.Row="4" Visibility="{x:Bind ShowName}">
 						<Grid.Background>
 							<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
 						</Grid.Background>
@@ -276,7 +276,7 @@
 											</TextBlock>
 										</Grid>
 									</Grid>
-									<Grid Grid.Row="4">
+									<Grid Grid.Row="4" Visibility="{Binding ShowName}">
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="4*"></ColumnDefinition>
 											<ColumnDefinition Width="2*"></ColumnDefinition>
@@ -289,7 +289,7 @@
 											<ToolTip Content="{Binding Title}"/>
 										</ToolTipService.ToolTip>
 										</TextBlock>
-										<Grid Grid.Row="1" Grid.Column="1" Visibility="{Binding IsLocalizeAvaliable}">
+										<Grid Grid.Row="1" Grid.Column="1">
 											<Grid.Background>
 												<SolidColorBrush Color="{Binding LocalizeColor}" Opacity="0.8"></SolidColorBrush>
 											</Grid.Background>

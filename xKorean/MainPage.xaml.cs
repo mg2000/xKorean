@@ -72,6 +72,11 @@ namespace xKorean
 		private string mDeviceID = "";
 		private int mRecommendCount = 5;
 
+		private bool mShowRecommendTag = false;
+		private bool mShowDiscount = true;
+		private bool mShowGamepass = true;
+		private bool mShowName = true;
+
 		public MainPage()
 		{
 			this.InitializeComponent();
@@ -116,6 +121,26 @@ namespace xKorean
 
 			if (localSettings.Values["recommendPriority"] != null)
 				RecommendCheckBox.IsChecked = (bool)localSettings.Values["recommendPriority"];
+
+			if (localSettings.Values["showRecommendTag"] != null)
+				mShowRecommendTag = (bool)localSettings.Values["showRecommendTag"];
+			else
+				mShowRecommendTag = false;
+
+			if (localSettings.Values["showDiscount"] != null)
+				mShowDiscount = (bool)localSettings.Values["showDiscount"];
+			else
+				mShowDiscount = true;
+
+			if (localSettings.Values["showGamepass"] != null)
+				mShowGamepass = (bool)localSettings.Values["showGamepass"];
+			else
+				mShowGamepass = true;
+
+			if (localSettings.Values["showName"] != null)
+				mShowName = (bool)localSettings.Values["showName"];
+			else
+				mShowName = true;
 
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
@@ -280,8 +305,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -363,8 +388,8 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -555,7 +580,10 @@ namespace xKorean
 					OneSHeader = mOneTitleHeader,
 					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
 					PlayAnywhereHeader = mPlayAnywhereHeader,
-					PCHeader = mWindowsHeader
+					PCHeader = mWindowsHeader,
+					ShowDiscount = mShowDiscount,
+					ShowGamePass = mShowGamepass,
+					ShowName = mShowName
 				});
 			}
 
@@ -580,7 +608,10 @@ namespace xKorean
 					OneSHeader = mOneTitleHeader,
 					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
 					PlayAnywhereHeader = mPlayAnywhereHeader,
-					PCHeader = mWindowsHeader
+					PCHeader = mWindowsHeader,
+					ShowDiscount = mShowDiscount,
+					ShowGamePass = mShowGamepass,
+					ShowName = mShowName
 				});
 			}
 
@@ -1032,7 +1063,7 @@ namespace xKorean
 			GamesViewModel.Clear();
 			foreach (var g in games)
 			{
-				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader));
+				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader, mShowRecommendTag, mShowDiscount, mShowGamepass, mShowName));
 			}
 
 			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
@@ -1395,12 +1426,34 @@ namespace xKorean
 
 					mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
 
-					for (int i = 0; i < GamesViewModel.Count; i++)
-					{
-						GamesViewModel[i].GameNameDisplayLanguage = mGameNameDisplayLanguage;
-					}
+					var localSettings = ApplicationData.Current.LocalSettings;
+					if (localSettings.Values["showRecommendTag"] != null)
+						mShowRecommendTag = (bool)localSettings.Values["showRecommendTag"];
+					else
+						mShowRecommendTag = false;
 
-					UpdateItemHeight();
+					if (localSettings.Values["showDiscount"] != null)
+						mShowDiscount = (bool)localSettings.Values["showDiscount"];
+					else
+						mShowDiscount = true;
+
+					if (localSettings.Values["showGamepass"] != null)
+						mShowGamepass = (bool)localSettings.Values["showGamepass"];
+					else
+						mShowGamepass = true;
+
+					if (localSettings.Values["showName"] != null)
+						mShowName = (bool)localSettings.Values["showName"];
+					else
+						mShowName = true;
+
+					foreach (var gameViewModel in GamesViewModel) {
+						gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
+						gameViewModel.UpdateShowRecommendTag(mShowRecommendTag);
+						gameViewModel.UpdateShowDiscount(mShowDiscount);
+						gameViewModel.UpdateShowGamepass(mShowGamepass);
+						gameViewModel.UpdateShowName(mShowName);
+					}
 				}
 			}
 		}
@@ -1468,8 +1521,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif

@@ -115,13 +115,13 @@ namespace xKorean
 
 		public bool IsDiscounting {
 			get {
-				return Discount != "";
+				return Discount != "" && ShowDiscount;
 			}
 		}
 
 		public bool IsGamePass {
 			get {
-				return mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "";
+				return (mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "") && ShowGamePass;
 			}
 		}
 
@@ -258,6 +258,21 @@ namespace xKorean
 
 		public byte[] PCHeader {
 			private get;
+			set;
+		}
+
+		public bool ShowDiscount {
+			private get;
+			set;
+		}
+
+		public bool ShowGamePass {
+			private get;
+			set;
+		}
+
+		public bool ShowName {
+			get;
 			set;
 		}
 

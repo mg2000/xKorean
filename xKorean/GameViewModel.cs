@@ -25,6 +25,11 @@ namespace xKorean
 
 		private bool mRegionAvailable = true;
 
+		private bool mShowRecommendTag = false;
+		private bool mShowDiscount = true;
+		private bool mShowGamepass = true;
+		private bool mShowName = true;
+
 		public Game Game { set; get; } = new Game();
 		public string Title {
 			get
@@ -88,7 +93,7 @@ namespace xKorean
 
 		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName)
 		{
 			Game = game;
 
@@ -150,6 +155,11 @@ namespace xKorean
 					}
 				}
 			}
+
+			mShowRecommendTag = showRecommendTag;
+			mShowGamepass = showGamepass;
+			mShowDiscount = showDiscount;
+			mShowName = showName;
 		}
 
 		public string Message
@@ -241,17 +251,23 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "") {
-					foreach (var bundle in Bundle)
+				if (mShowGamepass)
+				{
+					if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "")
 					{
-						if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")
-							return true;
-					}
+						foreach (var bundle in Bundle)
+						{
+							if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")
+								return true;
+						}
 
-					return false;
+						return false;
+					}
+					else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
+						return true;
+					else
+						return false;
 				}
-				else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
-					return true;
 				else
 					return false;
 			}
@@ -259,7 +275,7 @@ namespace xKorean
 
 		public bool ShowRecommend {
 			get {
-				return Game.ShowRecommend;
+				return Game.ShowRecommend && mShowRecommendTag;
 			}
 		}
 
@@ -321,14 +337,7 @@ namespace xKorean
 				return _isImageLoaded;
 			}
 		}
-		public Visibility IsLocalizeAvaliable
-		{
-			get
-			{
-				return Localize != "" ? Visibility.Visible : Visibility.Collapsed;
-			}
 
-		}
 		public Color LocalizeColor
 		{
 			get
@@ -378,7 +387,7 @@ namespace xKorean
 		{
 			get
 			{
-				return Discount != ""; 
+				return Discount != "" && mShowDiscount; 
 			}
 		}
 
@@ -392,7 +401,7 @@ namespace xKorean
 		{
 			get
 			{
-				if (Game.Metascore >= 75)
+				if (Game.Metascore >= 75 && mShowRecommendTag)
 					return true;
 				else
 					return false;
@@ -409,6 +418,37 @@ namespace xKorean
 					return "웹진 추천";
 			}
 		}
+
+		public bool ShowName {
+			get {
+				return mShowName;
+			}
+		}
+
+		public void UpdateShowRecommendTag(bool showRecommendTag)
+		{
+			mShowRecommendTag = showRecommendTag;
+			NotifyPropertyChanged("ShowRecommend");
+			NotifyPropertyChanged("ShowRecommendMeta");
+		}
+
+		public void UpdateShowDiscount(bool showDiscount) {
+			mShowDiscount = showDiscount;
+			NotifyPropertyChanged("IsDiscounting");
+		}
+
+		public void UpdateShowGamepass(bool showGamepass)
+		{
+			mShowGamepass = showGamepass;
+			NotifyPropertyChanged("IsGamePass");
+		}
+
+		public void UpdateShowName(bool showName) {
+			mShowName = showName;
+			NotifyPropertyChanged("ShowName");
+		}
+
+		
 
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()

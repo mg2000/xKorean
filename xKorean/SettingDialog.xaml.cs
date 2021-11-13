@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -38,6 +39,28 @@ namespace xKorean
 
             if (settings.LoadValue("ShowNewTitle") != "False")
                 ShowNewTitle.IsChecked = true;
+
+            var localSettings = ApplicationData.Current.LocalSettings;
+
+            if (localSettings.Values["showRecommendTag"] != null)
+                ShowRecommendCheckbox.IsChecked = (bool)localSettings.Values["showRecommendTag"];
+            else
+                ShowRecommendCheckbox.IsChecked = false;
+
+            if (localSettings.Values["showDiscount"] != null)
+                ShowDiscountCheckbox.IsChecked = (bool)localSettings.Values["showDiscount"];
+            else
+                ShowDiscountCheckbox.IsChecked = true;
+
+            if (localSettings.Values["showGamepass"] != null)
+                ShowGamepassCheckbox.IsChecked = (bool)localSettings.Values["showGamepass"];
+            else
+                ShowGamepassCheckbox.IsChecked = true;
+
+            if (localSettings.Values["showName"] != null)
+                ShowNameCheckbox.IsChecked = (bool)localSettings.Values["showName"];
+            else
+                ShowNameCheckbox.IsChecked = true;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -50,6 +73,12 @@ namespace xKorean
                 await settings.SetValue("gameNameDisplayLanguage", "English");
 
             await settings.SetValue("ShowNewTitle", ShowNewTitle.IsChecked.ToString());
+
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["showRecommendTag"] = ShowRecommendCheckbox.IsChecked;
+            localSettings.Values["showDiscount"] = ShowDiscountCheckbox.IsChecked;
+            localSettings.Values["showGamepass"] = ShowGamepassCheckbox.IsChecked;
+            localSettings.Values["showName"] = ShowNameCheckbox.IsChecked;
         }
     }
 }
