@@ -13,12 +13,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <RemoteDebugMachine>XBOX</RemoteDebugMachine>
     <AuthenticationMode>Universal</AuthenticationMode>
-    <RemoteDebugEnabled>true</RemoteDebugEnabled>
+    <RemoteDebugEnabled>false</RemoteDebugEnabled>
     <UseSimulator>false</UseSimulator>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <RemoteDebugMachine>XBOXONE</RemoteDebugMachine>
     <AuthenticationMode>Universal</AuthenticationMode>
-    <RemoteDebugEnabled>true</RemoteDebugEnabled>
+    <RemoteDebugEnabled>false</RemoteDebugEnabled>
   </PropertyGroup>
 </Project>

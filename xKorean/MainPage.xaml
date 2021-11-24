@@ -99,8 +99,8 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<CheckBox x:Name="CategorySeriesXSCheckBox" Width="180" Content="Xbox Series X|S" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategorySeriesXSCheckBox" Width="180" Content="Xbox Series X|S 최적화" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X 인핸스드" Click="CategoryCheckBox_Click"/>
 									<CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Click="CategoryCheckBox_Click"/>
 									<CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Click="CategoryCheckBox_Click"/>
 									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Click="CategoryCheckBox_Click"/>
