@@ -47,19 +47,19 @@
             },
             "Microsoft.Toolkit.Uwp": {
               "target": "Package",
-              "version": "[7.1.1, )"
+              "version": "[7.1.2, )"
             },
             "Microsoft.Toolkit.Uwp.Notifications": {
               "target": "Package",
-              "version": "[7.1.1, )"
+              "version": "[7.1.2, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Animations": {
               "target": "Package",
-              "version": "[7.1.1, )"
+              "version": "[7.1.2, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Controls": {
               "target": "Package",
-              "version": "[7.1.1, )"
+              "version": "[7.1.2, )"
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
