@@ -92,7 +92,7 @@
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
 				<CommandBar HorizontalAlignment="Left" Grid.Column="0" OverflowButtonVisibility="Collapsed" Background="Transparent" DefaultLabelPosition="Right">
-					<AppBarButton x:Name="DeviceFilterButton" Label="기종">
+                    <AppBarButton x:Name="DeviceFilterButton" Label="기종">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -110,7 +110,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-					<AppBarButton Label="특성">
+                    <AppBarButton x:Name="CapabilityFilterButton" Label="특성">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -131,7 +131,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-					<AppBarButton Label="장르">
+                    <AppBarButton x:Name="CategoryFilterButton" Label="장르">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>

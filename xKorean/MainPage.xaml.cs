@@ -21,6 +21,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Popups;
@@ -29,6 +30,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
@@ -118,6 +120,8 @@ namespace xKorean
 
 			if (localSettings.Values["cloud"] != null)
 				CategoryCloudCheckBox.IsChecked = (bool)localSettings.Values["cloud"];
+
+			UpdateDeviceFilterButton();
 
 			if (localSettings.Values["recommendPriority"] != null)
 				RecommendCheckBox.IsChecked = (bool)localSettings.Values["recommendPriority"];
@@ -1059,6 +1063,62 @@ namespace xKorean
 				}
 			}
 
+			if (GamePassCheckBox.IsChecked == true ||
+				DiscountCheckBox.IsChecked == true ||
+				PlayAnywhereCheckBox.IsChecked == true ||
+				DolbyAtmosCheckBox.IsChecked == true ||
+				ConsoleKeyboardMouseCheckBox.IsChecked == true ||
+				LocalCoopCheckBox.IsChecked == true ||
+				OnlineCoopCheckBox.IsChecked == true ||
+				FPS120CheckBox.IsChecked == true ||
+				FPSBoostCheckBox.IsChecked == true ||
+				F2PCheckBox.IsChecked == true)
+            {
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+				else
+					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+			}
+			else
+			{
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.White);
+				else
+					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+			}
+
+			if (FamilyKidsCheckBox.IsChecked == true ||
+				FightingCheckBox.IsChecked == true ||
+				EducationalCheckBox.IsChecked == true ||
+				RacingFlyingCheckBox.IsChecked == true ||
+				RolePlayingCheckBox.IsChecked == true ||
+				MultiplayCheckBox.IsChecked == true ||
+				ShooterCheckBox.IsChecked == true ||
+				SportsCheckBox.IsChecked == true ||
+				SimulationCheckBox.IsChecked == true ||
+				ActionAdventureCheckBox.IsChecked == true ||
+				MusicCheckBox.IsChecked == true ||
+				StrategyCheckBox.IsChecked == true ||
+				CardBoardCheckBox.IsChecked == true ||
+				ClassicsCheckBox.IsChecked == true ||
+				PuzzleTriviaCheckBox.IsChecked == true ||
+				PlatformerCheckBox.IsChecked == true ||
+				CasinoCheckBox.IsChecked == true ||
+				OtherCheckBox.IsChecked == true)
+			{
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+				else
+					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+			}
+			else
+			{
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.White);
+				else
+					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+			}
+
 			var games = SortList(gamesFilteredByDevices);
 
 			GamesViewModel.Clear();
@@ -1394,6 +1454,8 @@ namespace xKorean
 			localSettings.Values["og"] = CategoryOGCheckBox.IsChecked;
 			localSettings.Values["windows"] = CategoryWindowsCheckBox.IsChecked;
 			localSettings.Values["cloud"] = CategoryCloudCheckBox.IsChecked;
+
+			UpdateDeviceFilterButton();
 		}
 
 		private async void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -1412,7 +1474,6 @@ namespace xKorean
 			await CheckUpdateTime();
 		}
 
-		
 		private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
 		{
 			var dialog = new SettingDialog();
@@ -1685,6 +1746,29 @@ namespace xKorean
 		private void TimingRadioButton_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
+		}
+
+		private void UpdateDeviceFilterButton()
+        {
+			if (CategorySeriesXSCheckBox.IsChecked == true ||
+				CategoryOneXEnhancedCheckBox.IsChecked == true ||
+				CategoryX360CheckBox.IsChecked == true ||
+				CategoryOGCheckBox.IsChecked == true ||
+				CategoryWindowsCheckBox.IsChecked == true ||
+				CategoryCloudCheckBox.IsChecked == true)
+			{
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+				else
+					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+			}
+			else
+            {
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.White);
+				else
+					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+			}
 		}
 	}
 }
