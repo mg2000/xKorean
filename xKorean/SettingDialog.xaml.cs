@@ -61,6 +61,11 @@ namespace xKorean
                 ShowNameCheckbox.IsChecked = (bool)localSettings.Values["showName"];
             else
                 ShowNameCheckbox.IsChecked = true;
+
+            if (localSettings.Values["showReleaseTime"] != null)
+                ShowReleaseTimeCheckbox.IsChecked = (bool)localSettings.Values["showReleaseTime"];
+            else
+                ShowReleaseTimeCheckbox.IsChecked = false;
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -79,6 +84,7 @@ namespace xKorean
             localSettings.Values["showDiscount"] = ShowDiscountCheckbox.IsChecked;
             localSettings.Values["showGamepass"] = ShowGamepassCheckbox.IsChecked;
             localSettings.Values["showName"] = ShowNameCheckbox.IsChecked;
+            localSettings.Values["showReleaseTime"] = ShowReleaseTimeCheckbox.IsChecked;
         }
     }
 }

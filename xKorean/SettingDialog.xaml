@@ -21,7 +21,8 @@
 			<CheckBox x:Name="ShowRecommendCheckbox" Content="추천 태그 표시" XYFocusUp="{x:Bind ShowNewTitle}" XYFocusDown="{x:Bind ShowDiscountCheckbox}"/>
 			<CheckBox x:Name="ShowDiscountCheckbox" Content="판매 정보 표시" XYFocusUp="{x:Bind ShowRecommendCheckbox}" XYFocusDown="{x:Bind ShowGamepassCheckbox}"/>
 			<CheckBox x:Name="ShowGamepassCheckbox" Content="게임패스 정보 표시" XYFocusUp="{x:Bind ShowDiscountCheckbox}" XYFocusDown="{x:Bind ShowNameCheckbox}"/>
-			<CheckBox x:Name="ShowNameCheckbox" Content="게임명/한글화 정보" XYFocusUp="{x:Bind ShowGamepassCheckbox}"/>
+            <CheckBox x:Name="ShowNameCheckbox" Content="게임명/한글화 정보 표시" XYFocusUp="{x:Bind ShowGamepassCheckbox}" XYFocusDown="{x:Bind ShowReleaseTimeCheckbox}"/>
+            <CheckBox x:Name="ShowReleaseTimeCheckbox" Content="출시일을 시간으로 표시" XYFocusUp="{x:Bind ShowNameCheckbox}"/>
 		</StackPanel>
     </Grid>
 </ContentDialog>

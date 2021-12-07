@@ -93,7 +93,7 @@ namespace xKorean
 
 		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
 		{
 			Game = game;
 
@@ -110,31 +110,7 @@ namespace xKorean
 			mGameNameDisplayLanguage = gameNameDisplayLanguage;
 			Bundle = game.Bundle;
 
-			var discount = game.Discount;
-
-			if (!game.IsAvailable && Bundle.Count == 1)
-				discount = Bundle[0].DiscountType;
-			else if (Bundle.Count >= 1)
-			{
-				foreach (var bundle in Bundle)
-				{
-					if (bundle.DiscountType.IndexOf("할인") >= 0)
-					{
-						discount = "에디션 할인";
-						break;
-					}
-					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
-						discount = "";
-				}
-
-				if (!game.IsAvailable && discount == "")
-					discount = Bundle[0].DiscountType;
-			}
-
-			if (discount == "곧 출시")
-				discount = Utils.GetReleaseStr(game.ReleaseDate);
-
-			Discount = discount;
+			Discount = UpdateReleaseTime(game, showReleaseTime);
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -448,8 +424,12 @@ namespace xKorean
 			NotifyPropertyChanged("ShowName");
 		}
 
+		public void UpdateShowReleaseTime(bool showReleaseTime)
+		{
+			Discount = UpdateReleaseTime(Game, showReleaseTime);
+			NotifyPropertyChanged("Discount");
+		}
 		
-
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()
 		{
@@ -511,6 +491,35 @@ namespace xKorean
 		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		private string UpdateReleaseTime(Game game, bool showReleaseTime)
+        {
+			var discount = game.Discount;
+
+			if (!game.IsAvailable && Bundle.Count == 1)
+				discount = Bundle[0].DiscountType;
+			else if (Bundle.Count >= 1)
+			{
+				foreach (var bundle in Bundle)
+				{
+					if (bundle.DiscountType.IndexOf("할인") >= 0)
+					{
+						discount = "에디션 할인";
+						break;
+					}
+					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
+						discount = "";
+				}
+
+				if (!game.IsAvailable && discount == "")
+					discount = Bundle[0].DiscountType;
+			}
+
+			if (discount == "곧 출시" || (showReleaseTime && discount != "출시 예정" && discount.Contains(" 출시")))
+				return Utils.GetReleaseStr(game.ReleaseDate);
+			else
+				return discount;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

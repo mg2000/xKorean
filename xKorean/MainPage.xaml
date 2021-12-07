@@ -92,7 +92,7 @@
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
 				<CommandBar HorizontalAlignment="Left" Grid.Column="0" OverflowButtonVisibility="Collapsed" Background="Transparent" DefaultLabelPosition="Right">
-                    <AppBarButton x:Name="DeviceFilterButton" Label="기종">
+					<AppBarButton x:Name="DeviceFilterButton" Label="기종">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -110,7 +110,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-                    <AppBarButton x:Name="CapabilityFilterButton" Label="특성">
+					<AppBarButton x:Name="CapabilityFilterButton" Label="특성">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -131,7 +131,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-                    <AppBarButton x:Name="CategoryFilterButton" Label="장르">
+					<AppBarButton x:Name="CategoryFilterButton" Label="장르">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -229,19 +229,19 @@
 										<TextBlock Text="{Binding UnavailableReason}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Grid>
 									<Grid Grid.Row="1">
-                                        <StackPanel Orientation="Horizontal">
-                                            <controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
+										<StackPanel Orientation="Horizontal">
+											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
 												<Border Background="Yellow">
 													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
 												</Border>
 											</controls:WrapPanel>
-                                            <controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommendMeta}">
-                                                <Border Background="Yellow">
-                                                    <TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding RecommendMeta}"/>
-                                                </Border>
-                                            </controls:WrapPanel>
-                                        </StackPanel>
-                                        <!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
+											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommendMeta}">
+												<Border Background="Yellow">
+													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding RecommendMeta}"/>
+												</Border>
+											</controls:WrapPanel>
+										</StackPanel>
+										<!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
 									</Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
 										<Grid.Background>
