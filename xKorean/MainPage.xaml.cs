@@ -150,7 +150,7 @@ namespace xKorean
 			if (localSettings.Values["showReleaseTime"] != null)
 				mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
 			else
-				mShowReleaseTime = true;
+				mShowReleaseTime = false;
 
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
@@ -1518,7 +1518,7 @@ namespace xKorean
 					if (localSettings.Values["showReleaseTime"] != null)
 						mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
 					else
-						mShowReleaseTime = true;
+						mShowReleaseTime = false;
 
 					foreach (var gameViewModel in GamesViewModel) {
 						gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
