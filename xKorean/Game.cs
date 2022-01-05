@@ -121,6 +121,13 @@ namespace xKorean
 			set;
 		} = 0;
 
+		[JsonProperty("packages")]
+		public string Packages
+		{
+			get;
+			set;
+		} = "";
+
 		public bool ShowRecommend
 		{
 			get;

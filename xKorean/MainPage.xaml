@@ -302,7 +302,8 @@
 								<Grid.ContextFlyout>
 									<MenuFlyout>
 										<MenuFlyoutItem x:Name="MenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
-										<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
+                                        <MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
+                                        <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 									</MenuFlyout>
 								</Grid.ContextFlyout>
 							</Grid>
@@ -332,8 +333,6 @@
 				</TextBlock>
 				<Button x:Name="GotoStoreButton" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoStoreButton_Click">스토어로 이동</Button>
 				<Button x:Name="Goto360Market" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="Goto360Market_Click">360 마켓플레이스로 이동</Button>
-				<Button x:Name="GotoRemaster" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoRemaster_Click">리마스터로 이동</Button>
-				<Button x:Name="GotoOneTitle" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoOneTitle_Click">엑원 버전으로 이동</Button>
 				<Button x:Name="CloseInfoPanel" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="CloseInfoPanel_Click">돌아가기</Button>
 			</StackPanel>
 		</Grid>

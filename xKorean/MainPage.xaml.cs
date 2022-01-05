@@ -9,14 +9,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
-using Windows.Security.Cryptography;
 using Windows.Security.ExchangeActiveSyncProvisioning;
-using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
@@ -28,7 +25,6 @@ using Windows.UI.Popups;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -1248,8 +1244,6 @@ namespace xKorean
 
 			GotoStoreButton.Tag = game;
 			Goto360Market.Visibility = Visibility.Collapsed;
-			GotoRemaster.Visibility = Visibility.Collapsed;
-			GotoOneTitle.Visibility = Visibility.Collapsed;
 
 			var messageArr = game.Message.Split("\n");
 
@@ -1288,40 +1282,6 @@ namespace xKorean
 							case "dlregiononly":
 								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
 									strValue = ConvertCodeToStr(parsePart[1]);
-								break;
-							case "remaster":
-								var remasterID = GetIDFromStoreUrl(parsePart[1]);
-								var remasterGame = mGameList.FirstOrDefault(item => item.ID == remasterID);
-								if (remasterGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = remasterGame.Name;
-									else
-										strValue = remasterGame.KoreanName;
-								}
-
-								var remasterMap = new Dictionary<string, string>();
-								remasterMap["language"] = GetLanguageCodeFromUrl(parsePart[1]);
-								remasterMap["id"] = remasterID;
-								GotoRemaster.Tag = remasterMap;
-								GotoRemaster.Visibility = Visibility.Visible;
-								break;
-							case "onetitle":
-								var oneTitleID = GetIDFromStoreUrl(parsePart[1]);
-								var oneTitleGame = mGameList.FirstOrDefault(item => item.ID == oneTitleID);
-								if (oneTitleGame != null)
-								{
-									if (mGameNameDisplayLanguage == "English")
-										strValue = oneTitleGame.Name;
-									else
-										strValue = oneTitleGame.KoreanName;
-								}
-
-								var oneTitleMap = new Dictionary<string, string>();
-								oneTitleMap["language"] = GetLanguageCodeFromUrl(parsePart[1]);
-								oneTitleMap["id"] = oneTitleID;
-								GotoOneTitle.Tag = oneTitleMap;
-								GotoOneTitle.Visibility = Visibility.Visible;
 								break;
 							default:
 								strValue = parsePart[1];
@@ -1566,6 +1526,9 @@ namespace xKorean
 					case VirtualKey.GamepadX:
 						await RecommendGame(game);
 						break;
+					case VirtualKey.GamepadY:
+						await ShowPackageInfo(game);
+						break;
 				}
 			}
 		}
@@ -1574,6 +1537,31 @@ namespace xKorean
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
 			await RecommendGame(game);
+		}
+
+		private async void MenuPackages_Click(object sender, RoutedEventArgs e)
+        {
+			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+			await ShowPackageInfo(game);			
+		}
+
+		private async Task ShowPackageInfo(GameViewModel game)
+        {
+			var supportPackageBuilder = new StringBuilder();
+			if (game.Game.Packages != "")
+				supportPackageBuilder.Append("* 한국어 지원 패키지: ").Append(game.Game.Packages);
+			else
+				supportPackageBuilder.Append("* 확인된 패키지가 없거나 정식 발매 패키지만 한국어를 지원합니다. 확인하신 패키지가 있으면, 오류 신고 기능을 이용해 신고해 주십시오.").Append(game.Game.Packages);
+
+			if (game.Game.Message.ToLower().Contains("dlregiononly"))
+				supportPackageBuilder.Append("\r\n").Append("* 한국어를 지원하지 않는 지역이 있습니다. 해외 패키지 구매시 한국어 지원 여부를 확인해 주십시오.");
+
+			var dialog = new MessageDialog(supportPackageBuilder.ToString(), "한국어 지원 패키지 정보");
+			if (mDialogQueue.TryAdd(dialog, 500))
+			{
+				await dialog.ShowAsync();
+				mDialogQueue.Take();
+			}
 		}
 
 		private async Task RecommendGame(GameViewModel game) {

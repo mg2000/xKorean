@@ -11,23 +11,49 @@
 
 	<Grid>
 		<StackPanel>
-			<TextBlock TextWrapping="WrapWholeWords">컨트롤러 단축키</TextBlock>
-            <StackPanel Orientation="Horizontal">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF10C;" Margin="2"/>
-                <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 검색 필터</TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF10D;" Margin="2"/>
-                <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 툴바</TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF096;" Margin="2"/>
-                <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 게임 추천</TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDE3;" Margin="2"/>
-                <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 오류 신고</TextBlock>
-            </StackPanel>
+            <TextBlock TextWrapping="WrapWholeWords">컨트롤러 단축키</TextBlock>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF10C;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 검색 필터</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF10D;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 툴바</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF096;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 게임 추천</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF095;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 한국어 지원 패키지 정보</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="2" Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDE3;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 오류 신고</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
 			<TextBlock TextWrapping="WrapWholeWords">한글화 정보는 엑스박스 정보 카페에서 제공한 데이터를 이용합니다.</TextBlock>
 			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="CafeLink" NavigateUri="https://cafe.naver.com/xboxinfo">엑스박스 정보카페 바로가기</Hyperlink></TextBlock>
