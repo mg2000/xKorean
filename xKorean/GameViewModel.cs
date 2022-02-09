@@ -373,28 +373,6 @@ namespace xKorean
 			set;
 		} = "";
 
-		public bool ShowRecommendMeta
-		{
-			get
-			{
-				if (Game.Metascore >= 75 && mShowRecommendTag)
-					return true;
-				else
-					return false;
-			}
-		}
-
-		public string RecommendMeta
-		{
-			get
-			{
-				if (Game.Metascore >= 90)
-					return "웹진 강력 추천";
-				else
-					return "웹진 추천";
-			}
-		}
-
 		public bool ShowName {
 			get {
 				return mShowName;
@@ -405,7 +383,6 @@ namespace xKorean
 		{
 			mShowRecommendTag = showRecommendTag;
 			NotifyPropertyChanged("ShowRecommend");
-			NotifyPropertyChanged("ShowRecommendMeta");
 		}
 
 		public void UpdateShowDiscount(bool showDiscount) {

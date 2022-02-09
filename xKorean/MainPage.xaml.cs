@@ -307,12 +307,12 @@ namespace xKorean
 			var now = DateTime.Now;
 
 			var httpClient = new HttpClient();
-
+			
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -394,8 +394,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -948,6 +948,40 @@ namespace xKorean
 							i--;
 							continue;
 						}
+					}
+				}
+
+				// 게임패스 필터링
+				if (GamePassExcludeCheckBox.IsChecked == true)
+				{
+					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "")
+					{
+						if (gamesFilteredByDevices[i].Bundle.Count > 0)
+						{
+							var gamePass = false;
+							foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+							{
+
+								if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
+								{
+									gamePass = true;
+									break;
+								}
+							}
+
+							if (gamePass)
+							{
+								gamesFilteredByDevices.RemoveAt(i);
+								i--;
+								continue;
+							}
+						}
+					}
+					else
+					{
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
 					}
 				}
 
@@ -1739,7 +1773,15 @@ namespace xKorean
 
 		private void CategoryCheckBox_Click(object sender, RoutedEventArgs e)
 		{
-			UpdateCategoriesState();
+			if (sender == ResetCategoryFilter ||
+				sender == CategorySeriesXSCheckBox ||
+				sender == CategoryOneXEnhancedCheckBox ||
+				sender == CategoryOneCheckBox ||
+				sender == CategoryX360CheckBox ||
+				sender == CategoryOGCheckBox || 
+				sender == CategoryWindowsCheckBox ||
+				sender == CategoryCloudCheckBox)
+				UpdateCategoriesState();
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
@@ -1768,6 +1810,102 @@ namespace xKorean
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.White);
 				else
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+			}
+		}
+
+        private void ResetDeviceFilter_Click(object sender, RoutedEventArgs e)
+        {
+			if (CategorySeriesXSCheckBox.IsChecked == true ||
+				CategoryOneXEnhancedCheckBox.IsChecked == true ||
+				CategoryOneCheckBox.IsChecked == true ||
+				CategoryX360CheckBox.IsChecked == true ||
+				CategoryOGCheckBox.IsChecked == true ||
+				CategoryWindowsCheckBox.IsChecked == true ||
+				CategoryCloudCheckBox.IsChecked == true)
+			{
+				CategorySeriesXSCheckBox.IsChecked = false;
+				CategoryOneXEnhancedCheckBox.IsChecked = false;
+				CategoryOneCheckBox.IsChecked = false;
+				CategoryX360CheckBox.IsChecked = false;
+				CategoryOGCheckBox.IsChecked = false;
+				CategoryWindowsCheckBox.IsChecked = false;
+				CategoryCloudCheckBox.IsChecked = false;
+
+				CategoryCheckBox_Click(sender, e);
+			}
+		}
+
+		private void ResetCapabilityFilter_Click(object sender, RoutedEventArgs e)
+		{
+			if (GamePassCheckBox.IsChecked == true ||
+				GamePassExcludeCheckBox.IsChecked == true ||
+				DiscountCheckBox.IsChecked == true ||
+				PlayAnywhereCheckBox.IsChecked == true ||
+				DolbyAtmosCheckBox.IsChecked == true ||
+				ConsoleKeyboardMouseCheckBox.IsChecked == true ||
+				LocalCoopCheckBox.IsChecked == true ||
+				OnlineCoopCheckBox.IsChecked == true ||
+				FPS120CheckBox.IsChecked == true ||
+				FPSBoostCheckBox.IsChecked == true ||
+				F2PCheckBox.IsChecked == true)
+			{
+				GamePassCheckBox.IsChecked = false;
+				GamePassExcludeCheckBox.IsChecked = false;
+				DiscountCheckBox.IsChecked = false;
+				PlayAnywhereCheckBox.IsChecked = false;
+				DolbyAtmosCheckBox.IsChecked = false;
+				ConsoleKeyboardMouseCheckBox.IsChecked = false;
+				LocalCoopCheckBox.IsChecked = false;
+				OnlineCoopCheckBox.IsChecked = false;
+				FPS120CheckBox.IsChecked = false;
+				FPSBoostCheckBox.IsChecked = false;
+				F2PCheckBox.IsChecked = false;
+
+				CategoryCheckBox_Click(sender, e);
+			}
+		}
+
+		private void ResetCategoryFilter_Click(object sender, RoutedEventArgs e)
+		{
+			if (FamilyKidsCheckBox.IsChecked == true ||
+				FightingCheckBox.IsChecked == true ||
+				EducationalCheckBox.IsChecked == true ||
+				RacingFlyingCheckBox.IsChecked == true ||
+				RolePlayingCheckBox.IsChecked == true ||
+				MultiplayCheckBox.IsChecked == true ||
+				ShooterCheckBox.IsChecked == true ||
+				SportsCheckBox.IsChecked == true ||
+				SimulationCheckBox.IsChecked == true ||
+				ActionAdventureCheckBox.IsChecked == true ||
+				MusicCheckBox.IsChecked == true ||
+				StrategyCheckBox.IsChecked == true ||
+				CardBoardCheckBox.IsChecked == true ||
+				ClassicsCheckBox.IsChecked == true ||
+				PuzzleTriviaCheckBox.IsChecked == true ||
+				PlatformerCheckBox.IsChecked == true ||
+				CasinoCheckBox.IsChecked == true ||
+				OtherCheckBox.IsChecked == true)
+			{
+				FamilyKidsCheckBox.IsChecked = false;
+				FightingCheckBox.IsChecked = false;
+				EducationalCheckBox.IsChecked = false;
+				RacingFlyingCheckBox.IsChecked = false;
+				RolePlayingCheckBox.IsChecked = false;
+				MultiplayCheckBox.IsChecked = false;
+				ShooterCheckBox.IsChecked = false;
+				SportsCheckBox.IsChecked = false;
+				SimulationCheckBox.IsChecked = false;
+				ActionAdventureCheckBox.IsChecked = false;
+				MusicCheckBox.IsChecked = false;
+				StrategyCheckBox.IsChecked = false;
+				CardBoardCheckBox.IsChecked = false;
+				ClassicsCheckBox.IsChecked = false;
+				PuzzleTriviaCheckBox.IsChecked = false;
+				PlatformerCheckBox.IsChecked = false;
+				CasinoCheckBox.IsChecked = false;
+				OtherCheckBox.IsChecked = false;
+
+				CategoryCheckBox_Click(sender, e);
 			}
 		}
 	}

@@ -114,12 +114,6 @@ namespace xKorean
 			set;
 		} = 0;
 
-		[JsonProperty("metascore")]
-		public int Metascore
-		{
-			get;
-			set;
-		} = 0;
 
 		[JsonProperty("packages")]
 		public string Packages

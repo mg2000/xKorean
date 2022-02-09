@@ -99,13 +99,14 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<CheckBox x:Name="CategorySeriesXSCheckBox" Width="180" Content="Xbox Series X|S" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Width="180" Content="Xbox One X Enhanced" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryOneCheckBox" Width="180" Content="Xbox One" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryX360CheckBox" Width="180" Content="Xbox 360" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryOGCheckBox" Width="180" Content="Original Xbox" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryWindowsCheckBox" Width="180" Content="Windows" Click="CategoryCheckBox_Click"/>
-									<CheckBox x:Name="CategoryCloudCheckBox" Width="180" Content="Xbox Cloud Gaming" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <Button x:Name="ResetDeviceFilter" Content="조건 초기화" Click="ResetDeviceFilter_Click" HorizontalAlignment="Stretch"/>
+                                    <CheckBox x:Name="CategorySeriesXSCheckBox" Content="Xbox Series X|S" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOneXEnhancedCheckBox" Content="Xbox One X Enhanced" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOneCheckBox" Content="Xbox One" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryX360CheckBox" Content="Xbox 360" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryOGCheckBox" Content="Original Xbox" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryWindowsCheckBox" Content="Windows" Click="CategoryCheckBox_Click"/>
+									<CheckBox x:Name="CategoryCloudCheckBox" Content="Xbox Cloud Gaming" Click="CategoryCheckBox_Click"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -117,16 +118,18 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<CheckBox x:Name="GamePassCheckBox" Width="170" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked" XYFocusUp="{x:Bind CategoryOGCheckBox}"></CheckBox>
-									<CheckBox x:Name="DiscountCheckBox" Width="170" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="PlayAnywhereCheckBox" Width="170" Content="플레이 애니웨어" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="DolbyAtmosCheckBox" Width="170" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="ConsoleKeyboardMouseCheckBox" Width="170" Content="키보드/마우스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="LocalCoopCheckBox" Width="170" Content="로컬 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="OnlineCoopCheckBox" Width="170" Content="온라인 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="FPS120CheckBox" Width="170" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="FPSBoostCheckBox" Width="170" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
-									<CheckBox x:Name="F2PCheckBox" Width="170" Content="무료(F2P)" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked"></CheckBox>
+                                    <Button x:Name="ResetCapabilityFilter" Content="조건 초기화" Click="ResetCapabilityFilter_Click" HorizontalAlignment="Stretch"/>
+                                    <CheckBox x:Name="GamePassCheckBox" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="GamePassExcludeCheckBox" Content="게임패스 제외" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="DiscountCheckBox" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="PlayAnywhereCheckBox" Content="플레이 애니웨어" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="DolbyAtmosCheckBox" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="ConsoleKeyboardMouseCheckBox" Content="키보드/마우스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="LocalCoopCheckBox" Content="로컬 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="OnlineCoopCheckBox" Content="온라인 협동" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="FPS120CheckBox" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="FPSBoostCheckBox" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="F2PCheckBox" Content="무료(F2P)" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -138,24 +141,25 @@
 						<AppBarButton.Flyout>
 							<Flyout>
 								<StackPanel Orientation="Vertical">
-									<CheckBox x:Name="FamilyKidsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">가족 &amp; 아이들</CheckBox>
-									<CheckBox x:Name="FightingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">격투</CheckBox>
-									<CheckBox x:Name="EducationalCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">교육</CheckBox>
-									<CheckBox x:Name="RacingFlyingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">레이싱 &amp; 비행</CheckBox>
-									<CheckBox x:Name="RolePlayingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">롤 플레잉</CheckBox>
-									<CheckBox x:Name="MultiplayCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">멀티플레이 온라인 배틀 아레나</CheckBox>
-									<CheckBox x:Name="ShooterCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">슈터</CheckBox>
-									<CheckBox x:Name="SportsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">스포츠</CheckBox>
-									<CheckBox x:Name="SimulationCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">시뮬레이션</CheckBox>
-									<CheckBox x:Name="ActionAdventureCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">액션 &amp; 어드벤처</CheckBox>
-									<CheckBox x:Name="MusicCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">음악</CheckBox>
-									<CheckBox x:Name="StrategyCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">전략</CheckBox>
-									<CheckBox x:Name="CardBoardCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">카드 + 보드</CheckBox>
-									<CheckBox x:Name="ClassicsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">클래식</CheckBox>
-									<CheckBox x:Name="PuzzleTriviaCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">퍼즐 &amp; 상식</CheckBox>
-									<CheckBox x:Name="PlatformerCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">플랫포머</CheckBox>
-									<CheckBox x:Name="CasinoCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">도박</CheckBox>
-									<CheckBox x:Name="OtherCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="CategorieCheckBox_Checked" Unchecked="CategorieCheckBox_Unchecked">기타</CheckBox>
+                                    <Button x:Name="ResetCategoryFilter" Content="조건 초기화" Click="ResetCategoryFilter_Click" HorizontalAlignment="Stretch"/>
+                                    <CheckBox x:Name="FamilyKidsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">가족 &amp; 아이들</CheckBox>
+                                    <CheckBox x:Name="FightingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">격투</CheckBox>
+                                    <CheckBox x:Name="EducationalCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">교육</CheckBox>
+                                    <CheckBox x:Name="RacingFlyingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">레이싱 &amp; 비행</CheckBox>
+                                    <CheckBox x:Name="RolePlayingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">롤 플레잉</CheckBox>
+                                    <CheckBox x:Name="MultiplayCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">멀티플레이 온라인 배틀 아레나</CheckBox>
+                                    <CheckBox x:Name="ShooterCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">슈터</CheckBox>
+                                    <CheckBox x:Name="SportsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">스포츠</CheckBox>
+                                    <CheckBox x:Name="SimulationCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">시뮬레이션</CheckBox>
+                                    <CheckBox x:Name="ActionAdventureCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">액션 &amp; 어드벤처</CheckBox>
+                                    <CheckBox x:Name="MusicCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">음악</CheckBox>
+                                    <CheckBox x:Name="StrategyCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">전략</CheckBox>
+                                    <CheckBox x:Name="CardBoardCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">카드 + 보드</CheckBox>
+                                    <CheckBox x:Name="ClassicsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">클래식</CheckBox>
+                                    <CheckBox x:Name="PuzzleTriviaCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">퍼즐 &amp; 상식</CheckBox>
+                                    <CheckBox x:Name="PlatformerCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">플랫포머</CheckBox>
+                                    <CheckBox x:Name="CasinoCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">도박</CheckBox>
+                                    <CheckBox x:Name="OtherCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">기타</CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -230,17 +234,12 @@
 									</Grid>
 									<Grid Grid.Row="1">
 										<StackPanel Orientation="Horizontal">
-											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
-												<Border Background="Yellow">
-													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
-												</Border>
-											</controls:WrapPanel>
-											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommendMeta}">
-												<Border Background="Yellow">
-													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding RecommendMeta}"/>
-												</Border>
-											</controls:WrapPanel>
-										</StackPanel>
+                                            <controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
+                                                <Border Background="Yellow">
+                                                    <TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
+                                                </Border>
+                                            </controls:WrapPanel>
+                                        </StackPanel>
 										<!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
 									</Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
