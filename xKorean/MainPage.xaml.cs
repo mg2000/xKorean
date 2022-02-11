@@ -837,11 +837,7 @@ namespace xKorean
 										break;
 									}
 								}
-
-								nonGamePassList.Add(game);
 							}
-							else
-								nonGamePassList.Add(game);
 						}
 						else
 						{
@@ -857,7 +853,6 @@ namespace xKorean
 					IOrderedEnumerable<Game> sortedGamePassNewList;
 					IOrderedEnumerable<Game> sortedGamePassList;
 					IOrderedEnumerable<Game> sortedGamePassEndList;
-					IOrderedEnumerable<Game> sortedNonGamePassList;
 
 					if (OrderByNameAscendItem.IsChecked == true)
 					{
@@ -866,14 +861,12 @@ namespace xKorean
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.Name);
-							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.Name);
 						}
 						else
 						{
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.KoreanName);
-							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.KoreanName);
 						}
 					}
 					else if (OrderByNameDescendItem.IsChecked == true)
@@ -883,14 +876,12 @@ namespace xKorean
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.Name);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.Name);
-							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.Name);
 						}
 						else
 						{
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.KoreanName);
-							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.KoreanName);
 						}
 					}
 					else if (OrderByReleaseAscendItem.IsChecked == true)
@@ -900,14 +891,12 @@ namespace xKorean
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
-							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 						}
 						else
 						{
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
-							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 						}
 					}
 					else
@@ -917,36 +906,32 @@ namespace xKorean
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
-							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 						}
 						else
 						{
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
-							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 						}
 					}
 
 					foreach (var game in sortedGamePassNewList)
 					{
 						sortedList.Add(game);
+						unSortedGames.Remove(game);
 					}
-
+					
 					foreach (var game in sortedGamePassList)
 					{
 						sortedList.Add(game);
+						unSortedGames.Remove(game);
 					}
-
+					
 					foreach (var game in sortedGamePassEndList)
 					{
 						sortedList.Add(game);
-					}
-
-					foreach (var game in sortedNonGamePassList)
-					{
-						sortedList.Add(game);
-					}
+						unSortedGames.Remove(game);
+					}					
 				}
 				else if (PriorityByRecommendItem.IsChecked == true)
 				{
