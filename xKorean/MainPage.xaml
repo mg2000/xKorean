@@ -120,7 +120,6 @@
 								<StackPanel Orientation="Vertical">
                                     <Button x:Name="ResetCapabilityFilter" Content="조건 초기화" Click="ResetCapabilityFilter_Click" HorizontalAlignment="Stretch"/>
                                     <CheckBox x:Name="GamePassCheckBox" Content="게임패스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
-                                    <CheckBox x:Name="GamePassExcludeCheckBox" Content="게임패스 제외" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="DiscountCheckBox" Content="할인" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="PlayAnywhereCheckBox" Content="플레이 애니웨어" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="DolbyAtmosCheckBox" Content="돌비 애트모스" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
@@ -187,7 +186,10 @@
 									<RadioButton x:Name="OrderByNameDescendItem" Content="이름 순 내림차순" Click="OrderByNameDescendItem_Click" GroupName="OrderRadioButtons"/>
 									<RadioButton x:Name="OrderByReleaseAscendItem" Content="출시일 오름차순" Click="OrderByReleaseAscendItem_Click" GroupName="OrderRadioButtons"/>
 									<RadioButton x:Name="OrderByReleaseDescendItem" Content="출시일 내림차순" Click="OrderByReleaseDescendItem_Click" GroupName="OrderRadioButtons"/>
-									<CheckBox x:Name="RecommendCheckBox" Click="RecommendCheckBox_Click" Content="추천 게임 우선" IsChecked="True"/>
+									<MenuFlyoutSeparator/>
+									<RadioButton x:Name="PriorityNoneItem" Content="우선 순위 없음" GroupName="PriorityRadioButtons" Click="PriorityNoneItem_Click"/>
+									<RadioButton x:Name="PriorityByGamepassItem" Content="게임패스 우선" GroupName="PriorityRadioButtons" Click="PriorityByGamepassItem_Click"/>
+									<RadioButton x:Name="PriorityByRecommendItem" Content="추천 게임 우선" GroupName="PriorityRadioButtons" Click="PriorityByRecommendItem_Click"/>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>

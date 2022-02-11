@@ -120,9 +120,6 @@ namespace xKorean
 
 			UpdateDeviceFilterButton();
 
-			if (localSettings.Values["recommendPriority"] != null)
-				RecommendCheckBox.IsChecked = (bool)localSettings.Values["recommendPriority"];
-
 			if (localSettings.Values["showRecommendTag"] != null)
 				mShowRecommendTag = (bool)localSettings.Values["showRecommendTag"];
 			else
@@ -260,7 +257,20 @@ namespace xKorean
 				case "release_desc":
 					OrderByReleaseDescendItem.IsChecked = true;
 					break;
+			}
 
+			var priorityType = settings.LoadValue("priorityType");
+			switch (priorityType) {
+				case "":
+				case "none":
+					PriorityNoneItem.IsChecked = true;
+					break;
+				case "gamepass":
+					PriorityByGamepassItem.IsChecked = true;
+					break;
+				case "recommend":
+					PriorityByRecommendItem.IsChecked = true;
+					break;
 			}
 
 			var applicationFolder = ApplicationData.Current.LocalFolder;
@@ -801,7 +811,144 @@ namespace xKorean
 		{
 			List<Game> SortList(List<Game> unSortedGames) {
 				var sortedList = new List<Game>();
-				if (RecommendCheckBox != null && RecommendCheckBox.IsChecked == true)
+				if (PriorityByGamepassItem.IsChecked == true)
+				{
+					var gamePassNewList = new List<Game>();
+					var gamePassList = new List<Game>();
+					var gamePassEndList = new List<Game>();
+					var nonGamePassList = new List<Game>();
+
+					foreach (var game in unSortedGames)
+					{
+						if (game.GamePassCloud == "" && game.GamePassPC == "" && game.GamePassConsole == "")
+						{
+							if (game.Bundle.Count > 0)
+							{
+								foreach (var bundle in game.Bundle)
+								{
+									if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
+									{
+										if (bundle.GamePassNew == "O")
+											gamePassNewList.Add(game);
+										else if (bundle.GamePassEnd == "O")
+											gamePassEndList.Add(game);
+										else
+											gamePassList.Add(game);
+										break;
+									}
+								}
+
+								nonGamePassList.Add(game);
+							}
+							else
+								nonGamePassList.Add(game);
+						}
+						else
+						{
+							if (game.GamePassNew == "O")
+								gamePassNewList.Add(game);
+							else if (game.GamePassEnd == "O")
+								gamePassEndList.Add(game);
+							else
+								gamePassList.Add(game);
+						}
+					}
+
+					IOrderedEnumerable<Game> sortedGamePassNewList;
+					IOrderedEnumerable<Game> sortedGamePassList;
+					IOrderedEnumerable<Game> sortedGamePassEndList;
+					IOrderedEnumerable<Game> sortedNonGamePassList;
+
+					if (OrderByNameAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+						{
+							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.Name);
+							sortedGamePassList = gamePassList.OrderBy(g => g.Name);
+							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.Name);
+							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.Name);
+						}
+						else
+						{
+							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.KoreanName);
+							sortedGamePassList = gamePassList.OrderBy(g => g.KoreanName);
+							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.KoreanName);
+							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.KoreanName);
+						}
+					}
+					else if (OrderByNameDescendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+						{
+							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.Name);
+							sortedGamePassList = gamePassList.OrderByDescending(g => g.Name);
+							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.Name);
+							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.Name);
+						}
+						else
+						{
+							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.KoreanName);
+							sortedGamePassList = gamePassList.OrderByDescending(g => g.KoreanName);
+							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.KoreanName);
+							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.KoreanName);
+						}
+					}
+					else if (OrderByReleaseAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+						{
+							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+						}
+						else
+						{
+							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedNonGamePassList = nonGamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+						}
+					}
+					else
+					{
+						if (mGameNameDisplayLanguage == "English")
+						{
+							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+						}
+						else
+						{
+							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+							sortedNonGamePassList = nonGamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+						}
+					}
+
+					foreach (var game in sortedGamePassNewList)
+					{
+						sortedList.Add(game);
+					}
+
+					foreach (var game in sortedGamePassList)
+					{
+						sortedList.Add(game);
+					}
+
+					foreach (var game in sortedGamePassEndList)
+					{
+						sortedList.Add(game);
+					}
+
+					foreach (var game in sortedNonGamePassList)
+					{
+						sortedList.Add(game);
+					}
+				}
+				else if (PriorityByRecommendItem.IsChecked == true)
 				{
 					var recommendUnsortedCount = 0;
 
@@ -948,40 +1095,6 @@ namespace xKorean
 							i--;
 							continue;
 						}
-					}
-				}
-
-				// 게임패스 필터링
-				if (GamePassExcludeCheckBox.IsChecked == true)
-				{
-					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "")
-					{
-						if (gamesFilteredByDevices[i].Bundle.Count > 0)
-						{
-							var gamePass = false;
-							foreach (var bundle in gamesFilteredByDevices[i].Bundle)
-							{
-
-								if (bundle.GamePassCloud == "O" || bundle.GamePassPC == "O" || bundle.GamePassConsole == "O")
-								{
-									gamePass = true;
-									break;
-								}
-							}
-
-							if (gamePass)
-							{
-								gamesFilteredByDevices.RemoveAt(i);
-								i--;
-								continue;
-							}
-						}
-					}
-					else
-					{
-						gamesFilteredByDevices.RemoveAt(i);
-						i--;
-						continue;
 					}
 				}
 
@@ -1838,7 +1951,6 @@ namespace xKorean
 		private void ResetCapabilityFilter_Click(object sender, RoutedEventArgs e)
 		{
 			if (GamePassCheckBox.IsChecked == true ||
-				GamePassExcludeCheckBox.IsChecked == true ||
 				DiscountCheckBox.IsChecked == true ||
 				PlayAnywhereCheckBox.IsChecked == true ||
 				DolbyAtmosCheckBox.IsChecked == true ||
@@ -1850,7 +1962,6 @@ namespace xKorean
 				F2PCheckBox.IsChecked == true)
 			{
 				GamePassCheckBox.IsChecked = false;
-				GamePassExcludeCheckBox.IsChecked = false;
 				DiscountCheckBox.IsChecked = false;
 				PlayAnywhereCheckBox.IsChecked = false;
 				DolbyAtmosCheckBox.IsChecked = false;
@@ -1907,6 +2018,27 @@ namespace xKorean
 
 				CategoryCheckBox_Click(sender, e);
 			}
+		}
+
+		private async void PriorityNoneItem_Click(object sender, RoutedEventArgs e)
+		{
+			SearchBox_TextChanged(SearchBox, null);
+
+			await Settings.Instance.SetValue("priorityType", "none");
+		}
+
+		private async void PriorityByGamepassItem_Click(object sender, RoutedEventArgs e)
+		{
+			SearchBox_TextChanged(SearchBox, null);
+
+			await Settings.Instance.SetValue("priorityType", "gamepass");
+		}
+
+		private async void PriorityByRecommendItem_Click(object sender, RoutedEventArgs e)
+		{
+			SearchBox_TextChanged(SearchBox, null);
+
+			await Settings.Instance.SetValue("priorityType", "recommend");
 		}
 	}
 }
