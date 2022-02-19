@@ -185,9 +185,9 @@
 									<RadioButton x:Name="OrderByNameAscendItem" Content="이름 순 오름차순" Click="OrderByNameAscendItem_Click" GroupName="OrderRadioButtons"/>
 									<RadioButton x:Name="OrderByNameDescendItem" Content="이름 순 내림차순" Click="OrderByNameDescendItem_Click" GroupName="OrderRadioButtons"/>
 									<RadioButton x:Name="OrderByReleaseAscendItem" Content="출시일 오름차순" Click="OrderByReleaseAscendItem_Click" GroupName="OrderRadioButtons"/>
-									<RadioButton x:Name="OrderByReleaseDescendItem" Content="출시일 내림차순" Click="OrderByReleaseDescendItem_Click" GroupName="OrderRadioButtons"/>
+									<RadioButton x:Name="OrderByReleaseDescendItem" Content="출시일 내림차순" Click="OrderByReleaseDescendItem_Click" GroupName="OrderRadioButtons" XYFocusDown="{x:Bind PriorityNoneItem}" />
 									<MenuFlyoutSeparator/>
-									<RadioButton x:Name="PriorityNoneItem" Content="우선 순위 없음" GroupName="PriorityRadioButtons" Click="PriorityNoneItem_Click"/>
+									<RadioButton x:Name="PriorityNoneItem" Content="우선 순위 없음" GroupName="PriorityRadioButtons" Click="PriorityNoneItem_Click" XYFocusUp="{x:Bind OrderByReleaseDescendItem}"/>
 									<RadioButton x:Name="PriorityByGamepassItem" Content="게임패스 우선" GroupName="PriorityRadioButtons" Click="PriorityByGamepassItem_Click"/>
 									<RadioButton x:Name="PriorityByRecommendItem" Content="추천 게임 우선" GroupName="PriorityRadioButtons" Click="PriorityByRecommendItem_Click"/>
 								</StackPanel>

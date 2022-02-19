@@ -56,16 +56,16 @@
             
             <MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
 			<TextBlock TextWrapping="WrapWholeWords">한글화 정보는 엑스박스 정보 카페에서 제공한 데이터를 이용합니다.</TextBlock>
-			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="CafeLink" NavigateUri="https://cafe.naver.com/xboxinfo">엑스박스 정보카페 바로가기</Hyperlink></TextBlock>
+			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="CafeLink" NavigateUri="https://cafe.naver.com/xboxinfo" XYFocusDown="{x:Bind GithubLink}">엑스박스 정보카페 바로가기</Hyperlink></TextBlock>
 			<MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
 			<TextBlock TextWrapping="WrapWholeWords">앱의 UI 소스 코드는 Gamepass Scores 앱을 활용하였습니다.</TextBlock>
-			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="GithubLink" NavigateUri="https://github.com/XeonKHJ/GamePassScores">GitHub 바로가기</Hyperlink></TextBlock>
+			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="GithubLink" NavigateUri="https://github.com/XeonKHJ/GamePassScores" XYFocusDown="{x:Bind XboxKBMLink}" XYFocusUp="{x:Bind CafeLink}">GitHub 바로가기</Hyperlink></TextBlock>
 			<MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
 			<TextBlock TextWrapping="WrapWholeWords">키보드 &amp; 마우스 지원 여부는 XboxKBM 사이트에서 제공받고 있습니다.</TextBlock>
-			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="XboxKBMLink" NavigateUri="https://xboxkbm.herokuapp.com/">XboxKBM 바로가기</Hyperlink></TextBlock>
-			<MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+			<TextBlock TextWrapping="WrapWholeWords" FontWeight="Bold"><Hyperlink x:Name="XboxKBMLink" NavigateUri="https://xboxkbm.herokuapp.com/" XYFocusUp="{x:Bind GithubLink}">XboxKBM 바로가기</Hyperlink></TextBlock>
+			<MenuFlyoutSeparator Padding="0" Margin="0, 10" AllowFocusOnInteraction="False"></MenuFlyoutSeparator>
 			<TextBlock TextWrapping="WrapWholeWords">엑박용 버전은 유정군님께서 대여해주신 엑스박스 원S에서 제작되었습니다.</TextBlock>
-			<MenuFlyoutSeparator Padding="0" Margin="0, 10"></MenuFlyoutSeparator>
+			<MenuFlyoutSeparator Padding="0" Margin="0, 10" AllowFocusOnInteraction="False"></MenuFlyoutSeparator>
 			<TextBlock x:Name="VersionInfo" TextWrapping="WrapWholeWords"></TextBlock>
 		</StackPanel>
 	</Grid>
