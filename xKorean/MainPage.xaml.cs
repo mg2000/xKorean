@@ -321,8 +321,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -404,8 +404,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -1040,6 +1040,15 @@ namespace xKorean
 
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
             {
+				if (text.Trim() != "" &&
+					!gamesFilteredByDevices[i].KoreanName.ToLower().Replace(" ", "").Contains(text.ToLower().Replace(" ", "").Trim()) &&
+					!gamesFilteredByDevices[i].Name.ToLower().Replace(" ", "").Contains(text.ToLower().Replace(" ", "").Trim()))
+				{
+					gamesFilteredByDevices.RemoveAt(i);
+					i--;
+					continue;
+				}
+
 				// 한국어 지원 범위 필터링
 				if ((KoreanVoiceRadioButton != null && (bool)KoreanVoiceRadioButton.IsChecked && !gamesFilteredByDevices[i].Localize.Contains("음성")) ||
 					(KoreanSubtitleRadioButton != null && (bool)KoreanSubtitleRadioButton.IsChecked && !gamesFilteredByDevices[i].Localize.Contains("자막")))
@@ -1185,15 +1194,6 @@ namespace xKorean
 						i--;
 						continue;
 					}
-				}
-
-				if (text.Trim() != "" && 
-					!gamesFilteredByDevices[i].KoreanName.ToLower().Contains(text.ToLower().Trim()) &&
-					!gamesFilteredByDevices[i].Name.ToLower().Contains(text.ToLower().Trim()))
-				{
-					gamesFilteredByDevices.RemoveAt(i);
-					i--;
-					continue;
 				}
 			}
 
@@ -1715,8 +1715,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
