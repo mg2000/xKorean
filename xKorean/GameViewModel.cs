@@ -10,6 +10,7 @@ using Windows.Storage.Streams;
 using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace xKorean
 {
@@ -110,7 +111,7 @@ namespace xKorean
 			mGameNameDisplayLanguage = gameNameDisplayLanguage;
 			Bundle = game.Bundle;
 
-			Discount = UpdateReleaseTime(game, showReleaseTime);
+			UpdateReleaseTime(game, showReleaseTime);
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -373,6 +374,12 @@ namespace xKorean
 			set;
 		} = "";
 
+		public Brush DiscountDisplayColor
+        {
+			get;
+			set;
+        }
+
 		public bool ShowName {
 			get {
 				return mShowName;
@@ -403,8 +410,9 @@ namespace xKorean
 
 		public void UpdateShowReleaseTime(bool showReleaseTime)
 		{
-			Discount = UpdateReleaseTime(Game, showReleaseTime);
+			UpdateReleaseTime(Game, showReleaseTime);
 			NotifyPropertyChanged("Discount");
+			NotifyPropertyChanged("DiscountDisplayColor");
 		}
 		
 		public bool IsThumbnailCached { set; get; } = false;
@@ -470,12 +478,21 @@ namespace xKorean
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		private string UpdateReleaseTime(Game game, bool showReleaseTime)
+		private void UpdateReleaseTime(Game game, bool showReleaseTime)
         {
 			var discount = game.Discount;
 
-			if (!game.IsAvailable && Bundle.Count == 1)
+			DiscountDisplayColor = new SolidColorBrush(Colors.White);
+
+			if (game.IsAvailable && Bundle.Count == 0 && game.Discount.Contains("할인") && game.LowestPrice == game.Price)
+				DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
+			else if (!game.IsAvailable && Bundle.Count == 1)
+			{
 				discount = Bundle[0].DiscountType;
+
+				if (discount.Contains("할인") && Bundle[0].LowestPrice == Bundle[0].Price)
+					DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
+			}
 			else if (Bundle.Count >= 1)
 			{
 				foreach (var bundle in Bundle)
@@ -483,7 +500,8 @@ namespace xKorean
 					if (bundle.DiscountType.IndexOf("할인") >= 0)
 					{
 						discount = "에디션 할인";
-						break;
+						if (bundle.LowestPrice == bundle.Price)
+							DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
 					}
 					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
 						discount = "";
@@ -494,9 +512,9 @@ namespace xKorean
 			}
 
 			if (discount == "곧 출시" || (showReleaseTime && discount != "출시 예정" && discount.Contains(" 출시")))
-				return Utils.GetReleaseStr(game.ReleaseDate);
-			else
-				return discount;
+				discount = Utils.GetReleaseStr(game.ReleaseDate);
+
+			Discount = discount;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

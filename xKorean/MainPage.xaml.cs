@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -599,7 +600,10 @@ namespace xKorean
 					PCHeader = mWindowsHeader,
 					ShowDiscount = mShowDiscount,
 					ShowGamePass = mShowGamepass,
-					ShowName = mShowName
+					ShowName = mShowName,
+					Price = game.Price,
+					LowestPrice = game.LowestPrice,
+					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink)
 				});
 			}
 
@@ -627,7 +631,10 @@ namespace xKorean
 					PCHeader = mWindowsHeader,
 					ShowDiscount = mShowDiscount,
 					ShowGamePass = mShowGamepass,
-					ShowName = mShowName
+					ShowName = mShowName,
+					Price = bundle.Price,
+					LowestPrice = bundle.LowestPrice,
+					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink)
 				});
 			}
 
@@ -1652,6 +1659,9 @@ namespace xKorean
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
 				switch (e.Key)
 				{
+					case VirtualKey.GamepadView:
+						await ShowPriceInfo(game.Game.Price, game.Game.LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+						break;
 					case VirtualKey.GamepadMenu:
 						await ShowErrorReportDialog(game);
 						break;
@@ -1677,6 +1687,37 @@ namespace xKorean
 			await ShowPackageInfo(game);			
 		}
 
+		private async void MenuCheckPrice_Click(object sender, RoutedEventArgs e)
+		{
+			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+
+			if (game.Bundle.Count == 0)
+				await ShowPriceInfo(game.Game.Price, game.Game.LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+			else
+			{
+				if (game.Game.IsAvailable || game.Bundle.Count > 1)
+                {
+					var dialog = new MessageDialog("* 해당 게임은 여러 에디션이 있습니다. 에디션 항목에서 가격을 확인해 주십시오.", "가격 정보");
+					if (mDialogQueue.TryAdd(dialog, 500))
+					{
+						await dialog.ShowAsync();
+						mDialogQueue.Take();
+					}
+				}
+				else
+				{
+					await ShowPriceInfo(game.Game.Bundle[0].Price, game.Game.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+				}
+			}
+		}
+
+		private async void MenuBundleCheckPrice_Click(object sender, RoutedEventArgs e)
+		{
+			var edition = (e.OriginalSource as MenuFlyoutItem).DataContext as EditionViewModel;
+
+			await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
+		}
+
 		private async Task ShowPackageInfo(GameViewModel game)
         {
 			var supportPackageBuilder = new StringBuilder();
@@ -1689,6 +1730,31 @@ namespace xKorean
 				supportPackageBuilder.Append("\r\n").Append("* 한국어를 지원하지 않는 지역이 있습니다. 해외 패키지 구매시 한국어 지원 여부를 확인해 주십시오.");
 
 			var dialog = new MessageDialog(supportPackageBuilder.ToString(), "한국어 지원 패키지 정보");
+			if (mDialogQueue.TryAdd(dialog, 500))
+			{
+				await dialog.ShowAsync();
+				mDialogQueue.Take();
+			}
+		}
+
+		private async Task ShowPriceInfo(float price, float lowestPrice, string languageCode)
+        {
+			var priceInfoBuilder = new StringBuilder();
+			if (price >= 0)
+			{
+				priceInfoBuilder.Append("* 현재 판매가: ").Append(price.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
+
+				if (lowestPrice > 0)
+                {
+					priceInfoBuilder.Append("\r\n* 역대 최저가: ").Append(lowestPrice.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
+				}
+			}
+			else
+				priceInfoBuilder.Append("* 판매를 시작하지 않거나 판매가 중지된 타이틀입니다.");
+
+			priceInfoBuilder.Append("\r\n\r\n* xKorean에서 제공하는 가격 정보는 스토어 가격 정보와 시간차가 있을 수 있습니다. 구매 전에 실제 스토어 가격을 확인해 주십시오.");
+
+			var dialog = new MessageDialog(priceInfoBuilder.ToString(), "가격 정보");
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
 				await dialog.ShowAsync();
@@ -2025,5 +2091,19 @@ namespace xKorean
 
 			await Settings.Instance.SetValue("priorityType", "recommend");
 		}
-	}
+
+        private async void EditionPanelView_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+			{
+				var edition = (e.OriginalSource as GridViewItem).Content as EditionViewModel;
+				switch (e.Key)
+				{
+					case VirtualKey.GamepadView:
+						await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
+						break;
+				}
+			}
+		}
+    }
 }

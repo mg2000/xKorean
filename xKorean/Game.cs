@@ -114,6 +114,13 @@ namespace xKorean
 			set;
 		} = 0;
 
+		[JsonProperty("lowestPrice")]
+		public float LowestPrice
+		{
+			get;
+			set;
+		} = -1;
+
 
 		[JsonProperty("packages")]
 		public string Packages
@@ -121,7 +128,7 @@ namespace xKorean
 			get;
 			set;
 		} = "";
-
+				
 		public bool ShowRecommend
 		{
 			get;
@@ -231,6 +238,13 @@ namespace xKorean
 			get;
 			set;
 		} = "";
+
+		[JsonProperty("lowestPrice")]
+		public float LowestPrice
+		{
+			get;
+			set;
+		} = -1;
 
 		public bool IsAvailable
 		{

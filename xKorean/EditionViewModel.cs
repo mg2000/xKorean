@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System.Profile;
+using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace xKorean
 {
@@ -42,6 +44,17 @@ namespace xKorean
 			get;
 			set;
 		}
+
+		public Brush DiscountDisplayColor
+        {
+			get
+            {
+				if (Discount.Contains("할인") && Price == LowestPrice)
+					return new SolidColorBrush(Colors.Yellow);
+				else
+					return new SolidColorBrush(Colors.White);
+			}
+        }
 
 		public string IsGamePassPC {
 			get {
@@ -275,6 +288,24 @@ namespace xKorean
 			get;
 			set;
 		}
+
+		public float Price
+        {
+			get;
+			set;
+        }
+
+		public float LowestPrice
+        {
+			get;
+			set;
+        }
+
+		public string LanguageCode
+        {
+			get;
+			set;
+        }
 
 		public string ThumbnailPath
 		{
