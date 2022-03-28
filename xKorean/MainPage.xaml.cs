@@ -322,8 +322,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -405,8 +405,8 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.8:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -1660,7 +1660,7 @@ namespace xKorean
 				switch (e.Key)
 				{
 					case VirtualKey.GamepadView:
-						await ShowPriceInfo(game.Game.Price, game.Game.LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+						await CheckPriceInfo(game.Game);
 						break;
 					case VirtualKey.GamepadMenu:
 						await ShowErrorReportDialog(game);
@@ -1690,13 +1690,17 @@ namespace xKorean
 		private async void MenuCheckPrice_Click(object sender, RoutedEventArgs e)
 		{
 			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+			await CheckPriceInfo(game.Game);
+		}
 
+		private async Task CheckPriceInfo(Game game)
+		{
 			if (game.Bundle.Count == 0)
-				await ShowPriceInfo(game.Game.Price, game.Game.LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+				await ShowPriceInfo(game.Price, game.LowestPrice, GetLanguageCodeFromUrl(game.StoreLink));
 			else
 			{
-				if (game.Game.IsAvailable || game.Bundle.Count > 1)
-                {
+				if (game.IsAvailable || game.Bundle.Count > 1)
+				{
 					var dialog = new MessageDialog("* 해당 게임은 여러 에디션이 있습니다. 에디션 항목에서 가격을 확인해 주십시오.", "가격 정보");
 					if (mDialogQueue.TryAdd(dialog, 500))
 					{
@@ -1706,7 +1710,7 @@ namespace xKorean
 				}
 				else
 				{
-					await ShowPriceInfo(game.Game.Bundle[0].Price, game.Game.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(game.Game.StoreLink));
+					await ShowPriceInfo(game.Bundle[0].Price, game.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(game.StoreLink));
 				}
 			}
 		}
@@ -1781,8 +1785,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.8:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -2096,10 +2100,10 @@ namespace xKorean
         {
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
-				var edition = (e.OriginalSource as GridViewItem).Content as EditionViewModel;
 				switch (e.Key)
 				{
 					case VirtualKey.GamepadView:
+						var edition = (e.OriginalSource as GridViewItem).Content as EditionViewModel;
 						await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
 						break;
 				}
