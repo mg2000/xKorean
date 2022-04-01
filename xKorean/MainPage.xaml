@@ -12,73 +12,67 @@
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown">
 	<Page.Resources>
 		<DataTemplate x:Key="BundleTemplate" x:DataType="local:EditionViewModel">
-            <Grid Margin="10" Width="{x:Bind Width}" Height="{x:Bind Height}" Background="Black" PointerPressed="Grid_PointerPressed_1">
-                <muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
-                <Viewbox Grid.Row="0" MaxWidth="{x:Bind MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
-                    <Image x:Name="ThumbnailImage" Source="{x:Bind ThumbnailPath, Mode=TwoWay}" Tag="{x:Bind ID}" ImageOpened="EditionPosterImage_ImageOpened"></Image>
-                </Viewbox>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"></RowDefinition>
-                        <RowDefinition Height="3*"></RowDefinition>
-                        <RowDefinition Height="1*"></RowDefinition>
-                        <RowDefinition Height="1*"></RowDefinition>
-                        <RowDefinition Height="2*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
-                    </Grid>
-                    <Grid Grid.Row="2" Visibility="{x:Bind IsDiscounting}">
-                        <Grid.Background>
-                            <SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
-                        </Grid.Background>
-                        <TextBlock Text="{x:Bind Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="{Binding DiscountDisplayColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Grid>
-                    <Grid Grid.Row="3" Visibility="{x:Bind IsGamePass}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="6.3*"></ColumnDefinition>
-                            <ColumnDefinition Width="1.6*"></ColumnDefinition>
-                            <ColumnDefinition Width="1.6*"></ColumnDefinition>
-                            <ColumnDefinition Width="1.6*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.Background>
-                            <SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
-                        </Grid.Background>
-                        <Grid Grid.Column="0">
-                            <TextBlock Text="{x:Bind GamePass}" Margin="7, 0, 0, 0" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+			<Grid Margin="10" Width="{x:Bind Width}" Height="{x:Bind Height}" Background="Black" PointerPressed="Grid_PointerPressed_1">
+				<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
+				<Viewbox Grid.Row="0" MaxWidth="{x:Bind MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
+					<Image x:Name="ThumbnailImage" Source="{x:Bind ThumbnailPath, Mode=TwoWay}" Tag="{x:Bind ID}" ImageOpened="EditionPosterImage_ImageOpened"></Image>
+				</Viewbox>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="1*"></RowDefinition>
+						<RowDefinition Height="3*"></RowDefinition>
+						<RowDefinition Height="1*"></RowDefinition>
+						<RowDefinition Height="1*"></RowDefinition>
+						<RowDefinition Height="2*"></RowDefinition>
+					</Grid.RowDefinitions>
+					<Grid Grid.Row="0">
+					</Grid>
+					<Grid Grid.Row="2" Visibility="{x:Bind IsDiscounting}">
+						<Grid.Background>
+							<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
+						</Grid.Background>
+						<TextBlock Text="{x:Bind Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="{Binding DiscountDisplayColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+					</Grid>
+					<Grid Grid.Row="3" Visibility="{x:Bind IsGamePass}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="6.3*"></ColumnDefinition>
+							<ColumnDefinition Width="1.6*"></ColumnDefinition>
+							<ColumnDefinition Width="1.6*"></ColumnDefinition>
+							<ColumnDefinition Width="1.6*"></ColumnDefinition>
+						</Grid.ColumnDefinitions>
+						<Grid.Background>
+							<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
+						</Grid.Background>
+						<Grid Grid.Column="0">
+							<TextBlock Text="{x:Bind GamePass}" Margin="7, 0, 0, 0" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
-                        </Grid>
-                        <Grid Grid.Column="1">
-                            <TextBlock Text="{x:Bind IsGamePassPC}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Grid>
+						<Grid Grid.Column="1">
+							<TextBlock Text="{x:Bind IsGamePassPC}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                        </Grid>
-                        <Grid Grid.Column="2">
-                            <TextBlock Text="{x:Bind IsGamePassConsole}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Grid>
+						<Grid Grid.Column="2">
+							<TextBlock Text="{x:Bind IsGamePassConsole}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                        </Grid>
-                        <Grid Grid.Column="3">
-                            <TextBlock Text="{x:Bind IsGamePassCloud}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Grid>
+						<Grid Grid.Column="3">
+							<TextBlock Text="{x:Bind IsGamePassCloud}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{x:Bind MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                        </Grid>
-                    </Grid>
-                    <Grid Grid.Row="4" Visibility="{x:Bind ShowName}">
-                        <Grid.Background>
-                            <SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
-                        </Grid.Background>
-                        <TextBlock Text="{Binding Name}" Margin="10, 3" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding TitleFontSize}"  Foreground="White"  TextTrimming="CharacterEllipsis">
+						</Grid>
+					</Grid>
+					<Grid Grid.Row="4" Visibility="{x:Bind ShowName}">
+						<Grid.Background>
+							<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
+						</Grid.Background>
+						<TextBlock Text="{Binding Name}" Margin="10, 3" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding TitleFontSize}"  Foreground="White"  TextTrimming="CharacterEllipsis">
 							<ToolTipService.ToolTip>
 								<ToolTip Content="{Binding Name}"/>
 							</ToolTipService.ToolTip>
-                        </TextBlock>
-                    </Grid>
-                </Grid>
-                <Grid.ContextFlyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem x:Name="MenuBundleCheckPrice" Text="가격 정보" Click="MenuBundleCheckPrice_Click" />
-                        <MenuFlyoutItem x:Name="MenuBundleImmigration" Text="이민갈까요?" Click="MenuBundleImmigration_Click" />
-                    </MenuFlyout>
-                </Grid.ContextFlyout>
-            </Grid>
-        </DataTemplate>
+						</TextBlock>
+					</Grid>
+				</Grid>
+			</Grid>
+		</DataTemplate>
 	</Page.Resources>
 
 	<Grid>
@@ -218,10 +212,10 @@
 					<ProgressBar x:Name="ProgressDownload" IsIndeterminate="False" Visibility="Collapsed"></ProgressBar>
 				</StackPanel>
 				<controls:AdaptiveGridView Name="GamesView" ItemsSource="{x:Bind GamesViewModel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyUp="GamesView_KeyUp">
+								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyDown="GamesView_KeyDown">
 					<controls:AdaptiveGridView.ItemTemplate>
 						<DataTemplate x:DataType="local:Game">
-                            <Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerPressed="Grid_PointerPressed">
+							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerPressed="Grid_PointerPressed">
 								<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
 								<Viewbox Grid.Row="0" MaxWidth="{Binding MaxWidth}" Stretch="UniformToFill" StretchDirection="Both">
 									<Image x:Name="ThumbnailImage" Source="{Binding ThumbnailPath}" Tag="{Binding ID}" ImageOpened="PosterImage_ImageOpened"></Image>
@@ -242,19 +236,19 @@
 									</Grid>
 									<Grid Grid.Row="1">
 										<StackPanel Orientation="Horizontal">
-                                            <controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
-                                                <Border Background="Yellow">
-                                                    <TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
-                                                </Border>
-                                            </controls:WrapPanel>
-                                        </StackPanel>
+											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
+												<Border Background="Yellow">
+													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
+												</Border>
+											</controls:WrapPanel>
+										</StackPanel>
 										<!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
 									</Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
 										<Grid.Background>
 											<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
 										</Grid.Background>
-                                        <TextBlock Text="{Binding Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="{Binding DiscountDisplayColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+										<TextBlock Text="{Binding Discount}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="{Binding DiscountDisplayColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Grid>
 									<Grid Grid.Row="3" Visibility="{Binding IsGamePass}">
 										<Grid.ColumnDefinitions>
@@ -306,40 +300,39 @@
 										</Grid>
 									</Grid>
 								</Grid>
-                                <Grid.ContextFlyout>
-									<MenuFlyout>
-										<MenuFlyoutItem x:Name="MenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
-                                        <MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
-                                        <MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
-                                        <MenuFlyoutItem x:Name="MenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
-                                        <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
-									</MenuFlyout>
-								</Grid.ContextFlyout>
-                                <FlyoutBase.AttachedFlyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem x:Name="XboxMenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
-                                        <MenuFlyoutItem x:Name="XboxMenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
-                                        <MenuFlyoutItem x:Name="XboxMenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
-                                        <MenuFlyoutItem x:Name="XboxMenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
-                                        <MenuFlyoutItem x:Name="XboxMenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
-                                    </MenuFlyout>
-                                </FlyoutBase.AttachedFlyout>
-                            </Grid>
+							</Grid>
 						</DataTemplate>
 					</controls:AdaptiveGridView.ItemTemplate>
+					<controls:AdaptiveGridView.ContextFlyout>
+						<MenuFlyout>
+							<MenuFlyoutItem x:Name="MenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
+							<MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
+							<MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
+							<MenuFlyoutItem x:Name="MenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
+							<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
+						</MenuFlyout>
+					</controls:AdaptiveGridView.ContextFlyout>
 				</controls:AdaptiveGridView>
 			</Grid>
 		</Grid>
-		<Grid x:Name="EditionPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed" KeyUp="EditionPanelView_KeyUp">
+		<Grid x:Name="EditionPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
 				<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">에디션 선택</TextBlock>
 				<GridView Name="EditionView" ItemsSource="{x:Bind mEditionViewModel}" ItemTemplate="{StaticResource BundleTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-									   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache">
+									   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache" KeyDown="EditionView_KeyDown">
 					<GridView.ItemsPanel>
 						<ItemsPanelTemplate>
 							<ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="5" Orientation="Horizontal"/>
 						</ItemsPanelTemplate>
 					</GridView.ItemsPanel>
+
+					<GridView.ContextFlyout>
+						<MenuFlyout>
+							<MenuFlyoutItem x:Name="MenuBundleCheckPrice" Text="가격 정보" Click="MenuBundleCheckPrice_Click" />
+							<MenuFlyoutItem x:Name="MenuBundleImmigration" Text="이민갈까요?" Click="MenuBundleImmigration_Click" />
+						</MenuFlyout>
+					</GridView.ContextFlyout>
+
 				</GridView>
 				<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
 			</StackPanel>

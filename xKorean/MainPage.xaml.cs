@@ -78,6 +78,9 @@ namespace xKorean
 		private bool mShowName = true;
 		private bool mShowReleaseTime = false;
 
+		private Game mSelectedGame = null;
+		private EditionViewModel mSelectedEdition = null;
+
 		public MainPage()
 		{
 			this.InitializeComponent();
@@ -323,8 +326,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -406,8 +409,8 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -1517,8 +1520,8 @@ namespace xKorean
 			}
 		}
 
-		private async Task ShowErrorReportDialog(GameViewModel game) {
-			var dialog = new ErrorReportDialog(game.Title, GetRegionCodeFromUrl(game.StoreUri).ToUpper());
+		private async Task ShowErrorReportDialog() {
+			var dialog = new ErrorReportDialog(mGameNameDisplayLanguage == "English" ? mSelectedGame.Name : mSelectedGame.KoreanName, GetRegionCodeFromUrl(mSelectedGame.StoreLink).ToUpper());
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
 				await dialog.ShowAsync();
@@ -1657,56 +1660,63 @@ namespace xKorean
 			}
 		}
 
-		private async void GamesView_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+		private async void GamesView_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
 		{
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				var game = (e.OriginalSource as GridViewItem).Content as GameViewModel;
+				mSelectedGame = game.Game;
+
 				switch (e.Key)
 				{
-					case VirtualKey.GamepadView:
-						await CheckPriceInfo(game.Game);
-						break;
 					case VirtualKey.GamepadMenu:
-						await ShowErrorReportDialog(game);
-						break;
-					case VirtualKey.GamepadX:
-						await RecommendGame(game);
-						break;
-					case VirtualKey.GamepadY:
-						await ShowPackageInfo(game);
+						CheckPreorderGame(game.Game, (sender as FrameworkElement).ContextFlyout as MenuFlyout);
 						break;
 				}
 			}
-			else
-				FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+		}
+
+		private void EditionView_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+		{
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+			{
+				var edition = (e.OriginalSource as GridViewItem).Content as EditionViewModel;
+				mSelectedEdition = edition;
+
+				switch (e.Key)
+				{
+					case VirtualKey.GamepadMenu:
+						CheckPreorderBundle(edition, (sender as FrameworkElement).ContextFlyout as MenuFlyout);
+						break;
+				}
+			}
 		}
 
 		private async void MenuRecommend_Click(object sender, RoutedEventArgs e)
 		{
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-			await RecommendGame(game);
+			await RecommendGame();
 		}
 
 		private async void MenuPackages_Click(object sender, RoutedEventArgs e)
         {
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-			await ShowPackageInfo(game);			
+			await ShowPackageInfo();
 		}
 
 		private async void MenuCheckPrice_Click(object sender, RoutedEventArgs e)
 		{
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-			await CheckPriceInfo(game.Game);
+			await CheckPriceInfo();
 		}
 
-		private async Task CheckPriceInfo(Game game)
+		private async Task CheckPriceInfo()
 		{
-			if (game.Bundle.Count == 0)
-				await ShowPriceInfo(game.Price, game.LowestPrice, GetLanguageCodeFromUrl(game.StoreLink));
+			if (mSelectedGame == null)
+				return;
+
+			if (mSelectedGame.Bundle.Count == 0)
+				await ShowPriceInfo(mSelectedGame.Price, mSelectedGame.LowestPrice, GetLanguageCodeFromUrl(mSelectedGame.StoreLink));
 			else
 			{
-				if (game.IsAvailable || game.Bundle.Count > 1)
+				if (mSelectedGame.IsAvailable || mSelectedGame.Bundle.Count > 1)
 				{
 					var dialog = new MessageDialog("* 해당 게임은 여러 에디션이 있습니다. 에디션 항목에서 가격을 확인해 주십시오.", "가격 정보");
 					if (mDialogQueue.TryAdd(dialog, 500))
@@ -1716,28 +1726,27 @@ namespace xKorean
 					}
 				}
 				else
-				{
-					await ShowPriceInfo(game.Bundle[0].Price, game.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(game.StoreLink));
-				}
+					await ShowPriceInfo(mSelectedGame.Bundle[0].Price, mSelectedGame.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(mSelectedGame.StoreLink));
 			}
 		}
 
 		private async void MenuBundleCheckPrice_Click(object sender, RoutedEventArgs e)
 		{
-			var edition = (e.OriginalSource as MenuFlyoutItem).DataContext as EditionViewModel;
-
-			await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
+			await ShowPriceInfo(mSelectedEdition.Price, mSelectedEdition.LowestPrice, mSelectedEdition.LanguageCode);
 		}
 
-		private async Task ShowPackageInfo(GameViewModel game)
+		private async Task ShowPackageInfo()
         {
-			var supportPackageBuilder = new StringBuilder();
-			if (game.Game.Packages != "")
-				supportPackageBuilder.Append("* 한국어 지원 패키지: ").Append(game.Game.Packages);
-			else
-				supportPackageBuilder.Append("* 확인된 패키지가 없거나 정식 발매 패키지만 한국어를 지원합니다. 확인하신 패키지가 있으면, 오류 신고 기능을 이용해 신고해 주십시오.").Append(game.Game.Packages);
+			if (mSelectedGame == null)
+				return;
 
-			if (game.Game.Message.ToLower().Contains("dlregiononly"))
+			var supportPackageBuilder = new StringBuilder();
+			if (mSelectedGame.Packages != "")
+				supportPackageBuilder.Append("* 한국어 지원 패키지: ").Append(mSelectedGame.Packages);
+			else
+				supportPackageBuilder.Append("* 확인된 패키지가 없거나 정식 발매 패키지만 한국어를 지원합니다. 확인하신 패키지가 있으면, 오류 신고 기능을 이용해 신고해 주십시오.").Append(mSelectedGame.Packages);
+
+			if (mSelectedGame.Message.ToLower().Contains("dlregiononly"))
 				supportPackageBuilder.Append("\r\n").Append("* 한국어를 지원하지 않는 지역이 있습니다. 해외 패키지 구매시 한국어 지원 여부를 확인해 주십시오.");
 
 			var dialog = new MessageDialog(supportPackageBuilder.ToString(), "한국어 지원 패키지 정보");
@@ -1773,7 +1782,10 @@ namespace xKorean
 			}
 		}
 
-		private async Task RecommendGame(GameViewModel game) {
+		private async Task RecommendGame() {
+			if (mSelectedGame == null)
+				return;
+
 			var message = "";
 
 			if (mRecommendCount == 0)
@@ -1782,7 +1794,7 @@ namespace xKorean
 			{
 				var requestParam = new Dictionary<string, string>
 				{
-					["product_id"] = game.ID,
+					["product_id"] = mSelectedGame.ID,
 					["device_id"] = mDeviceID
 				};
 
@@ -1792,8 +1804,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -1841,13 +1853,14 @@ namespace xKorean
 
 		private async void MenuImmigration_Click(object sender, RoutedEventArgs e)
 		{
-			var gameViewModel = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+			if (mSelectedGame == null)
+				return;
 
-			if (gameViewModel.Game.Bundle.Count == 0)
-				await ShowImmigrantResult(gameViewModel.Game.NZReleaseDate, gameViewModel.Game.ReleaseDate);
+			if (mSelectedGame.Bundle.Count == 0)
+				await ShowImmigrantResult(mSelectedGame.NZReleaseDate, mSelectedGame.ReleaseDate);
 			else
 			{
-				if (gameViewModel.Game.IsAvailable || gameViewModel.Bundle.Count > 1)
+				if (mSelectedGame.IsAvailable || mSelectedGame.Bundle.Count > 1)
                 {
 					var dialog = new MessageDialog("* 본 게임은 여러 에디션이 있습니다. 에디션을 선택해서 확인해 주십시오.", "이민시 선행 플레이 가능 여부");
 					if (mDialogQueue.TryAdd(dialog, 500))
@@ -1858,23 +1871,19 @@ namespace xKorean
 				}
 				else
 				{
-					await ShowImmigrantResult(gameViewModel.Game.NZReleaseDate, gameViewModel.Game.ReleaseDate);
+					await ShowImmigrantResult(mSelectedGame.NZReleaseDate, mSelectedGame.ReleaseDate);
 				}
 			}
 		}
 
 		private async void MenuBundleImmigration_Click(object sender, RoutedEventArgs e)
 		{
-			var editionViewModel = (e.OriginalSource as MenuFlyoutItem).DataContext as EditionViewModel;
-
-			await ShowImmigrantResult(editionViewModel.NZReleaseDate, editionViewModel.ReleaseDate);
+			await ShowImmigrantResult(mSelectedEdition.NZReleaseDate, mSelectedEdition.ReleaseDate);
 		}
 
 		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
 		{
-			var game = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
-
-			await ShowErrorReportDialog(game);
+			await ShowErrorReportDialog();
 		}
 
 		private async void EditionView_ItemClick(object sender, ItemClickEventArgs e)
@@ -2153,44 +2162,44 @@ namespace xKorean
 			await Settings.Instance.SetValue("priorityType", "recommend");
 		}
 
-        private async void EditionPanelView_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+		private void CheckPreorderGame(Game game, MenuFlyout menuFlyout)
+		{
+			if (game.Discount.Contains("출시"))
+				menuFlyout.Items[3].Visibility = Visibility.Visible;
+			else
 			{
-				switch (e.Key)
+				if (game.Bundle.Count > 0)
 				{
-					case VirtualKey.GamepadView:
-						var edition = (e.OriginalSource as GridViewItem).Content as EditionViewModel;
-						await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
-						break;
+					foreach (var bundle in game.Bundle)
+					{
+						if (bundle.DiscountType.Contains("출시"))
+						{
+							menuFlyout.Items[3].Visibility = Visibility.Visible;
+							return;
+						}
+					}
+
+					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 				}
+				else
+					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 			}
 		}
 
-        private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+		private void CheckPreorderBundle(EditionViewModel edition, MenuFlyout menuFlyout) {
+			if (edition.Discount.Contains("출시"))
+				menuFlyout.Items[1].Visibility = Visibility.Visible;
+			else
+				menuFlyout.Items[1].Visibility = Visibility.Collapsed;
+		}
+
+		private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
 			if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
 			{
 				var game = ((FrameworkElement)e.OriginalSource).DataContext as GameViewModel;
-				if (game.Game.Discount.Contains("출시"))
-					((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Visible;
-				else {
-					if (game.Game.Bundle.Count > 0)
-					{
-						foreach (var bundle in game.Game.Bundle)
-						{
-							if (bundle.DiscountType.Contains("출시"))
-							{
-								((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Visible;
-								return;
-							}
-						}
-
-						((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Collapsed;
-					}
-					else
-						((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Collapsed;
-				}
+				CheckPreorderGame(game.Game, GamesView.ContextFlyout as MenuFlyout);
+				mSelectedGame = game.Game;
 			}
 		}
 
@@ -2199,10 +2208,8 @@ namespace xKorean
 			if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
 			{
 				var edition = ((FrameworkElement)e.OriginalSource).DataContext as EditionViewModel;
-				if (edition.Discount.Contains("출시"))
-					((MenuFlyout)((Grid)sender).ContextFlyout).Items[1].Visibility = Visibility.Visible;
-				else
-					((MenuFlyout)((Grid)sender).ContextFlyout).Items[1].Visibility = Visibility.Collapsed;
+				CheckPreorderBundle(edition, EditionView.ContextFlyout as MenuFlyout);
+				mSelectedEdition = edition;
 			}
 		}
     }
