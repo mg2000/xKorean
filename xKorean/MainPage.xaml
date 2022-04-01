@@ -315,7 +315,16 @@
                                         <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 									</MenuFlyout>
 								</Grid.ContextFlyout>
-							</Grid>
+                                <FlyoutBase.AttachedFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem x:Name="XboxMenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
+                                        <MenuFlyoutItem x:Name="XboxMenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
+                                        <MenuFlyoutItem x:Name="XboxMenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
+                                        <MenuFlyoutItem x:Name="XboxMenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
+                                        <MenuFlyoutItem x:Name="XboxMenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
+                                    </MenuFlyout>
+                                </FlyoutBase.AttachedFlyout>
+                            </Grid>
 						</DataTemplate>
 					</controls:AdaptiveGridView.ItemTemplate>
 				</controls:AdaptiveGridView>
