@@ -48,6 +48,12 @@
                 </Grid>
                 <Grid Grid.Row="2" Grid.Column="0">
                     <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEECA;" Margin="2"/>
+                        <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 가격 정보</TextBlock>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="2" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDE3;" Margin="2"/>
                         <TextBlock TextWrapping="WrapWholeWords" xml:space="preserve" Margin="2"> : 오류 신고</TextBlock>
                     </StackPanel>

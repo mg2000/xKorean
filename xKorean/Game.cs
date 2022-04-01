@@ -69,6 +69,9 @@ namespace xKorean
 		[JsonProperty("releaseDate")]
 		public string ReleaseDate { set; get; } = "";
 
+		[JsonProperty("nzReleaseDate")]
+		public string NZReleaseDate { set; get; } = "";
+
 		[JsonProperty("dolbyAtmos")]
 		public string DolbyAtmos { set; get; } = "";
 
@@ -235,6 +238,12 @@ namespace xKorean
 		[JsonProperty("releaseDate")]
 		public string ReleaseDate
 		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("nzReleaseDate")]
+		public string NZReleaseDate {
 			get;
 			set;
 		} = "";

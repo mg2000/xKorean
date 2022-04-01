@@ -45,6 +45,18 @@ namespace xKorean
 			set;
 		}
 
+		public string ReleaseDate
+        {
+			get;
+			set;
+        }
+
+		public string NZReleaseDate
+        {
+			get;
+			set;
+        }
+
 		public Brush DiscountDisplayColor
         {
 			get

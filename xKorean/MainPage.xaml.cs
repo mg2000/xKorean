@@ -26,6 +26,7 @@ using Windows.UI.Popups;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -322,8 +323,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -405,8 +406,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -603,7 +604,9 @@ namespace xKorean
 					ShowName = mShowName,
 					Price = game.Price,
 					LowestPrice = game.LowestPrice,
-					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink)
+					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink),
+					ReleaseDate = game.ReleaseDate,
+					NZReleaseDate = game.NZReleaseDate
 				});
 			}
 
@@ -634,7 +637,9 @@ namespace xKorean
 					ShowName = mShowName,
 					Price = bundle.Price,
 					LowestPrice = bundle.LowestPrice,
-					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink)
+					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink),
+					ReleaseDate = bundle.ReleaseDate,
+					NZReleaseDate = bundle.NZReleaseDate
 				});
 			}
 
@@ -1673,6 +1678,8 @@ namespace xKorean
 						break;
 				}
 			}
+			else
+				FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
 		}
 
 		private async void MenuRecommend_Click(object sender, RoutedEventArgs e)
@@ -1785,8 +1792,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -1830,6 +1837,37 @@ namespace xKorean
 			// And show it!
 			ToastNotificationManager.History.Clear();
 			ToastNotificationManager.CreateToastNotifier().Show(notif);
+		}
+
+		private async void MenuImmigration_Click(object sender, RoutedEventArgs e)
+		{
+			var gameViewModel = (e.OriginalSource as MenuFlyoutItem).DataContext as GameViewModel;
+
+			if (gameViewModel.Game.Bundle.Count == 0)
+				await ShowImmigrantResult(gameViewModel.Game.NZReleaseDate, gameViewModel.Game.ReleaseDate);
+			else
+			{
+				if (gameViewModel.Game.IsAvailable || gameViewModel.Bundle.Count > 1)
+                {
+					var dialog = new MessageDialog("* 본 게임은 여러 에디션이 있습니다. 에디션을 선택해서 확인해 주십시오.", "이민시 선행 플레이 가능 여부");
+					if (mDialogQueue.TryAdd(dialog, 500))
+					{
+						await dialog.ShowAsync();
+						mDialogQueue.Take();
+					}
+				}
+				else
+				{
+					await ShowImmigrantResult(gameViewModel.Game.NZReleaseDate, gameViewModel.Game.ReleaseDate);
+				}
+			}
+		}
+
+		private async void MenuBundleImmigration_Click(object sender, RoutedEventArgs e)
+		{
+			var editionViewModel = (e.OriginalSource as MenuFlyoutItem).DataContext as EditionViewModel;
+
+			await ShowImmigrantResult(editionViewModel.NZReleaseDate, editionViewModel.ReleaseDate);
 		}
 
 		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
@@ -1981,7 +2019,26 @@ namespace xKorean
 			}
 		}
 
-        private void ResetDeviceFilter_Click(object sender, RoutedEventArgs e)
+		private async Task ShowImmigrantResult(string nzReleaseDate, string releaseDate)
+		{
+			string message;
+			if (nzReleaseDate != "" && DateTime.Parse(nzReleaseDate) < DateTime.Parse(releaseDate))
+			{
+				var nzReleaseTime = DateTime.Parse(nzReleaseDate);
+				message = $"* 뉴질랜드 이민시 플레이 가능 시간: {nzReleaseTime.ToString("yyyy.MM.dd tt hh:mm")}";
+			}
+			else
+				message = $"* 이민가셔도 일찍 플레이하실 수 없습니다.";
+
+			var dialog = new MessageDialog(message, "이민시 선행 플레이 가능 여부");
+			if (mDialogQueue.TryAdd(dialog, 500))
+			{
+				await dialog.ShowAsync();
+				mDialogQueue.Take();
+			}
+		}
+
+		private void ResetDeviceFilter_Click(object sender, RoutedEventArgs e)
         {
 			if (CategorySeriesXSCheckBox.IsChecked == true ||
 				CategoryOneXEnhancedCheckBox.IsChecked == true ||
@@ -2107,6 +2164,45 @@ namespace xKorean
 						await ShowPriceInfo(edition.Price, edition.LowestPrice, edition.LanguageCode);
 						break;
 				}
+			}
+		}
+
+        private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+			if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
+			{
+				var game = ((FrameworkElement)e.OriginalSource).DataContext as GameViewModel;
+				if (game.Game.Discount.Contains("출시"))
+					((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Visible;
+				else {
+					if (game.Game.Bundle.Count > 0)
+					{
+						foreach (var bundle in game.Game.Bundle)
+						{
+							if (bundle.DiscountType.Contains("출시"))
+							{
+								((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Visible;
+								return;
+							}
+						}
+
+						((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Collapsed;
+					}
+					else
+						((MenuFlyout)((Grid)sender).ContextFlyout).Items[3].Visibility = Visibility.Collapsed;
+				}
+			}
+		}
+
+        private void Grid_PointerPressed_1(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+			if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
+			{
+				var edition = ((FrameworkElement)e.OriginalSource).DataContext as EditionViewModel;
+				if (edition.Discount.Contains("출시"))
+					((MenuFlyout)((Grid)sender).ContextFlyout).Items[1].Visibility = Visibility.Visible;
+				else
+					((MenuFlyout)((Grid)sender).ContextFlyout).Items[1].Visibility = Visibility.Collapsed;
 			}
 		}
     }

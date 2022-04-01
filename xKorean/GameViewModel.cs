@@ -484,7 +484,7 @@ namespace xKorean
 
 			DiscountDisplayColor = new SolidColorBrush(Colors.White);
 
-			if (game.IsAvailable && Bundle.Count == 0 && game.Discount.Contains("할인") && game.LowestPrice == game.Price)
+			if (game.IsAvailable && game.Discount.Contains("할인") && game.LowestPrice == game.Price)
 				DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
 			else if (!game.IsAvailable && Bundle.Count == 1)
 			{
