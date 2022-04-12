@@ -5,14 +5,13 @@
     <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
     <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
-    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\mg2000\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages;C:\Program Files (x86)\Microsoft\Xamarin\NuGet\;C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\</NuGetPackageFolders>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\mg2000\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages;C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
-    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.0.1</NuGetToolVersion>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.1.0</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\mg2000\.nuget\packages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
-    <SourceRoot Include="C:\Program Files (x86)\Microsoft\Xamarin\NuGet\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
@@ -27,7 +26,7 @@
     <Import Project="$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.uwpcoreruntimesdk\2.2.13\build\runtime.win10-arm.Microsoft.Net.UWPCoreRuntimeSdk.props" Condition="Exists('$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.uwpcoreruntimesdk\2.2.13\build\runtime.win10-arm.Microsoft.Net.UWPCoreRuntimeSdk.props')" />
     <Import Project="$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.native.sharedlibrary\2.2.8-rel-30601-02\build\runtime.win10-arm.Microsoft.Net.Native.SharedLibrary.props" Condition="Exists('$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.native.sharedlibrary\2.2.8-rel-30601-02\build\runtime.win10-arm.Microsoft.Net.Native.SharedLibrary.props')" />
     <Import Project="$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.native.compiler\2.2.11-rel-30601-02\build\runtime.win10-arm.Microsoft.Net.Native.Compiler.props" Condition="Exists('$(NuGetPackageRoot)runtime.win10-arm.microsoft.net.native.compiler\2.2.11-rel-30601-02\build\runtime.win10-arm.Microsoft.Net.Native.Compiler.props')" />
-    <Import Project="$(NuGetPackageRoot)microsoft.ui.xaml\2.7.0\buildTransitive\Microsoft.UI.Xaml.props" Condition="Exists('$(NuGetPackageRoot)microsoft.ui.xaml\2.7.0\buildTransitive\Microsoft.UI.Xaml.props')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.ui.xaml\2.7.1\buildTransitive\Microsoft.UI.Xaml.props" Condition="Exists('$(NuGetPackageRoot)microsoft.ui.xaml\2.7.1\buildTransitive\Microsoft.UI.Xaml.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.net.uwpcoreruntimesdk\2.2.13\build\Microsoft.Net.UWPCoreRuntimeSdk.props" Condition="Exists('$(NuGetPackageRoot)microsoft.net.uwpcoreruntimesdk\2.2.13\build\Microsoft.Net.UWPCoreRuntimeSdk.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.net.native.compiler\2.2.11-rel-30601-02\build\Microsoft.Net.Native.Compiler.props" Condition="Exists('$(NuGetPackageRoot)microsoft.net.native.compiler\2.2.11-rel-30601-02\build\Microsoft.Net.Native.Compiler.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.netcore.universalwindowsplatform\6.2.13\build\Microsoft.NETCore.UniversalWindowsPlatform.props" Condition="Exists('$(NuGetPackageRoot)microsoft.netcore.universalwindowsplatform\6.2.13\build\Microsoft.NETCore.UniversalWindowsPlatform.props')" />
@@ -44,7 +43,7 @@
     <Pkgruntime_win10-arm_Microsoft_Net_UWPCoreRuntimeSdk Condition=" '$(Pkgruntime_win10-arm_Microsoft_Net_UWPCoreRuntimeSdk)' == '' ">C:\Users\mg2000\.nuget\packages\runtime.win10-arm.microsoft.net.uwpcoreruntimesdk\2.2.13</Pkgruntime_win10-arm_Microsoft_Net_UWPCoreRuntimeSdk>
     <Pkgruntime_win10-arm_Microsoft_Net_Native_SharedLibrary Condition=" '$(Pkgruntime_win10-arm_Microsoft_Net_Native_SharedLibrary)' == '' ">C:\Users\mg2000\.nuget\packages\runtime.win10-arm.microsoft.net.native.sharedlibrary\2.2.8-rel-30601-02</Pkgruntime_win10-arm_Microsoft_Net_Native_SharedLibrary>
     <Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler Condition=" '$(Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler)' == '' ">C:\Users\mg2000\.nuget\packages\runtime.win10-arm.microsoft.net.native.compiler\2.2.11-rel-30601-02</Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler>
-    <PkgMicrosoft_UI_Xaml Condition=" '$(PkgMicrosoft_UI_Xaml)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.ui.xaml\2.7.0</PkgMicrosoft_UI_Xaml>
+    <PkgMicrosoft_UI_Xaml Condition=" '$(PkgMicrosoft_UI_Xaml)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.ui.xaml\2.7.1</PkgMicrosoft_UI_Xaml>
     <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.primitives\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives>
     <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.media\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media>
     <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.core\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core>

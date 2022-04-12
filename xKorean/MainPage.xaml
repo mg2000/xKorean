@@ -202,6 +202,7 @@
 					</AppBarButton>
 					<AppBarButton x:Name="SettingButton" Icon="Setting" Label="설정" Click="SettingButton_ClickAsync"></AppBarButton>
 					<AppBarButton x:Name="AboutButton" Icon="Account" Label="정보" Click="AboutButton_ClickAsync"></AppBarButton>
+                    <AppBarButton x:Name="DonationButton" Icon="Like" Label="후원" Click="DonationButton_Click"></AppBarButton>
 				</CommandBar>
 				<TextBox Grid.Column="1" x:Name="SearchBox"  Margin="10" HorizontalAlignment="Right" Width="150" GotFocus="SearchBox_GotFocus" KeyUp="SearchBox_KeyUp"></TextBox>
 			</Grid>

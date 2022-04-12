@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -81,9 +82,16 @@ namespace xKorean
 		private Game mSelectedGame = null;
 		private EditionViewModel mSelectedEdition = null;
 
+        private char[] mKorChr = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
+        private readonly string[] mKorStr = { "가", "까", "나", "다", "따", "라", "마", "바", "빠", "사", "싸", "아", "자", "짜", "차","카","타", "파", "하" };
+        private readonly int[] mKorChrInt = { 44032, 44620, 45208, 45796, 46384, 46972, 47560, 48148, 48736, 49324, 49912, 50500, 51088, 51676, 52264, 52852, 53440, 54028, 54616, 55204 };
+
 		public MainPage()
 		{
 			this.InitializeComponent();
+
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				DonationButton.Visibility = Visibility.Collapsed;
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += (sender, e) =>
 			{
@@ -326,8 +334,8 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -344,11 +352,29 @@ namespace xKorean
 					if (LoadingPanel.Visibility == Visibility.Visible)
 						LoadingPanel.Visibility = Visibility.Collapsed;
 
-					var dialog = new MessageDialog("현재 서버 정보를 최신 정보로 업데이트 중입니다. 잠시 후에 다시 시도해 주십시오.", "데이터 수신 오류");
-					if (mDialogQueue.TryAdd(dialog, 500))
+					if (CheckDownloadData())
 					{
-						await dialog.ShowAsync();
-						mDialogQueue.Take();
+						var content = new ToastContentBuilder()
+							.AddText("업데이트 오류", hintMaxLines: 1)
+							.AddText("서버 정보를 업데이트를 중이므로 기존 정보를 표시합니다. 잠시 후에 다시 시도해 주십시오.")
+							.GetToastContent();
+
+						var notif = new ToastNotification(content.GetXml());
+
+						// And show it!
+						ToastNotificationManager.History.Clear();
+						ToastNotificationManager.CreateToastNotifier().Show(notif);
+
+						ReadGamesFromJson();
+					}
+					else
+					{
+						var dialog = new MessageDialog("현재 서버 정보를 최신 정보로 업데이트 중입니다. 잠시 후에 다시 시도해 주십시오.", "데이터 수신 오류");
+						if (mDialogQueue.TryAdd(dialog, 500))
+						{
+							await dialog.ShowAsync();
+							mDialogQueue.Take();
+						}
 					}
 
 					return;
@@ -390,13 +416,41 @@ namespace xKorean
 				if (exception.Message != null && exception.Message.Trim() != "")
 					additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
 
-				var dialog = new MessageDialog($"서버에서 한국어 지원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.{additionalMessage}", "데이터 수신 오류");
-				if (mDialogQueue.TryAdd(dialog, 500))
+				if (CheckDownloadData())
 				{
-					await dialog.ShowAsync();
-					mDialogQueue.Take();
+					var content = new ToastContentBuilder()
+						.AddText("업데이트 오류", hintMaxLines: 1)
+						.AddText("서버에서 정보를 확인할 수 없어서, 기존 정보를 표시합니다. 잠시 후에 다시 시도해 주십시오.")
+						.GetToastContent();
+
+					var notif = new ToastNotification(content.GetXml());
+
+					// And show it!
+					ToastNotificationManager.History.Clear();
+					ToastNotificationManager.CreateToastNotifier().Show(notif);
+
+					ReadGamesFromJson();
+				}
+				else
+				{
+					var dialog = new MessageDialog($"서버에서 한국어 지원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주십시오.{additionalMessage}", "데이터 수신 오류");
+					if (mDialogQueue.TryAdd(dialog, 500))
+					{
+						await dialog.ShowAsync();
+						mDialogQueue.Take();
+					}
 				}
 			}
+		}
+
+		private bool CheckDownloadData()
+		{
+			var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+
+			if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
+				return true;
+			else
+				return false;
 		}
 
 		private async void UpateJsonData()
@@ -409,8 +463,8 @@ namespace xKorean
 
 
 #if DEBUG
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -462,15 +516,33 @@ namespace xKorean
 				if (LoadingPanel.Visibility == Visibility.Visible)
 					LoadingPanel.Visibility = Visibility.Collapsed;
 
-				var additionalMessage = "";
-				if (exception.Message != null && exception.Message.Trim() != "")
-					additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
-
-				var dialog = new MessageDialog($"서버에서 한글화 정보를 다운로드할 수 없습니다.{additionalMessage}", "데이터 수신 오류");
-				if (mDialogQueue.TryAdd(dialog, 500))
+				if (CheckDownloadData())
 				{
-					await dialog.ShowAsync();
-					mDialogQueue.Take();
+					var content = new ToastContentBuilder()
+						.AddText("업데이트 오류", hintMaxLines: 1)
+						.AddText("서버에서 정보를 다운로드 할 수 없어서, 기존 정보를 표시합니다. 잠시 후에 다시 시도해 주십시오.")
+						.GetToastContent();
+
+					var notif = new ToastNotification(content.GetXml());
+
+					// And show it!
+					ToastNotificationManager.History.Clear();
+					ToastNotificationManager.CreateToastNotifier().Show(notif);
+
+					ReadGamesFromJson();
+				}
+				else
+				{
+					var additionalMessage = "";
+					if (exception.Message != null && exception.Message.Trim() != "")
+						additionalMessage = $"\r\n\r\n{exception.Message.Trim()}";
+
+					var dialog = new MessageDialog($"서버에서 한글화 정보를 다운로드할 수 없습니다.{additionalMessage}", "데이터 수신 오류");
+					if (mDialogQueue.TryAdd(dialog, 500))
+					{
+						await dialog.ShowAsync();
+						mDialogQueue.Take();
+					}
 				}
 			}
 		}
@@ -1029,11 +1101,36 @@ namespace xKorean
 			}
 
 			TextBox searchBlock = sender as TextBox;
-			string text;
-			if (searchBlock == null)
-				text = "";
-			else
-				text = searchBlock.Text;
+			string text = "";
+			var searchPattern = searchBlock.Text.Trim().Replace(" ", "");
+			if (searchBlock != null)
+			{
+				for (var i = 0; i < searchPattern.Length; i++)
+                {
+					if ('ㄱ' <= searchPattern[i] && searchPattern[i] <= 'ㅎ')
+                    {
+						for (var j = 0; j < mKorChr.Length; j++)
+                        {
+							if (searchPattern[i] == mKorChr[j])
+								text += $"[{mKorStr[j]}-{(char)(mKorChrInt[j + 1] - 1)}]";
+                        }
+                    }
+					else if (searchPattern[i] >= '가')
+                    {
+						var magic = (searchPattern[i] - '가') % 588;
+
+						if (magic == 0)
+							text += $"[{searchPattern[i]}-{(char)(searchPattern[i] + 27)}]";
+						else
+                        {
+							magic = 27 - (magic % 28);
+							text += $"[{searchPattern[i]}-{(char)(searchPattern[i] + magic)}]";
+						}
+                    }
+					else
+						text += searchBlock.Text[i];
+				}
+			}
 
 			var gamesFilteredByDevices = FilterByDevices(mGameList);
 			if (gamesFilteredByDevices == null)
@@ -1056,8 +1153,8 @@ namespace xKorean
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
             {
 				if (text.Trim() != "" &&
-					!gamesFilteredByDevices[i].KoreanName.ToLower().Replace(" ", "").Contains(text.ToLower().Replace(" ", "").Trim()) &&
-					!gamesFilteredByDevices[i].Name.ToLower().Replace(" ", "").Contains(text.ToLower().Replace(" ", "").Trim()))
+					!Regex.IsMatch(gamesFilteredByDevices[i].KoreanName.ToLower().Replace(" ", ""), text) &&
+					!Regex.IsMatch(gamesFilteredByDevices[i].Name.ToLower().Replace(" ", ""), text))
 				{
 					gamesFilteredByDevices.RemoveAt(i);
 					i--;
@@ -1660,7 +1757,7 @@ namespace xKorean
 			}
 		}
 
-		private async void GamesView_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+		private void GamesView_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
 		{
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -1804,8 +1901,8 @@ namespace xKorean
 					var httpClient = new HttpClient();
 
 #if DEBUG
-					var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					//var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -2211,6 +2308,11 @@ namespace xKorean
 				CheckPreorderBundle(edition, EditionView.ContextFlyout as MenuFlyout);
 				mSelectedEdition = edition;
 			}
+		}
+
+        private async void DonationButton_Click(object sender, RoutedEventArgs e)
+        {
+			await Launcher.LaunchUriAsync(new Uri($"https://toon.at/donate/637852371342632860"));
 		}
     }
 }
