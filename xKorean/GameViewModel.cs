@@ -92,7 +92,6 @@ namespace xKorean
 		public string Localize { set; get; } = "";
 		public string ID { set; get; }
 
-		public string StoreUri { get; set; } = "";
 		public List<string> Screenshots { set; get; } = new List<string>();
 		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
 		{
@@ -107,7 +106,6 @@ namespace xKorean
 			ThumbnailUrl = game.Thumbnail;
 			ID = game.ID;
 			Localize = game.Localize.Replace("/", "\r\n");
-			StoreUri = game.StoreLink;
 			mGameNameDisplayLanguage = gameNameDisplayLanguage;
 			Bundle = game.Bundle;
 

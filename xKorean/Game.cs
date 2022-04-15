@@ -42,9 +42,6 @@ namespace xKorean
 		[JsonProperty("message")]
 		public string Message { set; get; } = string.Empty;
 
-		[JsonProperty("storeLink")]
-		public string StoreLink { set; get; } = string.Empty;
-
 		[JsonProperty("thumbnail")]
 		public string Thumbnail { set; get; } = string.Empty;
 
@@ -127,6 +124,13 @@ namespace xKorean
 
 		[JsonProperty("packages")]
 		public string Packages
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("languageCode")]
+		public string LanguageCode
 		{
 			get;
 			set;

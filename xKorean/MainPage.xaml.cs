@@ -82,7 +82,7 @@ namespace xKorean
 		private Game mSelectedGame = null;
 		private EditionViewModel mSelectedEdition = null;
 
-        private char[] mKorChr = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
+        private readonly char[] mKorChr = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
         private readonly string[] mKorStr = { "가", "까", "나", "다", "따", "라", "마", "바", "빠", "사", "싸", "아", "자", "짜", "차","카","타", "파", "하" };
         private readonly int[] mKorChrInt = { 44032, 44620, 45208, 45796, 46384, 46972, 47560, 48148, 48736, 49324, 49912, 50500, 51088, 51676, 52264, 52852, 53440, 54028, 54616, 55204 };
 
@@ -648,7 +648,7 @@ namespace xKorean
 		{
 			EditionPanelView.Visibility = Visibility.Visible;
 
-			mEditionLanguage = GetLanguageCodeFromUrl(game.StoreLink);
+			mEditionLanguage = game.LanguageCode;
 
 			mEditionViewModel.Clear();
 
@@ -679,7 +679,7 @@ namespace xKorean
 					ShowName = mShowName,
 					Price = game.Price,
 					LowestPrice = game.LowestPrice,
-					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink),
+					LanguageCode = game.LanguageCode,
 					ReleaseDate = game.ReleaseDate,
 					NZReleaseDate = game.NZReleaseDate
 				});
@@ -712,7 +712,7 @@ namespace xKorean
 					ShowName = mShowName,
 					Price = bundle.Price,
 					LowestPrice = bundle.LowestPrice,
-					LanguageCode = GetLanguageCodeFromUrl(game.StoreLink),
+					LanguageCode = game.LanguageCode,
 					ReleaseDate = bundle.ReleaseDate,
 					NZReleaseDate = bundle.NZReleaseDate
 				});
@@ -781,42 +781,15 @@ namespace xKorean
 			}
 		}
 
-		private string GetRegionCodeFromUrl(string storeUrl)
+		private string GetRegionCodeFromLanguageCode(string languageCode)
 		{
-			var startIdx = storeUrl.IndexOf("com/");
-			if (startIdx > 0)
-				startIdx = storeUrl.IndexOf("-", startIdx);
+			var startIdx = languageCode.IndexOf("-");
 
-			var endIdx = -1;
 			if (startIdx > 0)
-			{
-				startIdx++;
-				endIdx = storeUrl.IndexOf("/", startIdx);
-			}
-
-			if (endIdx > 0)
-				return storeUrl.Substring(startIdx, endIdx - startIdx);
+				return languageCode.Substring(startIdx + 1);
 			else
 				return "";
 		}
-
-		private string GetLanguageCodeFromUrl(string storeUrl)
-		{
-			var startIdx = storeUrl.IndexOf("com/");
-
-			var endIdx = -1;
-			if (startIdx > 0)
-			{
-				startIdx += "com/".Length;
-				endIdx = storeUrl.IndexOf("/", startIdx);
-			}
-
-			if (endIdx > 0)
-				return storeUrl.Substring(startIdx, endIdx - startIdx);
-			else
-				return "";
-		}
-
 
 		private string GetStoreUrlFromRegionCode(string storeUrl, string regionCode)
 		{
@@ -1102,7 +1075,7 @@ namespace xKorean
 
 			TextBox searchBlock = sender as TextBox;
 			string text = "";
-			var searchPattern = searchBlock.Text.Trim().Replace(" ", "");
+			var searchPattern = searchBlock.Text.Trim().Replace(" ", "").ToLower();
 			if (searchBlock != null)
 			{
 				for (var i = 0; i < searchPattern.Length; i++)
@@ -1128,7 +1101,7 @@ namespace xKorean
 						}
                     }
 					else
-						text += searchBlock.Text[i];
+						text += searchPattern[i];
 				}
 			}
 
@@ -1493,7 +1466,7 @@ namespace xKorean
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
-				var storeRegion = GetRegionCodeFromUrl(game.StoreLink);
+				var storeRegion = GetRegionCodeFromLanguageCode(game.LanguageCode);
 
 				if (storeRegion.ToLower() != Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower())
 				{
@@ -1564,14 +1537,14 @@ namespace xKorean
 
 		private async Task CheckEditionPanel(Game game) {
 			if (game.Bundle.Count == 0)
-				await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.ID);
+				await GoToStore(game.LanguageCode, game.ID);
 			else
 			{
 				if (game.IsAvailable || game.Bundle.Count > 1)
 					ShowEditionPanel(game);
 				else
 				{
-					await GoToStore(GetLanguageCodeFromUrl(game.StoreLink), game.Bundle[0].ID);
+					await GoToStore(game.LanguageCode, game.Bundle[0].ID);
 				}
 			}
 		}
@@ -1597,28 +1570,12 @@ namespace xKorean
 						}
 						else
 							break;
-					case "remaster":
-						if (linkType == LinkType.RemasterTitle)
-						{
-							await GoToStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
-							return;
-						}
-						else
-							break;
-					case "onetitle":
-						if (linkType == LinkType.OneTitle)
-						{
-							await GoToStore(GetLanguageCodeFromUrl(parsePart[1]), GetIDFromStoreUrl(parsePart[1]));
-							return;
-						}
-						else
-							break;
 				}
 			}
 		}
 
 		private async Task ShowErrorReportDialog() {
-			var dialog = new ErrorReportDialog(mGameNameDisplayLanguage == "English" ? mSelectedGame.Name : mSelectedGame.KoreanName, GetRegionCodeFromUrl(mSelectedGame.StoreLink).ToUpper());
+			var dialog = new ErrorReportDialog(mGameNameDisplayLanguage == "English" ? mSelectedGame.Name : mSelectedGame.KoreanName, GetRegionCodeFromLanguageCode(mSelectedGame.LanguageCode).ToUpper());
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
 				await dialog.ShowAsync();
@@ -1810,7 +1767,7 @@ namespace xKorean
 				return;
 
 			if (mSelectedGame.Bundle.Count == 0)
-				await ShowPriceInfo(mSelectedGame.Price, mSelectedGame.LowestPrice, GetLanguageCodeFromUrl(mSelectedGame.StoreLink));
+				await ShowPriceInfo(mSelectedGame.Price, mSelectedGame.LowestPrice, mSelectedGame.LanguageCode);
 			else
 			{
 				if (mSelectedGame.IsAvailable || mSelectedGame.Bundle.Count > 1)
@@ -1823,7 +1780,7 @@ namespace xKorean
 					}
 				}
 				else
-					await ShowPriceInfo(mSelectedGame.Bundle[0].Price, mSelectedGame.Bundle[0].LowestPrice, GetLanguageCodeFromUrl(mSelectedGame.StoreLink));
+					await ShowPriceInfo(mSelectedGame.Bundle[0].Price, mSelectedGame.Bundle[0].LowestPrice, mSelectedGame.LanguageCode);
 			}
 		}
 
@@ -1841,7 +1798,7 @@ namespace xKorean
 			if (mSelectedGame.Packages != "")
 				supportPackageBuilder.Append("* 한국어 지원 패키지: ").Append(mSelectedGame.Packages);
 			else
-				supportPackageBuilder.Append("* 확인된 패키지가 없거나 정식 발매 패키지만 한국어를 지원합니다. 확인하신 패키지가 있으면, 오류 신고 기능을 이용해 신고해 주십시오.").Append(mSelectedGame.Packages);
+				supportPackageBuilder.Append("* 확인된 패키지가 없거나 정식 발매 패키지만 한국어를 지원합니다. 확인하신 패키지가 있으면, 오류 신고 기능을 이용해 신고해 주십시오.");
 
 			if (mSelectedGame.Message.ToLower().Contains("dlregiononly"))
 				supportPackageBuilder.Append("\r\n").Append("* 한국어를 지원하지 않는 지역이 있습니다. 해외 패키지 구매시 한국어 지원 여부를 확인해 주십시오.");
@@ -1968,7 +1925,7 @@ namespace xKorean
 				}
 				else
 				{
-					await ShowImmigrantResult(mSelectedGame.NZReleaseDate, mSelectedGame.ReleaseDate);
+					await ShowImmigrantResult(mSelectedGame.Bundle[0].NZReleaseDate, mSelectedGame.Bundle[0].ReleaseDate);
 				}
 			}
 		}
@@ -2263,24 +2220,21 @@ namespace xKorean
 		{
 			if (game.Discount.Contains("출시"))
 				menuFlyout.Items[3].Visibility = Visibility.Visible;
-			else
+			else if (game.Bundle.Count > 0)
 			{
-				if (game.Bundle.Count > 0)
+				foreach (var bundle in game.Bundle)
 				{
-					foreach (var bundle in game.Bundle)
+					if (bundle.DiscountType.Contains("출시"))
 					{
-						if (bundle.DiscountType.Contains("출시"))
-						{
-							menuFlyout.Items[3].Visibility = Visibility.Visible;
-							return;
-						}
+						menuFlyout.Items[3].Visibility = Visibility.Visible;
+						return;
 					}
-
-					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 				}
-				else
-					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+
+				menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 			}
+			else
+				menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 		}
 
 		private void CheckPreorderBundle(EditionViewModel edition, MenuFlyout menuFlyout) {
