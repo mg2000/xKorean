@@ -10,11 +10,15 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -65,6 +69,7 @@ namespace xKorean
 
 		private List<Game> mExistGames = new List<Game>();
 		private List<string> mNewGames = new List<string>();
+		private List<string> mEventIDList = new List<string>();
 
 		private string mEditionLanguage;
 
@@ -322,7 +327,37 @@ namespace xKorean
 			//	}
 			//}
 			//else
+				await CheckEventData();
+		}
+
+		private async Task CheckEventData()
+        {
+			var httpClient = new HttpClient();
+
+			try
+			{
+#if DEBUG
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#else
+				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#endif
+
+				var str = response.Content.ReadAsStringAsync().GetResults();
+
+				var eventIDList = JsonConvert.DeserializeObject<List<string>>(str);
+				mEventIDList.Clear();
+				foreach (var eventID in eventIDList)
+                {
+					mEventIDList.Add(eventID);
+                }
+
 				await CheckUpdateTime();
+			}
+			catch (Exception exception)
+			{
+				await CheckUpdateTime();
+			}
 		}
 
 		private async Task CheckUpdateTime()
@@ -635,11 +670,70 @@ namespace xKorean
 		private async void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		{
 			var gridView = sender as AdaptiveGridView;
-			mSelectedIdx = gridView.Items.IndexOf(e.ClickedItem);
 			
 			if (e.ClickedItem != null)
 			{
+				mSelectedIdx = gridView.Items.IndexOf(e.ClickedItem);
+
 				var game = (e.ClickedItem as GameViewModel).Game;
+
+				var buffer = CryptographicBuffer.ConvertStringToBinary(game.ID, BinaryStringEncoding.Utf8);
+				var hashAlgorithm = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
+				var hashByte = hashAlgorithm.HashData(buffer).ToArray();
+				var sb = new StringBuilder();
+				foreach (var b in hashByte)
+                {
+					sb.Append(b.ToString("x2"));
+                }
+
+				var win = false;
+				foreach (var id in mEventIDList)
+                {
+					if (sb.ToString() == id)
+                    {
+						win = true;
+						mEventIDList.Remove(id);
+						await RequestEventCode(id, game);
+						break;
+                    }
+                }
+
+				if (!win)
+					await CheckExtraInfo(game);
+			}
+		}
+
+		private async Task RequestEventCode(string id, Game game)
+		{
+			var httpClient = new HttpClient();
+
+			try
+			{
+#if DEBUG
+				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#else
+				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+#endif
+
+				var str = response.Content.ReadAsStringAsync().GetResults();
+
+				var eventIDList = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
+
+				if (eventIDList["code"] == "")
+					await CheckExtraInfo(game);
+				else
+                {
+					var dialog = new MessageDialog($"이벤트에 당첨되었습니다. 아래 코드를 활성화 하시면 게임을 받으실 수 있습니다.\n이 창을 닫으면 코드를 다시 확인할 수 없으니 창을 닫기 전에 코드를 활성화하거나 다른 곳에 적어두십시오.\n\n{eventIDList["code"]}", "이벤트 당첨");
+					if (mDialogQueue.TryAdd(dialog, 500))
+					{
+						await dialog.ShowAsync();
+						mDialogQueue.Take();
+					}
+				}
+			}
+			catch (Exception exception)
+			{
 				await CheckExtraInfo(game);
 			}
 		}
@@ -1638,7 +1732,7 @@ namespace xKorean
 				ProgressDownload.Visibility = Visibility.Collapsed;
 			}
 
-			await CheckUpdateTime();
+			await CheckEventData();
 		}
 
 		private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
@@ -1916,7 +2010,7 @@ namespace xKorean
 			{
 				if (mSelectedGame.IsAvailable || mSelectedGame.Bundle.Count > 1)
                 {
-					var dialog = new MessageDialog("* 본 게임은 여러 에디션이 있습니다. 에디션을 선택해서 확인해 주십시오.", "이민시 선행 플레이 가능 여부");
+					var dialog = new MessageDialog("* 본 게임은 여러 에디션이 있습니다. 에디션을 선택해서 확인해 주십시오.", "지역 변경시 선행 플레이 가능 여부");
 					if (mDialogQueue.TryAdd(dialog, 500))
 					{
 						await dialog.ShowAsync();
@@ -2093,7 +2187,7 @@ namespace xKorean
 			else
 				message = $"* 이민가셔도 일찍 플레이하실 수 없습니다.";
 
-			var dialog = new MessageDialog(message, "이민시 선행 플레이 가능 여부");
+			var dialog = new MessageDialog(message, "지역 변경시 선행 플레이 가능 여부");
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
 				await dialog.ShowAsync();
