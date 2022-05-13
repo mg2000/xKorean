@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>148FC5BB9319205AEC05402966F8AE3B7EA4059A</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>5C4A13A64FFE806C46BD61A3977683B3E072043E</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -140,6 +140,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="CategorieViewModel.cs" />
+    <Compile Include="CommonSingleton.cs" />
     <Compile Include="EditionViewModel.cs" />
     <Compile Include="ErrorReportDialog.xaml.cs">
       <DependentUpon>ErrorReportDialog.xaml</DependentUpon>
@@ -208,6 +209,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite">
+      <Version>6.0.5</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.13</Version>
     </PackageReference>

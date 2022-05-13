@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Data.Sqlite;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,16 +14,93 @@ namespace xKorean
 {
 	class Utils
 	{
-		public static async Task<bool> DownloadImage(string thumbnailUrl, string id, string seriesXS, string oneS, string pc, string playAnywhere, byte[] seriesXSHeader, byte[] oneSHeader, byte[] playAnywhereSeriesHeader, byte[] playAnywhereHeader, byte[] pcHeader) {
+		private static readonly object mLock = new object();
+
+		public static async Task<bool> DownloadImage(string thumbnailUrl, string id, string thumbnailID, string seriesXS, string oneS, string pc, string playAnywhere) {
 			var httpClient = new Windows.Web.Http.HttpClient();
+
+			var oldFileName = new StringBuilder();
+			lock (mLock)
+			{
+				using (var db = new SqliteConnection($"FileName={CommonSingleton.Instance.DBPath}"))
+				{
+					db.Open();
+
+					var selectCommand = new SqliteCommand();
+					selectCommand.Connection = db;
+					selectCommand.CommandText = "SELECT info FROM ThumbnailTable WHERE id = @id";
+					selectCommand.Parameters.AddWithValue("@id", id);
+
+					var query = selectCommand.ExecuteReader();
+
+					while (query.Read())
+					{
+						var oldThumbnailInfo = JsonConvert.DeserializeObject<Dictionary<string, string>>(query.GetString(0));
+						oldFileName.Append(oldThumbnailInfo["ThumbnailID"]);
+						if (oldThumbnailInfo["PlayAnywhere"] == "O")
+						{
+							if (oldThumbnailInfo["SeriesXS"] == "O")
+								oldFileName.Append("_playanywhere_xs");
+							else if (oneS == "O")
+								oldFileName.Append("_playanywhere_os");
+						}
+						else if (oldThumbnailInfo["SeriesXS"] == "O")
+							oldFileName.Append("_xs");
+						else if (oldThumbnailInfo["OneS"] == "O")
+							oldFileName.Append("_os");
+						else if (oldThumbnailInfo["PC"] == "O")
+							oldFileName.Append("_pc");
+					}
+
+					var deleteCommand = new SqliteCommand();
+					deleteCommand.Connection = db;
+					deleteCommand.CommandText = "DELETE FROM ThumbnailTable WHERE id = @id";
+					deleteCommand.Parameters.AddWithValue("@id", id);
+
+					deleteCommand.ExecuteNonQuery();
+				}
+			}
+
+			if (oldFileName.Length > 0)
+			{
+				var oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{oldFileName}.jpg");
+				if (oldImageFile.Exists)
+				{
+					var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
+					await oriFile.DeleteAsync();
+				}
+			}
 
 			try
 			{
+				lock(mLock) {
+					using (var db = new SqliteConnection($"FileName={CommonSingleton.Instance.DBPath}"))
+					{
+						db.Open();
+
+						var thumbnailInfo = new Dictionary<string, string>();
+
+						thumbnailInfo["ThumbnailID"] = thumbnailID;
+						thumbnailInfo["PlayAnywhere"] = playAnywhere;
+						thumbnailInfo["SeriesXS"] = seriesXS;
+						thumbnailInfo["OneS"] = oneS;
+						thumbnailInfo["PC"] = pc;
+
+						var insertCommand = new SqliteCommand();
+						insertCommand.Connection = db;
+						insertCommand.CommandText = "INSERT INTO ThumbnailTable VALUES (@id, @info)";
+						insertCommand.Parameters.AddWithValue("@id", id);
+						insertCommand.Parameters.AddWithValue("@info", JsonConvert.SerializeObject(thumbnailInfo));
+
+						insertCommand.ExecuteNonQuery();
+					}
+				}
+
 				var buffer = await httpClient.GetBufferAsync(new Uri(thumbnailUrl));
 
 				Debug.WriteLine($"이미지 다운로드: {thumbnailUrl}");
 
-				var fileName = id;
+				var fileName = thumbnailID;
 				if (playAnywhere == "O") {
 					if (seriesXS == "O")
 						fileName += "_playanywhere_xs";
@@ -41,13 +120,6 @@ namespace xKorean
 
 				if (seriesXS == "O" || oneS == "O" || pc == "O")
 				{
-					var oldImageFile = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{id}.jpg");
-					if (oldImageFile.Exists)
-					{
-						var oriFile = await App.CacheFolder.GetFileAsync(oldImageFile.Name);
-						await oriFile.DeleteAsync();
-					}
-
 					using (var imageStream = await file.OpenReadAsync())
 					{
 						var decoder = await BitmapDecoder.CreateAsync(imageStream);
@@ -91,16 +163,16 @@ namespace xKorean
 									byte[] titleHeader;
 									if (playAnywhere == "O") {
 										if (seriesXS == "O")
-											titleHeader = playAnywhereSeriesHeader;
+											titleHeader = CommonSingleton.Instance.PlayAnywhereSeriesTitleHeader;
 										else
-											titleHeader = playAnywhereHeader;
+											titleHeader = CommonSingleton.Instance.PlayAnywhereTitleHeader;
 									}
 									else if (seriesXS == "O")
-										titleHeader = seriesXSHeader;
+										titleHeader = CommonSingleton.Instance.SeriesXSTitleHeader;
 									else if (oneS == "O")
-										titleHeader = oneSHeader;
+										titleHeader = CommonSingleton.Instance.OneTitleHeader;
 									else
-										titleHeader = pcHeader;
+										titleHeader = CommonSingleton.Instance.WindowsTitleHeader;
 
 									for (var i = 0; i < titleHeader.Length; i++)
 									{

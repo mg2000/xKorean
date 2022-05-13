@@ -45,6 +45,9 @@ namespace xKorean
 		[JsonProperty("thumbnail")]
 		public string Thumbnail { set; get; } = string.Empty;
 
+		[JsonProperty("thumbnailID")]
+		public string ThumbnailID { set; get; } = string.Empty;
+
 		[JsonProperty("gamePassCloud")]
 		public string GamePassCloud { set; get; } = string.Empty;
 
@@ -179,6 +182,13 @@ namespace xKorean
 
 		[JsonProperty("thumbnail")]
 		public string Thumbnail
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("thumbnailID")]
+		public string ThumbnailID
 		{
 			get;
 			set;

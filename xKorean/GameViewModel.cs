@@ -18,12 +18,6 @@ namespace xKorean
 	{
 		private string mGameNameDisplayLanguage = "Korean";
 
-		private byte[] mOneTitleHeader;
-		private byte[] mSeriesXSTitleHeader;
-		private byte[] mPlayAnywhereTitleHeader;
-		private byte[] mPlayAnywhereSeriesTitleHeader;
-		private byte[] mPCTitleHeader;
-
 		private bool mRegionAvailable = true;
 
 		private bool mShowRecommendTag = false;
@@ -52,7 +46,7 @@ namespace xKorean
 		{
 			get
 			{
-				var fileName = ID;
+				var fileName = Game.ThumbnailID;
 				if (Game.PlayAnywhere == "O") {
 					if (Game.SeriesXS == "O")
 						fileName += "_playanywhere_xs";
@@ -93,15 +87,9 @@ namespace xKorean
 		public string ID { set; get; }
 
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, byte[] oneTitleHeader, byte[] seriesXSTitleHeader, byte[] playanywhereTitleHeader, byte[] playanywhereSeriesTitleHeader, byte[] pcTitleHeader, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
 		{
 			Game = game;
-
-			mOneTitleHeader = oneTitleHeader;
-			mSeriesXSTitleHeader = seriesXSTitleHeader;
-			mPlayAnywhereTitleHeader = playanywhereTitleHeader;
-			mPlayAnywhereSeriesTitleHeader = playanywhereSeriesTitleHeader;
-			mPCTitleHeader = pcTitleHeader;
 
 			ThumbnailUrl = game.Thumbnail;
 			ID = game.ID;
@@ -416,7 +404,7 @@ namespace xKorean
 		public bool IsThumbnailCached { set; get; } = false;
 		private async void LoadImage()
 		{
-			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere, mSeriesXSTitleHeader, mOneTitleHeader, mPlayAnywhereSeriesTitleHeader, mPlayAnywhereTitleHeader, mPCTitleHeader))
+			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.ThumbnailID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere))
 				NotifyPropertyChanged("ThumbnailPath");
 		}
 

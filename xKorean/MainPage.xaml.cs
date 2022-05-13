@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Newtonsoft.Json;
 using System;
@@ -54,12 +55,6 @@ namespace xKorean
 
 		private readonly BlockingCollection<object> mDialogQueue = new BlockingCollection<object>(1);
 		private readonly BlockingCollection<object> mTipQueue = new BlockingCollection<object>(1);
-
-		private byte[] mOneTitleHeader = null;
-		private byte[] mSeriesXSHeader = null;
-		private byte[] mPlayAnywhereHeader = null;
-		private byte[] mPlayAnywhereSeriesHeader = null;
-		private byte[] mWindowsHeader = null;
 
 		private const string windowsTitlePath = "ms-appx:///Assets/windows_title.png";
 		private const string oneTitlePath = "ms-appx:///Assets/xbox_one_title.png";
@@ -197,6 +192,16 @@ namespace xKorean
 
 		private async void LoadTitleImage(string fileName)
 		{
+			await ApplicationData.Current.LocalFolder.CreateFileAsync("xKorean.sqlite", CreationCollisionOption.OpenIfExists);
+			CommonSingleton.Instance.DBPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "xKorean.sqlite");
+			using (var db = new SqliteConnection($"FileName={CommonSingleton.Instance.DBPath}"))
+            {
+				db.Open();
+
+				new SqliteCommand("CREATE TABLE IF NOT EXISTS ThumbnailTable (id TEXT PRIMARY KEY NOT NULL UNIQUE, " +
+					"info TEXT NOT NULL DEFAULT '')", db).ExecuteReader();
+            }
+
 			var oneTitleFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(fileName));
 			using (IRandomAccessStream stream = await oneTitleFile.OpenAsync(FileAccessMode.Read))
 			{
@@ -215,15 +220,15 @@ namespace xKorean
 							((IMemoryBufferByteAccess)reference).GetBuffer(out byte* dataInBytes, out uint capacity);
 							byte[] titleBuffer = new byte[capacity];
 							if (fileName == oneTitlePath)
-								mOneTitleHeader = titleBuffer;
+								CommonSingleton.Instance.OneTitleHeader = titleBuffer;
 							else if (fileName == seriesTitlePath)
-								mSeriesXSHeader = titleBuffer;
+								CommonSingleton.Instance.SeriesXSTitleHeader = titleBuffer;
 							else if (fileName == playAnywherePath)
-								mPlayAnywhereHeader = titleBuffer;
+								CommonSingleton.Instance.PlayAnywhereTitleHeader = titleBuffer;
 							else if (fileName == playAnywhereSeriesPath)
-								mPlayAnywhereSeriesHeader = titleBuffer;
+								CommonSingleton.Instance.PlayAnywhereSeriesTitleHeader = titleBuffer;
 							else
-								mWindowsHeader = titleBuffer;
+								CommonSingleton.Instance.WindowsTitleHeader = titleBuffer;
 
 							BitmapPlaneDescription bufferLayout = buffer.GetPlaneDescription(0);
 							for (var i = 0; i < capacity; i++)
@@ -371,6 +376,7 @@ namespace xKorean
 #if DEBUG
 				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -500,6 +506,7 @@ namespace xKorean
 #if DEBUG
 				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:3000/title_list_zip"));
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:3000/title_list_zip"));
+				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #else
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
 #endif
@@ -712,6 +719,7 @@ namespace xKorean
 #if DEBUG
 				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
@@ -763,11 +771,7 @@ namespace xKorean
 					GamePassNew = game.GamePassNew,
 					GamePassEnd = game.GamePassEnd,
 					ThumbnailUrl = game.Thumbnail,
-					SeriesXSHeader = mSeriesXSHeader,
-					OneSHeader = mOneTitleHeader,
-					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
-					PlayAnywhereHeader = mPlayAnywhereHeader,
-					PCHeader = mWindowsHeader,
+					ThumbnailID = game.ThumbnailID,
 					ShowDiscount = mShowDiscount,
 					ShowGamePass = mShowGamepass,
 					ShowName = mShowName,
@@ -796,11 +800,7 @@ namespace xKorean
 					GamePassNew = bundle.GamePassNew,
 					GamePassEnd = bundle.GamePassEnd,
 					ThumbnailUrl = bundle.Thumbnail,
-					SeriesXSHeader = mSeriesXSHeader,
-					OneSHeader = mOneTitleHeader,
-					PlayAnywhereSeriesHeader = mPlayAnywhereSeriesHeader,
-					PlayAnywhereHeader = mPlayAnywhereHeader,
-					PCHeader = mWindowsHeader,
+					ThumbnailID = bundle.ThumbnailID,
 					ShowDiscount = mShowDiscount,
 					ShowGamePass = mShowGamepass,
 					ShowName = mShowName,
@@ -1437,7 +1437,7 @@ namespace xKorean
 			GamesViewModel.Clear();
 			foreach (var g in games)
 			{
-				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mOneTitleHeader, mSeriesXSHeader, mPlayAnywhereHeader, mPlayAnywhereSeriesHeader, mWindowsHeader, mShowRecommendTag, mShowDiscount, mShowGamepass, mShowName, mShowReleaseTime));
+				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mShowRecommendTag, mShowDiscount, mShowGamepass, mShowName, mShowReleaseTime));
 			}
 
 			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
@@ -1954,6 +1954,7 @@ namespace xKorean
 #if DEBUG
 					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+					//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
 					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
