@@ -46,7 +46,7 @@ namespace xKorean
 		{
 			get
 			{
-				var fileName = Game.ThumbnailID;
+				var fileName = $"{Game.ID}_{Game.ThumbnailID}";
 				if (Game.PlayAnywhere == "O") {
 					if (Game.SeriesXS == "O")
 						fileName += "_playanywhere_xs";

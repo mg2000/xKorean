@@ -36,6 +36,8 @@ namespace xKorean
 					while (query.Read())
 					{
 						var oldThumbnailInfo = JsonConvert.DeserializeObject<Dictionary<string, string>>(query.GetString(0));
+						oldFileName.Append(id);
+						oldFileName.Append("_");
 						oldFileName.Append(oldThumbnailInfo["ThumbnailID"]);
 						if (oldThumbnailInfo["PlayAnywhere"] == "O")
 						{
@@ -100,7 +102,7 @@ namespace xKorean
 
 				Debug.WriteLine($"이미지 다운로드: {thumbnailUrl}");
 
-				var fileName = thumbnailID;
+				var fileName = $"{id}_{thumbnailID}";
 				if (playAnywhere == "O") {
 					if (seriesXS == "O")
 						fileName += "_playanywhere_xs";

@@ -307,7 +307,7 @@ namespace xKorean
 		{
 			get
 			{
-				var fileName = ThumbnailID;
+				var fileName = $"{ID}_{ThumbnailID}";
 				if (PlayAnywhere == "O") {
 					if (SeriesXS == "O")
 						fileName += "_playanywhere_xs";
