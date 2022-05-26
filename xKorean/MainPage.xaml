@@ -189,6 +189,7 @@
 									<MenuFlyoutSeparator/>
 									<RadioButton x:Name="PriorityNoneItem" Content="우선 순위 없음" GroupName="PriorityRadioButtons" Click="PriorityNoneItem_Click" XYFocusUp="{x:Bind OrderByReleaseDescendItem}"/>
 									<RadioButton x:Name="PriorityByGamepassItem" Content="게임패스 우선" GroupName="PriorityRadioButtons" Click="PriorityByGamepassItem_Click"/>
+                                    <RadioButton x:Name="PriorityByDiscountItem" Content="할인율 우선" GroupName="PriorityRadioButtons" Click="PriorityByDiscountItem_Click"/>
 									<RadioButton x:Name="PriorityByRecommendItem" Content="추천 게임 우선" GroupName="PriorityRadioButtons" Click="PriorityByRecommendItem_Click"/>
 								</StackPanel>
 							</Flyout>

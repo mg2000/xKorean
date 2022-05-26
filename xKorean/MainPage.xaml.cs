@@ -291,6 +291,9 @@ namespace xKorean
 				case "gamepass":
 					PriorityByGamepassItem.IsChecked = true;
 					break;
+				case "discount":
+					PriorityByDiscountItem.IsChecked = true;
+					break;
 				case "recommend":
 					PriorityByRecommendItem.IsChecked = true;
 					break;
@@ -1086,6 +1089,42 @@ namespace xKorean
 						sortedList.Add(game);
 						unSortedGames.Remove(game);
 					}					
+				}
+				else if (PriorityByDiscountItem.IsChecked == true)
+                {
+					var discountList = unSortedGames.OrderByDescending(x => x, new GameDiscountComparator());
+
+					if (OrderByNameAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							discountList = discountList.ThenBy(g => g.Name);
+						else
+							discountList = discountList.ThenBy(g => g.KoreanName);
+					}
+					else if (OrderByNameDescendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							discountList = discountList.ThenByDescending(g => g.Name);
+						else
+							discountList = discountList.ThenByDescending(g => g.KoreanName);
+					}
+					else if (OrderByReleaseAscendItem.IsChecked == true)
+					{
+						if (mGameNameDisplayLanguage == "English")
+							discountList = discountList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+						else
+							discountList = discountList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+					}
+					else
+					{
+						if (mGameNameDisplayLanguage == "English")
+							discountList = discountList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+						else
+							discountList = discountList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+					}
+
+					sortedList.AddRange(discountList);
+					unSortedGames.Clear();
 				}
 				else if (PriorityByRecommendItem.IsChecked == true)
 				{
@@ -2183,10 +2222,10 @@ namespace xKorean
 			if (nzReleaseDate != "" && DateTime.Parse(nzReleaseDate) < DateTime.Parse(releaseDate))
 			{
 				var nzReleaseTime = DateTime.Parse(nzReleaseDate);
-				message = $"* 뉴질랜드 이민시 플레이 가능 시간: {nzReleaseTime.ToString("yyyy.MM.dd tt hh:mm")}";
+				message = $"* 뉴질랜드 지역 변경시 플레이 가능 시간: {nzReleaseTime.ToString("yyyy.MM.dd tt hh:mm")}";
 			}
 			else
-				message = $"* 이민가셔도 일찍 플레이하실 수 없습니다.";
+				message = $"* 뉴질랜드로 지역 변경을 하셔도 일찍 플레이하실 수 없습니다.";
 
 			var dialog = new MessageDialog(message, "지역 변경시 선행 플레이 가능 여부");
 			if (mDialogQueue.TryAdd(dialog, 500))
@@ -2304,6 +2343,13 @@ namespace xKorean
 			await Settings.Instance.SetValue("priorityType", "gamepass");
 		}
 
+		private async void PriorityByDiscountItem_Click(object sender, RoutedEventArgs e)
+		{
+			SearchBox_TextChanged(SearchBox, null);
+
+			await Settings.Instance.SetValue("priorityType", "discount");
+		}
+
 		private async void PriorityByRecommendItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
@@ -2363,5 +2409,63 @@ namespace xKorean
         {
 			await Launcher.LaunchUriAsync(new Uri($"https://toon.at/donate/637852371342632860"));
 		}
-    }
+
+		private class GameDiscountComparator : IComparer<Game>
+		{
+			public int Compare(Game x, Game y)
+			{
+				int GetMaxDiscount(Game game)
+				{
+					int ExtractDiscount(string str)
+					{
+						var v = 0;
+
+						var idx = str.IndexOf("%");
+						if (idx > 0)
+						{
+							var startIdx = idx;
+							while (startIdx > 0)
+							{
+								if (str[startIdx] == ' ')
+								{
+									startIdx++;
+									break;
+								}
+
+								startIdx--;
+							}
+
+							v = Convert.ToInt32(str.Substring(startIdx, idx - startIdx));
+						}
+
+						return v;
+					}
+
+					var discount = ExtractDiscount(game.Discount);
+
+					if (game.Bundle.Count > 0)
+					{
+						foreach (var bundle in game.Bundle)
+						{
+							var bundleDicount = ExtractDiscount(bundle.DiscountType);
+							if (bundleDicount > discount)
+								discount = bundleDicount;
+						}
+					}
+
+					return discount;
+				}
+
+				var xDiscount = GetMaxDiscount(x);
+				var yDiscount = GetMaxDiscount(y);
+
+				if (xDiscount < yDiscount)
+					return -1;
+				else if (xDiscount == yDiscount)
+					return 0;
+				else
+					return 1;
+			}
+		}
+	}
 }
