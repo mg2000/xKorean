@@ -773,6 +773,7 @@ namespace xKorean
 					IsGamePassCloud = game.GamePassCloud,
 					GamePassNew = game.GamePassNew,
 					GamePassEnd = game.GamePassEnd,
+					GamePassComing = game.GamePassComing,
 					ThumbnailUrl = game.Thumbnail,
 					ThumbnailID = game.ThumbnailID,
 					ShowDiscount = mShowDiscount,
@@ -802,6 +803,7 @@ namespace xKorean
 					IsGamePassCloud = bundle.GamePassCloud,
 					GamePassNew = bundle.GamePassNew,
 					GamePassEnd = bundle.GamePassEnd,
+					GamePassComing = bundle.GamePassComing,
 					ThumbnailUrl = bundle.Thumbnail,
 					ThumbnailID = bundle.ThumbnailID,
 					ShowDiscount = mShowDiscount,
@@ -970,6 +972,7 @@ namespace xKorean
 				var sortedList = new List<Game>();
 				if (PriorityByGamepassItem.IsChecked == true)
 				{
+					var gamePassComingList = new List<Game>();
 					var gamePassNewList = new List<Game>();
 					var gamePassList = new List<Game>();
 					var gamePassEndList = new List<Game>();
@@ -989,6 +992,8 @@ namespace xKorean
 											gamePassNewList.Add(game);
 										else if (bundle.GamePassEnd == "O")
 											gamePassEndList.Add(game);
+										else if (bundle.GamePassComing == "O")
+											gamePassComingList.Add(game);
 										else
 											gamePassList.Add(game);
 										break;
@@ -1002,11 +1007,14 @@ namespace xKorean
 								gamePassNewList.Add(game);
 							else if (game.GamePassEnd == "O")
 								gamePassEndList.Add(game);
+							else if (game.GamePassComing == "O")
+								gamePassComingList.Add(game);
 							else
 								gamePassList.Add(game);
 						}
 					}
 
+					IOrderedEnumerable<Game> sortedGamePassComingList;
 					IOrderedEnumerable<Game> sortedGamePassNewList;
 					IOrderedEnumerable<Game> sortedGamePassList;
 					IOrderedEnumerable<Game> sortedGamePassEndList;
@@ -1015,12 +1023,14 @@ namespace xKorean
 					{
 						if (mGameNameDisplayLanguage == "English")
 						{
+							sortedGamePassComingList = gamePassComingList.OrderBy(g => g.Name);
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.Name);
 						}
 						else
 						{
+							sortedGamePassComingList = gamePassComingList.OrderBy(g => g.KoreanName);
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.KoreanName);
@@ -1030,12 +1040,14 @@ namespace xKorean
 					{
 						if (mGameNameDisplayLanguage == "English")
 						{
+							sortedGamePassComingList = gamePassComingList.OrderByDescending(g => g.Name);
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.Name);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.Name);
 						}
 						else
 						{
+							sortedGamePassComingList = gamePassComingList.OrderByDescending(g => g.KoreanName);
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.KoreanName);
@@ -1045,12 +1057,14 @@ namespace xKorean
 					{
 						if (mGameNameDisplayLanguage == "English")
 						{
+							sortedGamePassComingList = gamePassComingList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Name);
 						}
 						else
 						{
+							sortedGamePassComingList = gamePassComingList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassNewList = gamePassNewList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
@@ -1060,16 +1074,24 @@ namespace xKorean
 					{
 						if (mGameNameDisplayLanguage == "English")
 						{
+							sortedGamePassComingList = gamePassComingList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
 						}
 						else
 						{
+							sortedGamePassComingList = gamePassComingList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassNewList = gamePassNewList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassList = gamePassList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 							sortedGamePassEndList = gamePassEndList.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
 						}
+					}
+
+					foreach (var game in sortedGamePassComingList)
+					{
+						sortedList.Add(game);
+						unSortedGames.Remove(game);
 					}
 
 					foreach (var game in sortedGamePassNewList)
@@ -1957,7 +1979,7 @@ namespace xKorean
 				}
 			}
 			else
-				priceInfoBuilder.Append("* 판매를 시작하지 않거나 판매가 중지된 타이틀입니다.");
+				priceInfoBuilder.Append("* 판매를 시작하지 않았거나 판매가 중지된 타이틀입니다.");
 
 			priceInfoBuilder.Append("\r\n\r\n* xKorean에서 제공하는 가격 정보는 스토어 가격 정보와 시간차가 있을 수 있습니다. 구매 전에 실제 스토어 가격을 확인해 주십시오.");
 

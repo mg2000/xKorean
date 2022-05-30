@@ -20,8 +20,6 @@ namespace xKorean
 		private string mGamePassPC = "";
 		private string mGamePassConsole = "";
 		private string mGamePassCloud = "";
-		private string mGamePassNew = "";
-		private string mGamePassEnd = "";
 
 		private bool mThumbnailCached = false;
 
@@ -121,6 +119,12 @@ namespace xKorean
 			set;
 		}
 
+		public string GamePassComing
+        {
+			get;
+			set;
+        }
+
 		public string GamePass
 		{
 			get
@@ -129,10 +133,12 @@ namespace xKorean
 				if (mGamePassCloud != "" || mGamePassPC != "" || mGamePassConsole != "")
 					gamePassStatus = "게임패스";
 
-				if (mGamePassNew != "")
+				if (GamePassNew != "")
 					gamePassStatus += " 신규";
-				else if (mGamePassEnd != "")
+				else if (GamePassEnd != "")
 					gamePassStatus += " 만기";
+				else if (GamePassComing != "")
+					gamePassStatus += " 예정";
 
 				return gamePassStatus;
 			}

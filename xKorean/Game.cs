@@ -63,6 +63,9 @@ namespace xKorean
 		[JsonProperty("gamePassEnd")]
 		public string GamePassEnd { set; get; } = string.Empty;
 
+		[JsonProperty("gamePassComing")]
+		public string GamePassComing { set; get; } = string.Empty;
+
 		[JsonProperty("discount")]
 		public string Discount { set; get; } = string.Empty;
 
@@ -244,6 +247,13 @@ namespace xKorean
 
 		[JsonProperty("gamePassEnd")]
 		public string GamePassEnd
+		{
+			get;
+			set;
+		} = "";
+
+		[JsonProperty("gamePassComing")]
+		public string GamePassComing
 		{
 			get;
 			set;

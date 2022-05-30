@@ -262,7 +262,10 @@ namespace xKorean
 					gamePassStatus += " 신규";
 				else if (Game.GamePassEnd == "O")
 					gamePassStatus += " 만기";
-				else {
+				else if (Game.GamePassComing == "O")
+					gamePassStatus += " 예정";
+				else
+				{
 					foreach (var bundle in Bundle)
 					{
 						if (bundle.GamePassNew != "")
@@ -273,6 +276,11 @@ namespace xKorean
 						else if (Game.GamePassEnd != "")
 						{
 							gamePassStatus += " 만기";
+							break;
+						}
+						else if (Game.GamePassComing != "")
+                        {
+							gamePassStatus += " 예정";
 							break;
 						}
 					}
