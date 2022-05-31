@@ -2158,6 +2158,7 @@ namespace xKorean
 		private async void GotoStoreButton_Click(object sender, RoutedEventArgs e)
 		{
 			InfoPanelView.Visibility = Visibility.Collapsed;
+			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
 
 			var gotoStoreButton = sender as Button;
 			await CheckEditionPanel(gotoStoreButton.Tag as Game);
@@ -2166,27 +2167,10 @@ namespace xKorean
 		private async void Goto360Market_Click(object sender, RoutedEventArgs e)
 		{
 			InfoPanelView.Visibility = Visibility.Collapsed;
+			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
 
 			var goto360market = sender as Button;
 			await Launcher.LaunchUriAsync(new Uri(goto360market.Tag as string));
-		}
-
-		private async void GotoRemaster_Click(object sender, RoutedEventArgs e)
-		{
-			InfoPanelView.Visibility = Visibility.Collapsed;
-
-			var gotoRemaster = sender as Button;
-			var remasterMap = gotoRemaster.Tag as Dictionary<string, string>;
-			await GoToStore(remasterMap["language"], remasterMap["id"]);
-		}
-
-		private async void GotoOneTitle_Click(object sender, RoutedEventArgs e)
-		{
-			InfoPanelView.Visibility = Visibility.Collapsed;
-
-			var gotoOneTitle = sender as Button;
-			var oneTitleMap = gotoOneTitle.Tag as Dictionary<string, string>;
-			await GoToStore(oneTitleMap["language"], oneTitleMap["id"]);
 		}
 
 		private void CloseInfoPanel_Click(object sender, RoutedEventArgs e)
