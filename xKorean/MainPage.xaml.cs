@@ -719,12 +719,16 @@ namespace xKorean
 
 			try
 			{
+				var requestParam = new Dictionary<string, string>
+				{
+					["device_id"] = mDeviceID,
+                    ["id"] = id
+				};
+
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:3000/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent("{ \"id\" : \"" + id + "\" }", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
 				var str = response.Content.ReadAsStringAsync().GetResults();
