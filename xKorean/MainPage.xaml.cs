@@ -1234,7 +1234,7 @@ namespace xKorean
 
 			TextBox searchBlock = sender as TextBox;
 			string text = "";
-			var searchPattern = searchBlock.Text.Trim().Replace(" ", "").ToLower();
+			var searchPattern = searchBlock.Text.Trim().Replace(" ", "").Replace("\\", "\\\\").Replace("[", "\\[").Replace("^", "\\^").Replace("(", "\\(").Replace("*", "\\*").Replace("?", "\\?").Replace("+", "\\+").Replace("|", "\\|").ToLower();
 			if (searchBlock != null)
 			{
 				for (var i = 0; i < searchPattern.Length; i++)

@@ -85,7 +85,7 @@
 				<RowDefinition Height="auto"></RowDefinition>
 				<RowDefinition></RowDefinition>
 			</Grid.RowDefinitions>
-			<TextBlock x:Name="TitleBlock" Padding="20, 10, 10, 10" Grid.Row="0" Text="한국어 자원 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
+			<TextBlock x:Name="TitleBlock" Padding="20, 10, 10, 10" Grid.Row="0" Text="한국어 지원 타이틀 목록" Style="{StaticResource HeaderTextBlockStyle}"></TextBlock>
 			<Grid Grid.Row="1" Padding="10, 0, 0, 0">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="auto"/>

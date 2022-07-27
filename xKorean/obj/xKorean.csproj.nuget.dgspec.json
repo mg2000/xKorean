@@ -41,11 +41,11 @@
           "dependencies": {
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[6.0.5, )"
+              "version": "[6.0.7, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
-              "version": "[6.2.13, )"
+              "version": "[6.2.14, )"
             },
             "Microsoft.Toolkit.Uwp": {
               "target": "Package",
@@ -65,7 +65,7 @@
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
-              "version": "[2.7.1, )"
+              "version": "[2.8.0, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
