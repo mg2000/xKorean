@@ -159,8 +159,9 @@ namespace xKorean
 				mShowReleaseTime = false;
 
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
-			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
-			mMessageTemplateMap["windowsmod"] = "이 게임은 윈도우에서 한글 패치를 설치하셔야 한국어가 지원됩니다.";
+			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";					// 오타 버전. 삭제 예정
+            mMessageTemplateMap["usermod"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
+            mMessageTemplateMap["windowsmod"] = "이 게임은 윈도우에서 한글 패치를 설치하셔야 한국어가 지원됩니다.";
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -172,7 +173,8 @@ namespace xKorean
 			}
 			else
 			{
-				mMessageTemplateMap["360market"] = "360 마켓플레이스를 통해서만 구매하실 수 있습니다.";
+                mMessageTemplateMap["noRegion"] = "해당 게임은 한국 지역에서 구매하거나 게임패스로 이용할 수 없습니다. 윈도우의 지역 설정을 미국 또는 발매 국가로 변경하고 이용해 주십시오.";
+                mMessageTemplateMap["360market"] = "360 마켓플레이스를 통해서만 구매하실 수 있습니다.";
 				mMessageTemplateMap["dlregiononly"] = "다음 지역의 스토어에서 다운로드 받아야 한국어가 지원됩니다: [name]";
 			}
 
@@ -1623,19 +1625,25 @@ namespace xKorean
 
 			var messageArr = game.Message.Split("\n");
 
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+            var storeRegion = GetRegionCodeFromLanguageCode(game.LanguageCode);
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
-				var storeRegion = GetRegionCodeFromLanguageCode(game.LanguageCode);
-
 				if (storeRegion.ToLower() != Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower())
 				{
 					var template = mMessageTemplateMap["noRegion"];
-					tipBuilder.Append("* ").Append(template.Replace("[name]", ConvertCodeToStr(storeRegion)));
+					tipBuilder.Append(template.Replace("[name]", ConvertCodeToStr(storeRegion)));
 
 					if (game.Message.Trim() != "")
 						tipBuilder.Append("\r\n");
 				}
 			}
+			else if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && storeRegion.ToUpper() != "KR" && game.PC == "O")
+			{
+                tipBuilder.Append(mMessageTemplateMap["noRegion"]);
+
+                if (game.Message.Trim() != "")
+                    tipBuilder.Append("\r\n");
+            }
 
 			for (var i = 0; i < messageArr.Length; i++)
 			{
@@ -1668,10 +1676,10 @@ namespace xKorean
 					}
 
 					if ((code == "dlregiononly" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower()) || code != "dlregiononly")
-						tipBuilder.Append("* ").Append(message);
+						tipBuilder.Append(message);
 				}
 				else if (code != "")
-					tipBuilder.Append("* ").Append(parsePart[0]);
+					tipBuilder.Append(parsePart[0]);
 
 				if (i < messageArr.Length - 1)
 					tipBuilder.Append("\r\n");

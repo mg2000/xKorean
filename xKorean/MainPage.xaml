@@ -342,7 +342,7 @@
 		<Grid x:Name="InfoPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
 				<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">스토어 정보 확인전에...</TextBlock>
-				<TextBlock x:Name="InfoBlock" Margin="10">
+				<TextBlock x:Name="InfoBlock" Margin="10" TextWrapping="WrapWholeWords">
 				</TextBlock>
 				<Button x:Name="GotoStoreButton" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoStoreButton_Click">스토어로 이동</Button>
 				<Button x:Name="Goto360Market" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="Goto360Market_Click">360 마켓플레이스로 이동</Button>
