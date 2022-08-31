@@ -173,7 +173,6 @@ namespace xKorean
 			}
 			else
 			{
-                mMessageTemplateMap["noRegion"] = "해당 게임은 한국 지역에서 구매하거나 게임패스로 이용할 수 없습니다. 윈도우의 지역 설정을 미국 또는 발매 국가로 변경하고 이용해 주십시오.";
                 mMessageTemplateMap["360market"] = "360 마켓플레이스를 통해서만 구매하실 수 있습니다.";
 				mMessageTemplateMap["dlregiononly"] = "다음 지역의 스토어에서 다운로드 받아야 한국어가 지원됩니다: [name]";
 			}
@@ -884,16 +883,6 @@ namespace xKorean
 				default:
 					return "";
 			}
-		}
-
-		private string GetRegionCodeFromLanguageCode(string languageCode)
-		{
-			var startIdx = languageCode.IndexOf("-");
-
-			if (startIdx > 0)
-				return languageCode.Substring(startIdx + 1);
-			else
-				return "";
 		}
 
 		private string GetStoreUrlFromRegionCode(string storeUrl, string regionCode)
@@ -1625,7 +1614,7 @@ namespace xKorean
 
 			var messageArr = game.Message.Split("\n");
 
-            var storeRegion = GetRegionCodeFromLanguageCode(game.LanguageCode);
+            var storeRegion = Utils.GetRegionCodeFromLanguageCode(game.LanguageCode);
             if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				if (storeRegion.ToLower() != Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower())
@@ -1637,13 +1626,6 @@ namespace xKorean
 						tipBuilder.Append("\r\n");
 				}
 			}
-			else if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && storeRegion.ToUpper() != "KR" && game.PC == "O")
-			{
-                tipBuilder.Append(mMessageTemplateMap["noRegion"]);
-
-                if (game.Message.Trim() != "")
-                    tipBuilder.Append("\r\n");
-            }
 
 			for (var i = 0; i < messageArr.Length; i++)
 			{
@@ -1742,7 +1724,7 @@ namespace xKorean
 		}
 
 		private async Task ShowErrorReportDialog() {
-			var dialog = new ErrorReportDialog(mGameNameDisplayLanguage == "English" ? mSelectedGame.Name : mSelectedGame.KoreanName, GetRegionCodeFromLanguageCode(mSelectedGame.LanguageCode).ToUpper());
+			var dialog = new ErrorReportDialog(mGameNameDisplayLanguage == "English" ? mSelectedGame.Name : mSelectedGame.KoreanName, Utils.GetRegionCodeFromLanguageCode(mSelectedGame.LanguageCode).ToUpper());
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{
 				await dialog.ShowAsync();

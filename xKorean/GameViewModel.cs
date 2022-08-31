@@ -99,8 +99,9 @@ namespace xKorean
 
 			UpdateReleaseTime(game, showReleaseTime);
 
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-			{
+			if (((game.OG == "O" || game.X360 == "O" || game.OneS == "O" || game.SeriesXS == "O") && AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") ||
+                (game.PC == "O" && AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop"))
+            {
 				var region = Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper();
 				if (Game.Message.ToLower().IndexOf("dlregiononly") >= 0)
 				{
@@ -333,7 +334,10 @@ namespace xKorean
 			get
 			{
 				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
-				if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X") || !mRegionAvailable)
+				if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X") || 
+					!mRegionAvailable ||
+					(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() != Utils.GetRegionCodeFromLanguageCode(Game.LanguageCode).ToUpper() && (Game.Discount != "판매 중지" || Game.Bundle.Count > 0)) ||
+                    Game.Message.Contains("packageOnly"))
 					return true;
 				else
 					return false;
@@ -347,7 +351,11 @@ namespace xKorean
 				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
 				if ((productName.Contains("xbox one") == true && Game.OneS == "X") || (productName.Contains("xbox series") == true && Game.SeriesXS == "X"))
 					return "미지원 기기";
-				else if (!mRegionAvailable)
+				else if (Game.Message.Contains("packageOnly"))
+                    return "DL 한국어 미지원";
+                else if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() != Utils.GetRegionCodeFromLanguageCode(Game.LanguageCode).ToUpper() && (Game.Discount != "판매 중지" || Game.Bundle.Count > 0))
+                    return "한국 스토어에 없음";
+                else if (!mRegionAvailable)
 					return "한국어 미지원 지역";
 				else
 					return "알 수 없음";

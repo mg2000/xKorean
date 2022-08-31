@@ -206,22 +206,6 @@ namespace xKorean
 			}
 		}
 
-		public static string ConvertLanguageCode(string language) {
-			switch (language.ToLower())
-			{
-				case "en":
-					return "en-us";
-				case "hk":
-					return "en-hk";
-				case "jp":
-					return "ja-jp";
-				case "gb":
-					return "en-gb";
-				default:
-					return "ko-kr";
-			}
-		}
-
 		public static string GetReleaseStr(string releaseDateStr) {
 			var releaseDate = DateTime.Parse(releaseDateStr);
 
@@ -230,5 +214,15 @@ namespace xKorean
 			else
 				return "";
 		}
-	}
+
+        public static string GetRegionCodeFromLanguageCode(string languageCode)
+        {
+            var startIdx = languageCode.IndexOf("-");
+
+            if (startIdx > 0)
+                return languageCode.Substring(startIdx + 1);
+            else
+                return "";
+        }
+    }
 }
