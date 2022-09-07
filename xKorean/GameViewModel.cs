@@ -20,7 +20,6 @@ namespace xKorean
 
 		private bool mRegionAvailable = true;
 
-		private bool mShowRecommendTag = false;
 		private bool mShowDiscount = true;
 		private bool mShowGamepass = true;
 		private bool mShowName = true;
@@ -87,7 +86,7 @@ namespace xKorean
 		public string ID { set; get; }
 
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, bool showRecommendTag, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
 		{
 			Game = game;
 
@@ -120,7 +119,6 @@ namespace xKorean
 				}
 			}
 
-			mShowRecommendTag = showRecommendTag;
 			mShowGamepass = showGamepass;
 			mShowDiscount = showDiscount;
 			mShowName = showName;
@@ -234,12 +232,6 @@ namespace xKorean
 				}
 				else
 					return false;
-			}
-		}
-
-		public bool ShowRecommend {
-			get {
-				return Game.ShowRecommend && mShowRecommendTag;
 			}
 		}
 
@@ -386,12 +378,6 @@ namespace xKorean
 			get {
 				return mShowName;
 			}
-		}
-
-		public void UpdateShowRecommendTag(bool showRecommendTag)
-		{
-			mShowRecommendTag = showRecommendTag;
-			NotifyPropertyChanged("ShowRecommend");
 		}
 
 		public void UpdateShowDiscount(bool showDiscount) {

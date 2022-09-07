@@ -190,8 +190,7 @@
 									<RadioButton x:Name="PriorityNoneItem" Content="우선 순위 없음" GroupName="PriorityRadioButtons" Click="PriorityNoneItem_Click" XYFocusUp="{x:Bind OrderByReleaseDescendItem}"/>
 									<RadioButton x:Name="PriorityByGamepassItem" Content="게임패스 우선" GroupName="PriorityRadioButtons" Click="PriorityByGamepassItem_Click"/>
                                     <RadioButton x:Name="PriorityByDiscountItem" Content="할인율 우선" GroupName="PriorityRadioButtons" Click="PriorityByDiscountItem_Click"/>
-									<RadioButton x:Name="PriorityByRecommendItem" Content="추천 게임 우선" GroupName="PriorityRadioButtons" Click="PriorityByRecommendItem_Click"/>
-								</StackPanel>
+                                </StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
@@ -236,16 +235,8 @@
 										</Grid.Background>
 										<TextBlock Text="{Binding UnavailableReason}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
 									</Grid>
-									<Grid Grid.Row="1">
-										<StackPanel Orientation="Horizontal">
-											<controls:WrapPanel Margin="3" Visibility="{Binding ShowRecommend}">
-												<Border Background="Yellow">
-													<TextBlock Margin="5" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top">추천</TextBlock>
-												</Border>
-											</controls:WrapPanel>
-										</StackPanel>
-										<!--<Image x:Name="RecommandImage" Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Visibility="{Binding ShowRecommend}"/>-->
-									</Grid>
+                                    <Grid Grid.Row="1">
+                                    </Grid>
 									<Grid Grid.Row="2" Visibility="{Binding IsDiscounting}">
 										<Grid.Background>
 											<SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
@@ -307,7 +298,6 @@
 					</controls:AdaptiveGridView.ItemTemplate>
 					<controls:AdaptiveGridView.ContextFlyout>
 						<MenuFlyout>
-							<MenuFlyoutItem x:Name="MenuRecommend" Text="게임 추천" Click="MenuRecommend_Click" />
 							<MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
 							<MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
 							<MenuFlyoutItem x:Name="MenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />

@@ -42,11 +42,6 @@ namespace xKorean
 
             var localSettings = ApplicationData.Current.LocalSettings;
 
-            if (localSettings.Values["showRecommendTag"] != null)
-                ShowRecommendCheckbox.IsChecked = (bool)localSettings.Values["showRecommendTag"];
-            else
-                ShowRecommendCheckbox.IsChecked = false;
-
             if (localSettings.Values["showDiscount"] != null)
                 ShowDiscountCheckbox.IsChecked = (bool)localSettings.Values["showDiscount"];
             else
@@ -80,7 +75,6 @@ namespace xKorean
             await settings.SetValue("ShowNewTitle", ShowNewTitle.IsChecked.ToString());
 
             var localSettings = ApplicationData.Current.LocalSettings;
-            localSettings.Values["showRecommendTag"] = ShowRecommendCheckbox.IsChecked;
             localSettings.Values["showDiscount"] = ShowDiscountCheckbox.IsChecked;
             localSettings.Values["showGamepass"] = ShowGamepassCheckbox.IsChecked;
             localSettings.Values["showName"] = ShowNameCheckbox.IsChecked;

@@ -113,13 +113,6 @@ namespace xKorean
 			set;
 		} = new List<Bundle>();
 
-		[JsonProperty("recommend")]
-		public int Recommend
-		{
-			get;
-			set;
-		} = 0;
-
 		[JsonProperty("lowestPrice")]
 		public float LowestPrice
 		{
@@ -142,12 +135,6 @@ namespace xKorean
 			set;
 		} = "";
 				
-		public bool ShowRecommend
-		{
-			get;
-			set;
-		} = false;
-
 		public bool IsAvailable {
 			get {
 				return Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || (Discount.IndexOf("출시") >= 0 && Price == -1 && Bundle.Count > 0);

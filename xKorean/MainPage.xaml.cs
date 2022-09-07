@@ -71,9 +71,7 @@ namespace xKorean
 		private int mSelectedIdx = 0;
 
 		private string mDeviceID = "";
-		private int mRecommendCount = 5;
 
-		private bool mShowRecommendTag = false;
 		private bool mShowDiscount = true;
 		private bool mShowGamepass = true;
 		private bool mShowName = true;
@@ -132,11 +130,6 @@ namespace xKorean
 				CategoryCloudCheckBox.IsChecked = (bool)localSettings.Values["cloud"];
 
 			UpdateDeviceFilterButton();
-
-			if (localSettings.Values["showRecommendTag"] != null)
-				mShowRecommendTag = (bool)localSettings.Values["showRecommendTag"];
-			else
-				mShowRecommendTag = false;
 
 			if (localSettings.Values["showDiscount"] != null)
 				mShowDiscount = (bool)localSettings.Values["showDiscount"];
@@ -295,9 +288,6 @@ namespace xKorean
 				case "discount":
 					PriorityByDiscountItem.IsChecked = true;
 					break;
-				case "recommend":
-					PriorityByRecommendItem.IsChecked = true;
-					break;
 			}
 
 			var applicationFolder = ApplicationData.Current.LocalFolder;
@@ -349,7 +339,7 @@ namespace xKorean
 				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:8080/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
 				var str = response.Content.ReadAsStringAsync().GetResults();
@@ -380,12 +370,12 @@ namespace xKorean
 #if DEBUG
 				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:8080/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-				//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+                //var response = await httpClient.PostAsync(new Uri("http://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
-				var str = response.Content.ReadAsStringAsync().GetResults();
+                var str = response.Content.ReadAsStringAsync().GetResults();
 
 				var settingMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
@@ -510,12 +500,12 @@ namespace xKorean
 #if DEBUG
 				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:8080/title_list_zip"));
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:8080/title_list_zip"));
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
+                //var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xbox-korean-viewer-server2.herokuapp.com/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_zip"));
 #endif
 
-				await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
 				{
 					ProgressReady.Visibility = Visibility.Collapsed;
 					ProgressDownload.Visibility = Visibility.Visible;
@@ -729,10 +719,10 @@ namespace xKorean
 #if DEBUG
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
-				var str = response.Content.ReadAsStringAsync().GetResults();
+                var str = response.Content.ReadAsStringAsync().GetResults();
 
 				var eventIDList = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
@@ -1143,51 +1133,6 @@ namespace xKorean
 					sortedList.AddRange(discountList);
 					unSortedGames.Clear();
 				}
-				else if (PriorityByRecommendItem.IsChecked == true)
-				{
-					var recommendUnsortedCount = 0;
-
-					var recommendedList = unSortedGames.FindAll(g => g.ShowRecommend == true).OrderByDescending(g => g.Recommend);
-
-					if (OrderByNameAscendItem.IsChecked == true)
-					{
-						if (mGameNameDisplayLanguage == "English")
-							recommendedList = recommendedList.ThenBy(g => g.Name);
-						else
-							recommendedList = recommendedList.ThenBy(g => g.KoreanName);
-					}
-					else if (OrderByNameDescendItem.IsChecked == true)
-					{
-						if (mGameNameDisplayLanguage == "English")
-							recommendedList = recommendedList.ThenByDescending(g => g.Name);
-						else
-							recommendedList = recommendedList.ThenByDescending(g => g.KoreanName);
-					}
-					else if (OrderByReleaseAscendItem.IsChecked == true)
-					{
-						if (mGameNameDisplayLanguage == "English")
-							recommendedList = recommendedList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.Name);
-						else
-							recommendedList = recommendedList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
-					}
-					else
-					{
-						if (mGameNameDisplayLanguage == "English")
-							recommendedList = recommendedList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
-						else
-							recommendedList = recommendedList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
-					}
-
-					foreach (var recommendGame in recommendedList)
-					{
-						sortedList.Add(recommendGame);
-						unSortedGames.Remove(recommendGame);
-						recommendUnsortedCount++;
-
-						if (recommendUnsortedCount >= 10)
-							break;
-					}
-				}
 
 				if (OrderByNameAscendItem.IsChecked == true)
 				{
@@ -1259,18 +1204,6 @@ namespace xKorean
 			if (gamesFilteredByDevices == null)
 			{
 				gamesFilteredByDevices = mGameList;
-			}
-
-			var recommendCount = 0;
-			foreach (var recommendGame in gamesFilteredByDevices.FindAll(g => g.Recommend > 0).OrderByDescending(g => g.Recommend))
-			{
-				if (recommendCount < 10)
-				{
-					recommendGame.ShowRecommend = true;
-					recommendCount++;
-				}
-				else
-					recommendGame.ShowRecommend = false;
 			}
 
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
@@ -1493,7 +1426,7 @@ namespace xKorean
 			GamesViewModel.Clear();
 			foreach (var g in games)
 			{
-				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mShowRecommendTag, mShowDiscount, mShowGamepass, mShowName, mShowReleaseTime));
+				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mShowDiscount, mShowGamepass, mShowName, mShowReleaseTime));
 			}
 
 			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
@@ -1751,15 +1684,6 @@ namespace xKorean
 			SearchBox_TextChanged(SearchBox, null);
 		}
 
-		private void RecommendCheckBox_Click(object sender, RoutedEventArgs e)
-		{
-			SearchBox_TextChanged(SearchBox, null);
-
-			var localSettings = ApplicationData.Current.LocalSettings;
-
-			localSettings.Values["recommendPriority"] = (sender as CheckBox).IsChecked;
-		}
-
 		private void UpdateCategoriesState() {
 			var localSettings = ApplicationData.Current.LocalSettings;
 
@@ -1805,11 +1729,6 @@ namespace xKorean
 					mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
 
 					var localSettings = ApplicationData.Current.LocalSettings;
-					if (localSettings.Values["showRecommendTag"] != null)
-						mShowRecommendTag = (bool)localSettings.Values["showRecommendTag"];
-					else
-						mShowRecommendTag = false;
-
 					if (localSettings.Values["showDiscount"] != null)
 						mShowDiscount = (bool)localSettings.Values["showDiscount"];
 					else
@@ -1832,7 +1751,6 @@ namespace xKorean
 
 					foreach (var gameViewModel in GamesViewModel) {
 						gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
-						gameViewModel.UpdateShowRecommendTag(mShowRecommendTag);
 						gameViewModel.UpdateShowDiscount(mShowDiscount);
 						gameViewModel.UpdateShowGamepass(mShowGamepass);
 						gameViewModel.UpdateShowName(mShowName);
@@ -1893,11 +1811,6 @@ namespace xKorean
 						break;
 				}
 			}
-		}
-
-		private async void MenuRecommend_Click(object sender, RoutedEventArgs e)
-		{
-			await RecommendGame();
 		}
 
 		private async void MenuPackages_Click(object sender, RoutedEventArgs e)
@@ -1983,76 +1896,6 @@ namespace xKorean
 				await dialog.ShowAsync();
 				mDialogQueue.Take();
 			}
-		}
-
-		private async Task RecommendGame() {
-			if (mSelectedGame == null)
-				return;
-
-			var message = "";
-
-			if (mRecommendCount == 0)
-				message = "추천은 한번에 5번까지만 하실 수 있습니다.";
-			else
-			{
-				var requestParam = new Dictionary<string, string>
-				{
-					["product_id"] = mSelectedGame.ID,
-					["device_id"] = mDeviceID
-				};
-
-
-				try
-				{
-					var httpClient = new HttpClient();
-
-#if DEBUG
-					//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:8080/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-					//var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#else
-					var response = await httpClient.PostAsync(new Uri("https://xbox-korean-viewer-server2.herokuapp.com/recommend"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-#endif
-
-					var str = await response.Content.ReadAsStringAsync();
-
-					var resultMap = new Dictionary<string, string>();
-
-					try
-					{
-						resultMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
-					}
-					catch (JsonReaderException jsonErr)
-					{
-						resultMap["code"] = "PARSE_ERROR";
-					}
-
-					if (resultMap["code"] == "SUCCESS")
-					{
-						message = "해당 게임을 추천하였습니다.";
-						mRecommendCount--;
-					}
-					else if (resultMap["code"] == "ALREADY_RECOMMEND")
-						message = "이미 추천한 게임입니다.";
-					else
-						message = "해당 게임을 추천할 수 없습니다. 잠시 후 다시 시도해 주십시오.";
-				}
-				catch (Exception err)
-				{
-					message = "서버와 연결할 수 없습니다. 잠시 후 다시 시도해 주십시오.";
-				}
-			}
-
-			var content = new ToastContentBuilder()
-				.AddText("추천 결과", hintMaxLines: 1)
-				.AddText(message)
-				.GetToastContent();
-
-			var notif = new ToastNotification(content.GetXml());
-
-			// And show it!
-			ToastNotificationManager.History.Clear();
-			ToastNotificationManager.CreateToastNotifier().Show(notif);
 		}
 
 		private async void MenuImmigration_Click(object sender, RoutedEventArgs e)
@@ -2350,13 +2193,6 @@ namespace xKorean
 			await Settings.Instance.SetValue("priorityType", "discount");
 		}
 
-		private async void PriorityByRecommendItem_Click(object sender, RoutedEventArgs e)
-		{
-			SearchBox_TextChanged(SearchBox, null);
-
-			await Settings.Instance.SetValue("priorityType", "recommend");
-		}
-
 		private void CheckPreorderGame(Game game, MenuFlyout menuFlyout)
 		{
 			if (game.Discount.Contains("출시"))
@@ -2407,7 +2243,7 @@ namespace xKorean
 
         private async void DonationButton_Click(object sender, RoutedEventArgs e)
         {
-			await Launcher.LaunchUriAsync(new Uri($"https://toon.at/donate/637852371342632860"));
+			await Launcher.LaunchUriAsync(new Uri($"https://fanding.kr/user/xKorean"));
 		}
 
 		private class GameDiscountComparator : IComparer<Game>
