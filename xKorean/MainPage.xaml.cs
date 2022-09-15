@@ -1964,21 +1964,6 @@ namespace xKorean
 			}
 		}
 
-		private async void Menu360Market_Click(object sender, RoutedEventArgs e)
-		{
-			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.Market360);
-		}
-
-		private async void MenuRemasterTitle_Click(object sender, RoutedEventArgs e)
-		{
-			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.RemasterTitle);
-		}
-
-		private async void MenuOneTitle_Click(object sender, RoutedEventArgs e)
-		{
-			await OpenLink(((sender as MenuFlyoutItem).DataContext as GameViewModel).Game, LinkType.OneTitle);
-		}
-
 		private enum LinkType
 		{
 			Market360,
@@ -2203,15 +2188,15 @@ namespace xKorean
 				{
 					if (bundle.DiscountType.Contains("출시"))
 					{
-						menuFlyout.Items[3].Visibility = Visibility.Visible;
+						menuFlyout.Items[2].Visibility = Visibility.Visible;
 						return;
 					}
 				}
 
-				menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+				menuFlyout.Items[2].Visibility = Visibility.Collapsed;
 			}
 			else
-				menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+				menuFlyout.Items[2].Visibility = Visibility.Collapsed;
 		}
 
 		private void CheckPreorderBundle(EditionViewModel edition, MenuFlyout menuFlyout) {
