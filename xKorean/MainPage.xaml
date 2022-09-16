@@ -301,7 +301,8 @@
 							<MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
 							<MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
 							<MenuFlyoutItem x:Name="MenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
-							<MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
+                            <MenuFlyoutItem x:Name="MenuPlayCloud" Text="클라우드로 플레이" Click="MenuPlayCloud_Click" />
+                            <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 						</MenuFlyout>
 					</controls:AdaptiveGridView.ContextFlyout>
 				</controls:AdaptiveGridView>

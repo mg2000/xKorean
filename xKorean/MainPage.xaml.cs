@@ -17,6 +17,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -1791,7 +1792,7 @@ namespace xKorean
 				switch (e.Key)
 				{
 					case VirtualKey.GamepadMenu:
-						CheckPreorderGame(game.Game, (sender as FrameworkElement).ContextFlyout as MenuFlyout);
+						CheckContextMenu(game.Game, (sender as FrameworkElement).ContextFlyout as MenuFlyout);
 						break;
 				}
 			}
@@ -1925,10 +1926,33 @@ namespace xKorean
 
 		private async void MenuBundleImmigration_Click(object sender, RoutedEventArgs e)
 		{
+			if (mSelectedEdition == null)
+				return;
+
 			await ShowImmigrantResult(mSelectedEdition.NZReleaseDate, mSelectedEdition.ReleaseDate);
 		}
 
-		private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
+        private async void MenuPlayCloud_Click(object sender, RoutedEventArgs e)
+		{
+            var productID = "";
+            if (mSelectedGame.GamePassCloud == "O")
+                productID = mSelectedGame.ID;
+            else
+            {
+                foreach (var bundle in mSelectedGame.Bundle)
+                {
+                    if (bundle.GamePassCloud == "O")
+                    {
+                        productID = bundle.ID;
+                        break;
+                    }
+                }
+            }
+
+            await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/play/games/xKorean/{productID}"));
+        }
+
+        private async void MenuErrorReport_Click(object sender, RoutedEventArgs e)
 		{
 			await ShowErrorReportDialog();
 		}
@@ -2178,7 +2202,7 @@ namespace xKorean
 			await Settings.Instance.SetValue("priorityType", "discount");
 		}
 
-		private void CheckPreorderGame(Game game, MenuFlyout menuFlyout)
+		private void CheckContextMenu(Game game, MenuFlyout menuFlyout)
 		{
 			if (game.Discount.Contains("출시"))
 				menuFlyout.Items[3].Visibility = Visibility.Visible;
@@ -2197,7 +2221,30 @@ namespace xKorean
 			}
 			else
 				menuFlyout.Items[2].Visibility = Visibility.Collapsed;
-		}
+
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+			{
+				if (game.GamePassCloud == "O")
+					menuFlyout.Items[3].Visibility = Visibility.Visible;
+				else if (game.Bundle.Count > 0)
+				{
+					foreach (var bundle in game.Bundle)
+					{
+						if (bundle.GamePassCloud == "O")
+						{
+							menuFlyout.Items[3].Visibility = Visibility.Visible;
+							return;
+						}
+					}
+
+					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+				}
+				else
+					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+			}
+			else
+                menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+        }
 
 		private void CheckPreorderBundle(EditionViewModel edition, MenuFlyout menuFlyout) {
 			if (edition.Discount.Contains("출시"))
@@ -2211,7 +2258,7 @@ namespace xKorean
 			if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse && e.GetCurrentPoint(null).Properties.IsRightButtonPressed)
 			{
 				var game = ((FrameworkElement)e.OriginalSource).DataContext as GameViewModel;
-				CheckPreorderGame(game.Game, GamesView.ContextFlyout as MenuFlyout);
+				CheckContextMenu(game.Game, GamesView.ContextFlyout as MenuFlyout);
 				mSelectedGame = game.Game;
 			}
 		}
