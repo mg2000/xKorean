@@ -2205,7 +2205,7 @@ namespace xKorean
 		private void CheckContextMenu(Game game, MenuFlyout menuFlyout)
 		{
 			if (game.Discount.Contains("출시"))
-				menuFlyout.Items[3].Visibility = Visibility.Visible;
+				menuFlyout.Items[2].Visibility = Visibility.Visible;
 			else if (game.Bundle.Count > 0)
 			{
 				foreach (var bundle in game.Bundle)
