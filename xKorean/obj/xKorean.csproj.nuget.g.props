@@ -7,7 +7,7 @@
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
     <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\mg2000\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages;C:\Program Files (x86)\Microsoft SDKs\UWPNuGetPackages\</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
-    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.3.0</NuGetToolVersion>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.4.0</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\mg2000\.nuget\packages\" />
@@ -45,13 +45,13 @@
     <Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler Condition=" '$(Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler)' == '' ">C:\Users\mg2000\.nuget\packages\runtime.win10-arm.microsoft.net.native.compiler\2.2.12-rel-31116-00</Pkgruntime_win10-arm_Microsoft_Net_Native_Compiler>
     <PkgMicrosoft_Web_WebView2 Condition=" '$(PkgMicrosoft_Web_WebView2)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.web.webview2\1.0.1264.42</PkgMicrosoft_Web_WebView2>
     <PkgMicrosoft_UI_Xaml Condition=" '$(PkgMicrosoft_UI_Xaml)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.ui.xaml\2.8.1</PkgMicrosoft_UI_Xaml>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.primitives\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.media\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.core\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.markdown\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.layout\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.input\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input>
-    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.datagrid\7.1.2</PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.primitives\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Primitives>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.media\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Media>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.core\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Core>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.markdown\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Markdown>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.layout\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Layout>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.input\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_Input>
+    <PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid Condition=" '$(PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.toolkit.uwp.ui.controls.datagrid\7.1.3</PkgMicrosoft_Toolkit_Uwp_UI_Controls_DataGrid>
     <PkgMicrosoft_Net_UWPCoreRuntimeSdk Condition=" '$(PkgMicrosoft_Net_UWPCoreRuntimeSdk)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.net.uwpcoreruntimesdk\2.2.14</PkgMicrosoft_Net_UWPCoreRuntimeSdk>
     <PkgMicrosoft_Net_Native_Compiler Condition=" '$(PkgMicrosoft_Net_Native_Compiler)' == '' ">C:\Users\mg2000\.nuget\packages\microsoft.net.native.compiler\2.2.12-rel-31116-00</PkgMicrosoft_Net_Native_Compiler>
   </PropertyGroup>

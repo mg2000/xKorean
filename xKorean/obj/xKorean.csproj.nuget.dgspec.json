@@ -41,7 +41,7 @@
           "dependencies": {
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[6.0.9, )"
+              "version": "[7.0.0, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
@@ -49,19 +49,19 @@
             },
             "Microsoft.Toolkit.Uwp": {
               "target": "Package",
-              "version": "[7.1.2, )"
+              "version": "[7.1.3, )"
             },
             "Microsoft.Toolkit.Uwp.Notifications": {
               "target": "Package",
-              "version": "[7.1.2, )"
+              "version": "[7.1.3, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Animations": {
               "target": "Package",
-              "version": "[7.1.2, )"
+              "version": "[7.1.3, )"
             },
             "Microsoft.Toolkit.Uwp.UI.Controls": {
               "target": "Package",
-              "version": "[7.1.2, )"
+              "version": "[7.1.3, )"
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
@@ -69,7 +69,7 @@
             },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.1, )"
+              "version": "[13.0.2, )"
             }
           },
           "imports": [

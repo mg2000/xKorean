@@ -129,6 +129,7 @@
                                     <CheckBox x:Name="FPS120CheckBox" Content="최대 120프레임" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="FPSBoostCheckBox" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="F2PCheckBox" Content="무료(F2P)" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="AvailableOnlyCheckBox" Content="이용 가능 게임만" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -163,7 +164,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-					<AppBarButton Label="한국어 지원 범위">
+					<AppBarButton Label="한국어 범위">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -177,7 +178,22 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-					<AppBarSeparator/>
+                    <AppBarButton Label="연령대">
+                        <AppBarButton.Icon>
+                            <SymbolIcon Symbol="Filter"/>
+                        </AppBarButton.Icon>
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <StackPanel Orientation="Vertical">
+                                    <RadioButton x:Name="AgeTypeAllRadioButton" Content="모든 게임" IsChecked="True" GroupName="AgeTypeRadioButtons" Click="TimingRadioButton_Click"/>
+                                    <RadioButton x:Name="AgeType15RadioButton" Content="만 15세 이하만" GroupName="AgeTypeRadioButtons" Click="TimingRadioButton_Click"/>
+                                    <RadioButton x:Name="AgeType12RadioButton" Content="만 12세 이하만" GroupName="AgeTypeRadioButtons" Click="TimingRadioButton_Click"/>
+                                    <RadioButton x:Name="AgeTypeChildRadioButton" Content="전체 이용가만" GroupName="AgeTypeRadioButtons" Click="TimingRadioButton_Click"/>
+                                </StackPanel>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                    <AppBarSeparator/>
 					<AppBarButton Icon="Sort" Label="정렬">
 						<AppBarButton.Flyout>
 							<Flyout>
@@ -302,6 +318,7 @@
 							<MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
 							<MenuFlyoutItem x:Name="MenuImmigration" Text="이민갈까요?" Click="MenuImmigration_Click" />
                             <MenuFlyoutItem x:Name="MenuPlayCloud" Text="클라우드로 플레이" Click="MenuPlayCloud_Click" />
+                            <MenuFlyoutItem x:Name="MenuGamePassPeriod" Text="게임패스 등록 기간" Click="MenuGamePassPeriod_Click"/>
                             <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 						</MenuFlyout>
 					</controls:AdaptiveGridView.ContextFlyout>

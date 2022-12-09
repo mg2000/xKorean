@@ -1207,6 +1207,65 @@ namespace xKorean
 				gamesFilteredByDevices = mGameList;
 			}
 
+            if (GamePassCheckBox.IsChecked == true ||
+                DiscountCheckBox.IsChecked == true ||
+                PlayAnywhereCheckBox.IsChecked == true ||
+                DolbyAtmosCheckBox.IsChecked == true ||
+                ConsoleKeyboardMouseCheckBox.IsChecked == true ||
+                LocalCoopCheckBox.IsChecked == true ||
+                OnlineCoopCheckBox.IsChecked == true ||
+                FPS120CheckBox.IsChecked == true ||
+                FPSBoostCheckBox.IsChecked == true ||
+                F2PCheckBox.IsChecked == true ||
+                AvailableOnlyCheckBox.IsChecked == true)
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+                else
+                    CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.White);
+                else
+                    CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+            }
+
+            if (FamilyKidsCheckBox.IsChecked == true ||
+                FightingCheckBox.IsChecked == true ||
+                EducationalCheckBox.IsChecked == true ||
+                RacingFlyingCheckBox.IsChecked == true ||
+                RolePlayingCheckBox.IsChecked == true ||
+                MultiplayCheckBox.IsChecked == true ||
+                ShooterCheckBox.IsChecked == true ||
+                SportsCheckBox.IsChecked == true ||
+                SimulationCheckBox.IsChecked == true ||
+                ActionAdventureCheckBox.IsChecked == true ||
+                MusicCheckBox.IsChecked == true ||
+                StrategyCheckBox.IsChecked == true ||
+                CardBoardCheckBox.IsChecked == true ||
+                ClassicsCheckBox.IsChecked == true ||
+                PuzzleTriviaCheckBox.IsChecked == true ||
+                PlatformerCheckBox.IsChecked == true ||
+                CasinoCheckBox.IsChecked == true ||
+                OtherCheckBox.IsChecked == true)
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+                else
+                    CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    CategoryFilterButton.Foreground = new SolidColorBrush(Colors.White);
+                else
+                    CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+            }
+
+            var today = DateTime.Now;
+
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
             {
 				if (text.Trim() != "" &&
@@ -1227,8 +1286,18 @@ namespace xKorean
 					continue;
 				}
 
-				// 게임패스 필터링
-				if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
+                // 연령대 범위 필터링
+                if (AgeType15RadioButton.IsChecked == true && gamesFilteredByDevices[i].Age == "18" ||
+                    (AgeType12RadioButton.IsChecked == true && (gamesFilteredByDevices[i].Age == "18" || gamesFilteredByDevices[i].Age == "15")) ||
+                    (AgeTypeChildRadioButton.IsChecked == true && (gamesFilteredByDevices[i].Age == "18" || gamesFilteredByDevices[i].Age == "15" || gamesFilteredByDevices[i].Age == "12")))
+                {
+                    gamesFilteredByDevices.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                // 게임패스 필터링
+                if (GamePassCheckBox != null && (bool)GamePassCheckBox.IsChecked)
 				{
 					if (gamesFilteredByDevices[i].GamePassCloud == "" && gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "")
 					{
@@ -1305,13 +1374,16 @@ namespace xKorean
 					OnlineCoopCheckBox != null && (bool)OnlineCoopCheckBox.IsChecked && gamesFilteredByDevices[i].OnlineCoop == "" ||
 					FPS120CheckBox != null && (bool)FPS120CheckBox.IsChecked && gamesFilteredByDevices[i].FPS120 == "" ||
 					FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked && gamesFilteredByDevices[i].FPSBoost == "" ||
-					F2PCheckBox != null && (bool)F2PCheckBox.IsChecked && !gamesFilteredByDevices[i].Discount.Contains("무료")) {
-					gamesFilteredByDevices.RemoveAt(i);
+					F2PCheckBox != null && (bool)F2PCheckBox.IsChecked && !gamesFilteredByDevices[i].Discount.Contains("무료") ||
+                    AvailableOnlyCheckBox != null && (bool)AvailableOnlyCheckBox.IsChecked && ((DateTime.Parse(gamesFilteredByDevices[i].ReleaseDate) > today && (gamesFilteredByDevices[i].GamePassComing == "O" || (gamesFilteredByDevices[i].GamePassPC != "O" && gamesFilteredByDevices[i].GamePassConsole != "O" && gamesFilteredByDevices[i].GamePassCloud != "O"))) || (gamesFilteredByDevices[i].Discount == "판매 중지" && gamesFilteredByDevices[i].GamePassPC != "O" && gamesFilteredByDevices[i].GamePassConsole != "O" && gamesFilteredByDevices[i].GamePassCloud != "O" && gamesFilteredByDevices[i].Bundle.Count == 0)))
+                    //AvailableOnlyCheckBox != null && (bool)AvailableOnlyCheckBox.IsChecked && (gamesFilteredByDevices[i].Discount != "판매 중지" || gamesFilteredByDevices[i].Bundle.Count > 0))
+                {
+                    gamesFilteredByDevices.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if (FamilyKidsCheckBox.IsChecked == true ||
+                if (FamilyKidsCheckBox.IsChecked == true ||
 					FightingCheckBox.IsChecked == true ||
 					EducationalCheckBox.IsChecked == true ||
 					RacingFlyingCheckBox.IsChecked == true ||
@@ -1364,62 +1436,6 @@ namespace xKorean
 						continue;
 					}
 				}
-			}
-
-			if (GamePassCheckBox.IsChecked == true ||
-				DiscountCheckBox.IsChecked == true ||
-				PlayAnywhereCheckBox.IsChecked == true ||
-				DolbyAtmosCheckBox.IsChecked == true ||
-				ConsoleKeyboardMouseCheckBox.IsChecked == true ||
-				LocalCoopCheckBox.IsChecked == true ||
-				OnlineCoopCheckBox.IsChecked == true ||
-				FPS120CheckBox.IsChecked == true ||
-				FPSBoostCheckBox.IsChecked == true ||
-				F2PCheckBox.IsChecked == true)
-            {
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
-				else
-					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Red);
-			}
-			else
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.White);
-				else
-					CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Black);
-			}
-
-			if (FamilyKidsCheckBox.IsChecked == true ||
-				FightingCheckBox.IsChecked == true ||
-				EducationalCheckBox.IsChecked == true ||
-				RacingFlyingCheckBox.IsChecked == true ||
-				RolePlayingCheckBox.IsChecked == true ||
-				MultiplayCheckBox.IsChecked == true ||
-				ShooterCheckBox.IsChecked == true ||
-				SportsCheckBox.IsChecked == true ||
-				SimulationCheckBox.IsChecked == true ||
-				ActionAdventureCheckBox.IsChecked == true ||
-				MusicCheckBox.IsChecked == true ||
-				StrategyCheckBox.IsChecked == true ||
-				CardBoardCheckBox.IsChecked == true ||
-				ClassicsCheckBox.IsChecked == true ||
-				PuzzleTriviaCheckBox.IsChecked == true ||
-				PlatformerCheckBox.IsChecked == true ||
-				CasinoCheckBox.IsChecked == true ||
-				OtherCheckBox.IsChecked == true)
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
-				else
-					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Red);
-			}
-			else
-			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
-					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.White);
-				else
-					CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Black);
 			}
 
 			var games = SortList(gamesFilteredByDevices);
@@ -2244,6 +2260,12 @@ namespace xKorean
 			}
 			else
                 menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+
+			if (game.GamePassRegisterDate != "")
+                menuFlyout.Items[4].Visibility = Visibility.Visible;
+			else
+				menuFlyout.Items[4].Visibility = Visibility.Collapsed;
+
         }
 
 		private void CheckPreorderBundle(EditionViewModel edition, MenuFlyout menuFlyout) {
@@ -2335,5 +2357,42 @@ namespace xKorean
 					return 1;
 			}
 		}
-	}
+
+        private async void MenuGamePassPeriod_Click(object sender, RoutedEventArgs e)
+        {
+			var registerDate = DateTime.Parse(mSelectedGame.GamePassRegisterDate);
+            var timeDiff = DateTime.Now - registerDate;
+
+			var message = $"게임패스 등록일: {registerDate.Year}. {registerDate.Month}. {registerDate.Day}. ({timeDiff.TotalDays:#,#0}일)";
+
+			var gamePassEnd = false;
+			if (mSelectedGame.GamePassEnd == "O")
+				gamePassEnd = true;
+			else if (mSelectedGame.Bundle.Count > 0)
+			{
+				for (var i = 0; i < mSelectedGame.Bundle.Count; i++)
+				{
+					if (mSelectedGame.Bundle[i].GamePassEnd == "O")
+					{
+						gamePassEnd = true;
+						break;
+					}
+				}
+			}
+
+			if (gamePassEnd)
+				message += "\n\n* 이 게임은 2주 내에 게임패스에 내려갈 예정입니다.";
+			else if (mSelectedGame.IsFirstParty == "O")
+				message += "\n\n* 이 게임은 퍼스트 파티 타이틀로 게임패스에서 내려가지 않습니다. 다만 일부 게임은 게임 내 컨텐츠 라이센스 만료등의 이유로 판매가 종료되면서, 게임패스에서 내려갈 수도 있습니다. (예: 스포츠 / 레이싱 게임)";
+			else if (mSelectedGame.IsFirstParty == "EA")
+                message += "\n\n* 이 게임은 EA가 배급하는 게임으로 게임패스에서 내려가지 않습니다. 다만 일부 게임은 게임 내 컨텐츠 라이센스 만료등의 판매가 종료되면서, 게임패스에서 내려갈 수도 있습니다. (예: 스포츠 / 레이싱 게임) 또한 마이크로소프트와 EA간의 향후 계약에 따라서 내려갈 가능성도 있습니다.";
+
+            var dialog = new MessageDialog(message, "게임패스 등록 정보");
+            if (mDialogQueue.TryAdd(dialog, 500))
+            {
+                await dialog.ShowAsync();
+                mDialogQueue.Take();
+            }
+        }
+    }
 }

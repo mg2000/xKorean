@@ -66,7 +66,10 @@ namespace xKorean
 		[JsonProperty("gamePassComing")]
 		public string GamePassComing { set; get; } = string.Empty;
 
-		[JsonProperty("discount")]
+        [JsonProperty("gamePassRegisterDate")]
+        public string GamePassRegisterDate { set; get; } = string.Empty;
+
+        [JsonProperty("discount")]
 		public string Discount { set; get; } = string.Empty;
 
 		[JsonProperty("releaseDate")]
@@ -134,8 +137,22 @@ namespace xKorean
 			get;
 			set;
 		} = "";
-				
-		public bool IsAvailable {
+
+        [JsonProperty("isFirstParty")]
+        public string IsFirstParty
+        {
+            get;
+            set;
+        } = "";
+
+		[JsonProperty("age")]
+		public string Age
+		{
+			get;
+			set;
+		} = "";
+
+        public bool IsAvailable {
 			get {
 				return Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || (Discount.IndexOf("출시") >= 0 && Price == -1 && Bundle.Count > 0);
 			}
