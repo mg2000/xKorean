@@ -164,7 +164,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-					<AppBarButton Label="한국어 범위">
+					<AppBarButton x:Name="KoreanSupportButton" Label="한국어 범위">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
 						</AppBarButton.Icon>
@@ -178,7 +178,7 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
-                    <AppBarButton Label="연령대">
+                    <AppBarButton  x:Name="AgeRangetButton" Label="연령대">
                         <AppBarButton.Icon>
                             <SymbolIcon Symbol="Filter"/>
                         </AppBarButton.Icon>

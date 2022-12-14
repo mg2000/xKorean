@@ -1264,6 +1264,37 @@ namespace xKorean
                     CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Black);
             }
 
+			if (KoreanVoiceRadioButton.IsChecked == true || KoreanSubtitleRadioButton.IsChecked == true)
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Yellow);
+                else
+                    KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    KoreanSupportButton.Foreground = new SolidColorBrush(Colors.White);
+                else
+                    KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Black);
+            }
+
+            if (AgeType15RadioButton.IsChecked == true || AgeType12RadioButton.IsChecked == true || AgeTypeChildRadioButton.IsChecked == true)
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    AgeRangetButton.Foreground = new SolidColorBrush(Colors.Yellow);
+                else
+                    AgeRangetButton.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    AgeRangetButton.Foreground = new SolidColorBrush(Colors.White);
+                else
+                    AgeRangetButton.Foreground = new SolidColorBrush(Colors.Black);
+            }
+
+
             var today = DateTime.Now;
 
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
@@ -2136,7 +2167,8 @@ namespace xKorean
 				OnlineCoopCheckBox.IsChecked == true ||
 				FPS120CheckBox.IsChecked == true ||
 				FPSBoostCheckBox.IsChecked == true ||
-				F2PCheckBox.IsChecked == true)
+				F2PCheckBox.IsChecked == true ||
+                AvailableOnlyCheckBox.IsChecked == true)
 			{
 				GamePassCheckBox.IsChecked = false;
 				DiscountCheckBox.IsChecked = false;
@@ -2148,8 +2180,9 @@ namespace xKorean
 				FPS120CheckBox.IsChecked = false;
 				FPSBoostCheckBox.IsChecked = false;
 				F2PCheckBox.IsChecked = false;
+				AvailableOnlyCheckBox.IsChecked = false;
 
-				CategoryCheckBox_Click(sender, e);
+                CategoryCheckBox_Click(sender, e);
 			}
 		}
 
@@ -2224,16 +2257,19 @@ namespace xKorean
 				menuFlyout.Items[2].Visibility = Visibility.Visible;
 			else if (game.Bundle.Count > 0)
 			{
+				var notReleased = false;
 				foreach (var bundle in game.Bundle)
 				{
 					if (bundle.DiscountType.Contains("출시"))
 					{
 						menuFlyout.Items[2].Visibility = Visibility.Visible;
-						return;
+						notReleased = true;
+						break;
 					}
 				}
 
-				menuFlyout.Items[2].Visibility = Visibility.Collapsed;
+				if (!notReleased)
+					menuFlyout.Items[2].Visibility = Visibility.Collapsed;
 			}
 			else
 				menuFlyout.Items[2].Visibility = Visibility.Collapsed;
