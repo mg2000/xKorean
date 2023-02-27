@@ -222,7 +222,10 @@ namespace xKorean
 			set;
 		} = "";
 
-		[JsonProperty("gamePassPC")]
+        [JsonProperty("playAnywhere")]
+        public string PlayAnywhere { set; get; } = "";
+
+        [JsonProperty("gamePassPC")]
 		public string GamePassPC
 		{
 			get;
@@ -291,4 +294,39 @@ namespace xKorean
 			}
 		}
 	}
+
+	public class ExchangeRate
+	{
+        [JsonProperty("country")]
+        public string Country
+		{
+			get;
+			set;
+		}
+
+        [JsonProperty("rate")]
+        public float Rate
+        {
+            get;
+            set;
+        }
+    }
+
+	public class ServerData
+	{
+        [JsonProperty("games")]
+        public List<Game> Games
+		{
+			get;
+			set;
+		}
+
+        [JsonProperty("exchangeRate")]
+        public List<ExchangeRate> ExchangeRates
+		{
+			get;
+			set;
+		}
+
+    }
 }

@@ -54,6 +54,8 @@ namespace xKorean
 		private Dictionary<string, string> mMessageTemplateMap = new Dictionary<string, string>();
 		private List<Game> mGameList = new List<Game>();
 
+		private Dictionary<string, float> mExchangeRateMap = new Dictionary<string, float>();
+
 		private readonly BlockingCollection<object> mDialogQueue = new BlockingCollection<object>(1);
 		private readonly BlockingCollection<object> mTipQueue = new BlockingCollection<object>(1);
 
@@ -89,7 +91,12 @@ namespace xKorean
 		{
 			this.InitializeComponent();
 
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+            mExchangeRateMap["en-us"] = 1300;
+            mExchangeRateMap["ja-jp"] = 980;
+            mExchangeRateMap["en-hk"] = 165;
+			mExchangeRateMap["en-gb"] = 1570;
+
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 				DonationButton.Visibility = Visibility.Collapsed;
 
 			SystemNavigationManager.GetForCurrentView().BackRequested += (sender, e) =>
@@ -289,6 +296,9 @@ namespace xKorean
 				case "discount":
 					PriorityByDiscountItem.IsChecked = true;
 					break;
+				case "price":
+                    PriorityByPriceItem.IsChecked = true;
+                    break;
 			}
 
 			var applicationFolder = ApplicationData.Current.LocalFolder;
@@ -380,7 +390,7 @@ namespace xKorean
 
 				var settingMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
-				var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+				var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 				
 				var settings = Settings.Instance;
 				if (settingMap["lastModifiedTime"] == "")
@@ -481,7 +491,7 @@ namespace xKorean
 
 		private bool CheckDownloadData()
 		{
-			var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+			var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 
 			if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
 				return true;
@@ -500,10 +510,10 @@ namespace xKorean
 
 #if DEBUG
 				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:8080/title_list_zip"));
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:8080/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:8080/title_list_ex_zip"));
                 //var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_ex_zip"));
 #endif
 
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -528,23 +538,24 @@ namespace xKorean
 				// 저장 전에 이전 데이터 가져오기
 				if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
 				{
-					var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+					var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 
 					if (downloadedJsonFile.Exists)
 					{
-						var existFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("games.json", CreationCollisionOption.OpenIfExists);
+						var existFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("games_ex.json", CreationCollisionOption.OpenIfExists);
 
 						if (downloadedJsonFile.Length > 0)
 						{
 							var existStr = await FileIO.ReadTextAsync(existFile);
-							mExistGames = JsonConvert.DeserializeObject<List<Game>>(existStr).OrderBy(g => g.ID).ToList();
+							var existData = JsonConvert.DeserializeObject<ServerData>(existStr);
+							mExistGames = existData.Games.OrderBy(g => g.ID).ToList();
 						}
 
 						await existFile.DeleteAsync();
 					}
 				}
 
-				File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "\\games.json", str);
+				File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json", str);
 
 				ReadGamesFromJson();
 			}
@@ -585,12 +596,12 @@ namespace xKorean
 		}
 		private async void ReadGamesFromJson()
 		{
-			var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+			var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 
 			StorageFile jsonFile = null;
 			if (downloadedJsonFile.Exists && downloadedJsonFile.Length > 0)
 			{
-				jsonFile = await StorageFile.GetFileFromPathAsync(ApplicationData.Current.LocalFolder.Path + "\\games.json");
+				jsonFile = await StorageFile.GetFileFromPathAsync(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 			}
 			else
 			{
@@ -600,7 +611,13 @@ namespace xKorean
 
 
 			var jsonString = await FileIO.ReadTextAsync(jsonFile);
-			var games = JsonConvert.DeserializeObject<List<Game>>(jsonString).OrderBy(g => g.ID).ToList();
+			var serverData = JsonConvert.DeserializeObject<ServerData>(jsonString);
+            var games = serverData.Games.OrderBy(g => g.ID).ToList();
+
+			foreach (var exchangeRate in serverData.ExchangeRates)
+			{
+				mExchangeRateMap[exchangeRate.Country] = exchangeRate.Rate;
+			}
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") {
 				for (var i = 0; i < games.Count; i++) {
@@ -612,9 +629,9 @@ namespace xKorean
 				}
 			}
 
-			if (mExistGames.Count > 0)
+            mNewGames.Clear();
+            if (mExistGames.Count > 0)
 			{
-				mNewGames.Clear();
 				foreach (Game game in games)
 				{
 					if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox" && game.PC == "O" && game.PlayAnywhere != "O")
@@ -793,7 +810,7 @@ namespace xKorean
 					SeriesXS = bundle.SeriesXS,
 					OneS = bundle.OneS,
 					PC = bundle.PC,
-					PlayAnywhere = game.PlayAnywhere,
+					PlayAnywhere = bundle.PlayAnywhere,
 					IsGamePassPC = bundle.GamePassPC,
 					IsGamePassConsole = bundle.GamePassConsole,
 					IsGamePassCloud = bundle.GamePassCloud,
@@ -1134,6 +1151,42 @@ namespace xKorean
 					sortedList.AddRange(discountList);
 					unSortedGames.Clear();
 				}
+				else if (PriorityByPriceItem.IsChecked == true)
+				{
+					var prictList = unSortedGames.OrderBy(x => x, new GamePriceComparator(mExchangeRateMap));
+
+                    if (OrderByNameAscendItem.IsChecked == true)
+                    {
+                        if (mGameNameDisplayLanguage == "English")
+                            prictList = prictList.ThenBy(g => g.Name);
+                        else
+                            prictList = prictList.ThenBy(g => g.KoreanName);
+                    }
+                    else if (OrderByNameDescendItem.IsChecked == true)
+                    {
+                        if (mGameNameDisplayLanguage == "English")
+                            prictList = prictList.ThenByDescending(g => g.Name);
+                        else
+                            prictList = prictList.ThenByDescending(g => g.KoreanName);
+                    }
+                    else if (OrderByReleaseAscendItem.IsChecked == true)
+                    {
+                        if (mGameNameDisplayLanguage == "English")
+                            prictList = prictList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.Name);
+                        else
+                            prictList = prictList.ThenBy(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+                    }
+                    else
+                    {
+                        if (mGameNameDisplayLanguage == "English")
+                            prictList = prictList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.Name);
+                        else
+                            prictList = prictList.ThenByDescending(g => g.ReleaseDate).ThenBy(g => g.KoreanName);
+                    }
+
+                    sortedList.AddRange(prictList);
+                    unSortedGames.Clear();
+                }
 
 				if (OrderByNameAscendItem.IsChecked == true)
 				{
@@ -1927,11 +1980,15 @@ namespace xKorean
 			if (price >= 0)
 			{
 				priceInfoBuilder.Append("* 현재 판매가: ").Append(price.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
+				if (languageCode != "ko-kr" && mExchangeRateMap.ContainsKey(languageCode))
+					priceInfoBuilder.Append(" (약. ").Append((price * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
 
 				if (lowestPrice > 0)
                 {
 					priceInfoBuilder.Append("\r\n* 역대 최저가: ").Append(lowestPrice.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
-				}
+                    if (languageCode != "ko-kr" && mExchangeRateMap.ContainsKey(languageCode))
+                        priceInfoBuilder.Append(" (약. ").Append((lowestPrice * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
+                }
 			}
 			else
 				priceInfoBuilder.Append("* 판매를 시작하지 않았거나 판매가 중지된 타이틀입니다.");
@@ -2251,7 +2308,14 @@ namespace xKorean
 			await Settings.Instance.SetValue("priorityType", "discount");
 		}
 
-		private void CheckContextMenu(Game game, MenuFlyout menuFlyout)
+        private async void PriorityByPriceItem_Click(object sender, RoutedEventArgs e)
+        {
+            SearchBox_TextChanged(SearchBox, null);
+
+            await Settings.Instance.SetValue("priorityType", "price");
+        }
+
+        private void CheckContextMenu(Game game, MenuFlyout menuFlyout)
 		{
 			if (game.Discount.Contains("출시"))
 				menuFlyout.Items[2].Visibility = Visibility.Visible;
@@ -2393,6 +2457,56 @@ namespace xKorean
 					return 1;
 			}
 		}
+
+        private class GamePriceComparator : IComparer<Game>
+        {
+			private Dictionary<string, float> mExchangeMap;
+
+			public GamePriceComparator(Dictionary<string, float> exchangeMap)
+			{
+				mExchangeMap = exchangeMap;
+			}
+
+            public int Compare(Game x, Game y)
+            {
+                float getLowestPrice(Game game)
+                {
+                    float extractPrice(float price, string languageCode)
+                    {
+                        if (price == -1 || languageCode == "ko-kr")
+                            return price;
+                        else
+                            return price * mExchangeMap[languageCode];
+                    }
+
+                    var lowestPrice = extractPrice(game.Price, game.LanguageCode);
+
+                    if (game.Bundle.Count > 0)
+                    {
+                        for (var i = 0; i < game.Bundle.Count; i++)
+                        {
+                            var bundlePrice = extractPrice(game.Bundle[i].Price, game.LanguageCode);
+
+                            if (bundlePrice > 0 && (bundlePrice < lowestPrice || lowestPrice <= 0))
+                                lowestPrice = bundlePrice;
+                        }
+                    }
+
+                    return lowestPrice;
+                }
+
+				if (getLowestPrice(x) > -1 && getLowestPrice(y) == -1)
+					return -1;
+				else if (getLowestPrice(x) == -1 && getLowestPrice(y) > -1)
+					return 1;
+				else if (getLowestPrice(x) < getLowestPrice(y))
+					return -1;
+				else if (getLowestPrice(x) > getLowestPrice(y))
+					return 1;
+				else
+					return 0;
+            }
+        }
 
         private async void MenuGamePassPeriod_Click(object sender, RoutedEventArgs e)
         {

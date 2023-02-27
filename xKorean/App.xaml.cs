@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using Microsoft.AppCenter;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,6 +35,8 @@ namespace xKorean
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            AppCenter.Start("7a7bd7b6-fb08-4d67-845c-f775026fb215", typeof(Analytics), typeof(Crashes));
 
             switch (AnalyticsInfo.VersionInfo.DeviceFamily)
             {
