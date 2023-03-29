@@ -796,7 +796,8 @@ namespace xKorean
 					LowestPrice = game.LowestPrice,
 					LanguageCode = game.LanguageCode,
 					ReleaseDate = game.ReleaseDate,
-					NZReleaseDate = game.NZReleaseDate
+					NZReleaseDate = game.NZReleaseDate,
+					KIReleaseDate = game.KIReleaseDate
 				});
 			}
 
@@ -826,7 +827,8 @@ namespace xKorean
 					LowestPrice = bundle.LowestPrice,
 					LanguageCode = game.LanguageCode,
 					ReleaseDate = bundle.ReleaseDate,
-					NZReleaseDate = bundle.NZReleaseDate
+					NZReleaseDate = bundle.NZReleaseDate,
+					KIReleaseDate = bundle.KIReleaseDate
 				});
 			}
 
@@ -1981,13 +1983,13 @@ namespace xKorean
 			{
 				priceInfoBuilder.Append("* 현재 판매가: ").Append(price.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
 				if (languageCode != "ko-kr" && mExchangeRateMap.ContainsKey(languageCode))
-					priceInfoBuilder.Append(" (약. ").Append((price * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
+					priceInfoBuilder.Append(" (약 ").Append((price * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
 
 				if (lowestPrice > 0)
                 {
 					priceInfoBuilder.Append("\r\n* 역대 최저가: ").Append(lowestPrice.ToString("C", CultureInfo.CreateSpecificCulture(languageCode)));
                     if (languageCode != "ko-kr" && mExchangeRateMap.ContainsKey(languageCode))
-                        priceInfoBuilder.Append(" (약. ").Append((lowestPrice * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
+                        priceInfoBuilder.Append(" (약 ").Append((lowestPrice * mExchangeRateMap[languageCode]).ToString("C", CultureInfo.CreateSpecificCulture("ko-kr"))).Append(")");
                 }
 			}
 			else
@@ -2009,7 +2011,7 @@ namespace xKorean
 				return;
 
 			if (mSelectedGame.Bundle.Count == 0)
-				await ShowImmigrantResult(mSelectedGame.NZReleaseDate, mSelectedGame.ReleaseDate);
+				await ShowImmigrantResult(mSelectedGame.NZReleaseDate, mSelectedGame.KIReleaseDate, mSelectedGame.ReleaseDate);
 			else
 			{
 				if (mSelectedGame.IsAvailable || mSelectedGame.Bundle.Count > 1)
@@ -2023,7 +2025,7 @@ namespace xKorean
 				}
 				else
 				{
-					await ShowImmigrantResult(mSelectedGame.Bundle[0].NZReleaseDate, mSelectedGame.Bundle[0].ReleaseDate);
+					await ShowImmigrantResult(mSelectedGame.Bundle[0].NZReleaseDate, mSelectedGame.Bundle[0].KIReleaseDate, mSelectedGame.Bundle[0].ReleaseDate);
 				}
 			}
 		}
@@ -2033,7 +2035,7 @@ namespace xKorean
 			if (mSelectedEdition == null)
 				return;
 
-			await ShowImmigrantResult(mSelectedEdition.NZReleaseDate, mSelectedEdition.ReleaseDate);
+			await ShowImmigrantResult(mSelectedEdition.NZReleaseDate, mSelectedEdition.KIReleaseDate, mSelectedEdition.ReleaseDate);
 		}
 
         private async void MenuPlayCloud_Click(object sender, RoutedEventArgs e)
@@ -2172,17 +2174,38 @@ namespace xKorean
 			}
 		}
 
-		private async Task ShowImmigrantResult(string nzReleaseDate, string releaseDate)
+		private async Task ShowImmigrantResult(string nzReleaseDate, string kiReleaseDate, string releaseDate)
 		{
-			string message;
+			string message = "";
+			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+			{
+                if (kiReleaseDate != "" && DateTime.Parse(kiReleaseDate) < DateTime.Parse(releaseDate))
+				{
+                    var kiReleaseTime = DateTime.Parse(kiReleaseDate);
+                    message = $"* 키리바시(윈도우) 지역 변경시 플레이 가능 시간: {kiReleaseTime:yyyy.MM.dd tt hh:mm}";
+                }
+            }
+
 			if (nzReleaseDate != "" && DateTime.Parse(nzReleaseDate) < DateTime.Parse(releaseDate))
 			{
-				var nzReleaseTime = DateTime.Parse(nzReleaseDate);
-				message = $"* 뉴질랜드 지역 변경시 플레이 가능 시간: {nzReleaseTime.ToString("yyyy.MM.dd tt hh:mm")}";
-			}
-			else
-				message = $"* 뉴질랜드로 지역 변경을 하셔도 일찍 플레이하실 수 없습니다.";
+				if (message != "")
+					message += "\r\n\r\n";
 
+                var nzReleaseTime = DateTime.Parse(nzReleaseDate);
+				if (kiReleaseDate == "" || AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                    message += $"* 뉴질랜드 지역 변경시 플레이 가능 시간: {nzReleaseTime:yyyy.MM.dd tt hh:mm}";
+				else
+					message += $"* 뉴질랜드(엑스박스) 지역 변경시 플레이 가능 시간: {nzReleaseTime:yyyy.MM.dd tt hh:mm}";
+			}
+
+			if (message == "")
+			{
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
+					message = $"* 키리바시/뉴질랜드로 지역 변경을 하셔도 일찍 플레이하실 수 없습니다.";
+				else
+					message = $"* 뉴질랜드로 지역 변경을 하셔도 일찍 플레이하실 수 없습니다.";
+			}
+			
 			var dialog = new MessageDialog(message, "지역 변경시 선행 플레이 가능 여부");
 			if (mDialogQueue.TryAdd(dialog, 500))
 			{

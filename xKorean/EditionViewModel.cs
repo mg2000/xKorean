@@ -55,7 +55,13 @@ namespace xKorean
 			set;
         }
 
-		public Brush DiscountDisplayColor
+        public string KIReleaseDate
+        {
+            get;
+            set;
+        }
+
+        public Brush DiscountDisplayColor
         {
 			get
             {

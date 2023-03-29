@@ -78,7 +78,10 @@ namespace xKorean
 		[JsonProperty("nzReleaseDate")]
 		public string NZReleaseDate { set; get; } = "";
 
-		[JsonProperty("dolbyAtmos")]
+        [JsonProperty("kiReleaseDate")]
+        public string KIReleaseDate { set; get; } = "";
+
+        [JsonProperty("dolbyAtmos")]
 		public string DolbyAtmos { set; get; } = "";
 
 		[JsonProperty("consoleKeyboardMouse")]
@@ -279,7 +282,14 @@ namespace xKorean
 			set;
 		} = "";
 
-		[JsonProperty("lowestPrice")]
+        [JsonProperty("kiReleaseDate")]
+        public string KIReleaseDate
+        {
+            get;
+            set;
+        } = "";
+
+        [JsonProperty("lowestPrice")]
 		public float LowestPrice
 		{
 			get;

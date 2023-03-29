@@ -49,7 +49,7 @@
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[7.0.3, )"
+              "version": "[7.0.4, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
@@ -77,7 +77,7 @@
             },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.2, )"
+              "version": "[13.0.3, )"
             }
           },
           "imports": [

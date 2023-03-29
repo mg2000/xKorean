@@ -26,10 +26,12 @@ namespace xKorean
 				{
 					db.Open();
 
-					var selectCommand = new SqliteCommand();
-					selectCommand.Connection = db;
-					selectCommand.CommandText = "SELECT info FROM ThumbnailTable WHERE id = @id";
-					selectCommand.Parameters.AddWithValue("@id", id);
+                    var selectCommand = new SqliteCommand
+                    {
+                        Connection = db,
+                        CommandText = "SELECT info FROM ThumbnailTable WHERE id = @id"
+                    };
+                    selectCommand.Parameters.AddWithValue("@id", id);
 
 					var query = selectCommand.ExecuteReader();
 
@@ -75,29 +77,6 @@ namespace xKorean
 
 			try
 			{
-				lock(mLock) {
-					using (var db = new SqliteConnection($"FileName={CommonSingleton.Instance.DBPath}"))
-					{
-						db.Open();
-
-						var thumbnailInfo = new Dictionary<string, string>();
-
-						thumbnailInfo["ThumbnailID"] = thumbnailID;
-						thumbnailInfo["PlayAnywhere"] = playAnywhere;
-						thumbnailInfo["SeriesXS"] = seriesXS;
-						thumbnailInfo["OneS"] = oneS;
-						thumbnailInfo["PC"] = pc;
-
-						var insertCommand = new SqliteCommand();
-						insertCommand.Connection = db;
-						insertCommand.CommandText = "INSERT INTO ThumbnailTable VALUES (@id, @info)";
-						insertCommand.Parameters.AddWithValue("@id", id);
-						insertCommand.Parameters.AddWithValue("@info", JsonConvert.SerializeObject(thumbnailInfo));
-
-						insertCommand.ExecuteNonQuery();
-					}
-				}
-
 				var buffer = await httpClient.GetBufferAsync(new Uri(thumbnailUrl));
 
 				Debug.WriteLine($"이미지 다운로드: {thumbnailUrl}");
@@ -189,7 +168,33 @@ namespace xKorean
 						encoder.SetSoftwareBitmap(softwareBitmap);
 						await encoder.FlushAsync();
 					}
-				}
+
+                    lock (mLock)
+                    {
+                        using (var db = new SqliteConnection($"FileName={CommonSingleton.Instance.DBPath}"))
+                        {
+                            db.Open();
+
+                            var thumbnailInfo = new Dictionary<string, string>();
+
+                            thumbnailInfo["ThumbnailID"] = thumbnailID;
+                            thumbnailInfo["PlayAnywhere"] = playAnywhere;
+                            thumbnailInfo["SeriesXS"] = seriesXS;
+                            thumbnailInfo["OneS"] = oneS;
+                            thumbnailInfo["PC"] = pc;
+
+                            var insertCommand = new SqliteCommand
+                            {
+                                Connection = db,
+                                CommandText = "INSERT INTO ThumbnailTable VALUES (@id, @info)"
+                            };
+                            insertCommand.Parameters.AddWithValue("@id", id);
+                            insertCommand.Parameters.AddWithValue("@info", JsonConvert.SerializeObject(thumbnailInfo));
+
+                            insertCommand.ExecuteNonQuery();
+                        }
+                    }
+                }
 
 				return true;
 			}
