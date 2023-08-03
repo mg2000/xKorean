@@ -266,12 +266,12 @@ namespace xKorean
 							gamePassStatus += " 신규";
 							break;
 						}
-						else if (Game.GamePassEnd != "")
+						else if (bundle.GamePassEnd != "")
 						{
 							gamePassStatus += " 만기";
 							break;
 						}
-						else if (Game.GamePassComing != "")
+						else if (bundle.GamePassComing != "")
                         {
 							gamePassStatus += " 예정";
 							break;

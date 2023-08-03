@@ -347,10 +347,9 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:8080/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
 				var str = response.Content.ReadAsStringAsync().GetResults();
@@ -379,11 +378,9 @@ namespace xKorean
 			try
 			{
 #if DEBUG
-				//var response = await httpClient.PostAsync(new Uri("http://192.168.200.18:8080/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
-                //var response = await httpClient.PostAsync(new Uri("http://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
@@ -509,11 +506,9 @@ namespace xKorean
 
 
 #if DEBUG
-				//var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://192.168.200.18:8080/title_list_zip"));
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:8080/title_list_ex_zip"));
-                //var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://xKorean.info/title_list_ex_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xKorean.info/title_list_ex_zip"));
 #endif
 
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -737,7 +732,7 @@ namespace xKorean
 #if DEBUG
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("http://xKorean.info/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
@@ -1274,14 +1269,14 @@ namespace xKorean
                 F2PCheckBox.IsChecked == true ||
                 AvailableOnlyCheckBox.IsChecked == true)
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
                 else
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.White);
                 else
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Black);
@@ -1306,14 +1301,14 @@ namespace xKorean
                 CasinoCheckBox.IsChecked == true ||
                 OtherCheckBox.IsChecked == true)
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
                 else
                     CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CategoryFilterButton.Foreground = new SolidColorBrush(Colors.White);
                 else
                     CategoryFilterButton.Foreground = new SolidColorBrush(Colors.Black);
@@ -1321,14 +1316,14 @@ namespace xKorean
 
 			if (KoreanVoiceRadioButton.IsChecked == true || KoreanSubtitleRadioButton.IsChecked == true)
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Yellow);
                 else
                     KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     KoreanSupportButton.Foreground = new SolidColorBrush(Colors.White);
                 else
                     KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Black);
@@ -1336,14 +1331,14 @@ namespace xKorean
 
             if (AgeType15RadioButton.IsChecked == true || AgeType12RadioButton.IsChecked == true || AgeTypeChildRadioButton.IsChecked == true)
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     AgeRangetButton.Foreground = new SolidColorBrush(Colors.Yellow);
                 else
                     AgeRangetButton.Foreground = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+                if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     AgeRangetButton.Foreground = new SolidColorBrush(Colors.White);
                 else
                     AgeRangetButton.Foreground = new SolidColorBrush(Colors.Black);
@@ -1585,7 +1580,6 @@ namespace xKorean
 				CategoryX360CheckBox.IsChecked == true ||
 				CategoryOGCheckBox.IsChecked == true ||
 				CategoryWindowsCheckBox.IsChecked == true ||
-				CategoryCloudCheckBox.IsChecked == true ||
 				CategoryCloudCheckBox.IsChecked == true) {
 				var selectGamesList = new List<Game>();
 
@@ -2160,14 +2154,14 @@ namespace xKorean
 				CategoryWindowsCheckBox.IsChecked == true ||
 				CategoryCloudCheckBox.IsChecked == true)
 			{
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
 				else
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Red);
 			}
 			else
             {
-				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.White);
 				else
 					DeviceFilterButton.Foreground = new SolidColorBrush(Colors.Black);
@@ -2363,7 +2357,9 @@ namespace xKorean
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop")
 			{
-				if (game.GamePassCloud == "O")
+                menuFlyout.Items[3].Visibility = Visibility.Collapsed;
+
+                if (game.GamePassCloud == "O")
 					menuFlyout.Items[3].Visibility = Visibility.Visible;
 				else if (game.Bundle.Count > 0)
 				{
@@ -2372,14 +2368,10 @@ namespace xKorean
 						if (bundle.GamePassCloud == "O")
 						{
 							menuFlyout.Items[3].Visibility = Visibility.Visible;
-							return;
+							break;
 						}
 					}
-
-					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 				}
-				else
-					menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 			}
 			else
                 menuFlyout.Items[3].Visibility = Visibility.Collapsed;
