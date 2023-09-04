@@ -500,7 +500,12 @@ namespace xKorean
 			}
 
 			if (discount == "곧 출시" || (showReleaseTime && discount != "출시 예정" && discount.Contains(" 출시")))
-				discount = Utils.GetReleaseStr(game.ReleaseDate);
+			{
+                if (!game.IsAvailable && Bundle.Count == 1)
+                    discount = Utils.GetReleaseStr(game.Bundle[0].ReleaseDate);
+				else
+					discount = Utils.GetReleaseStr(game.ReleaseDate);
+			}
 
 			Discount = discount;
 		}

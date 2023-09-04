@@ -619,7 +619,7 @@ namespace xKorean
 					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O" || games[i].Message.ToLower().IndexOf("windowsmod") >= 0)
 					{
 						games.RemoveAt(i);
-						i--;
+						i--;    
 					}
 				}
 			}
