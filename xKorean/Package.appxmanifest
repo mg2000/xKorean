@@ -9,9 +9,9 @@
   <Identity
     Name="3765mg2000.xKorean"
     Publisher="CN=12E3275F-582E-483B-9C22-EF47E03481D6"
-    Version="4.4.118.0" />
+    Version="5.1.131.0" />
 
-  <mp:PhoneIdentity PhoneProductId="7ad6b69a-45bb-4300-8166-281a6ec871c2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="628c707a-1538-41ce-93f5-b28f3750e585" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>xKorean</DisplayName>

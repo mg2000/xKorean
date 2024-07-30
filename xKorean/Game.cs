@@ -157,7 +157,7 @@ namespace xKorean
 
         public bool IsAvailable {
 			get {
-				return Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || (Discount.IndexOf("출시") >= 0 && Price == -1 && Bundle.Count > 0);
+				return Discount != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || (Discount.IndexOf("출시") >= 0 && Price == -1 && Bundle.Count > 0) || Discount.IndexOf("주말 무료") >= 0;
 			}
 		}
 	}
@@ -300,7 +300,7 @@ namespace xKorean
 		{
 			get
 			{
-				return DiscountType != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || Price > 0;
+				return DiscountType != "판매 중지" || GamePassPC != "" || GamePassConsole != "" || GamePassCloud != "" || Price > 0 || DiscountType.IndexOf("주말 무료") >= 0;
 			}
 		}
 	}
@@ -322,7 +322,25 @@ namespace xKorean
         }
     }
 
-	public class ServerData
+	public class FreeWeekendPeriod
+	{
+        [JsonProperty("startDate")]
+        public string StartDate
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("endDate")]
+        public string EndDate
+        {
+            get;
+            set;
+        }
+    }
+
+
+    public class ServerData
 	{
         [JsonProperty("games")]
         public List<Game> Games
@@ -338,5 +356,10 @@ namespace xKorean
 			set;
 		}
 
+		[JsonProperty("freeWeekendPeriod")]
+		public FreeWeekendPeriod FreeWeekendPeriod {
+			get;
+			set;
+		}
     }
 }

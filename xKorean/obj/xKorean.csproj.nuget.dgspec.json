@@ -34,6 +34,11 @@
           "uap10.0.18362": {
             "projectReferences": {}
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -41,15 +46,15 @@
           "dependencies": {
             "Microsoft.AppCenter.Analytics": {
               "target": "Package",
-              "version": "[5.0.2, )"
+              "version": "[5.0.5, )"
             },
             "Microsoft.AppCenter.Crashes": {
               "target": "Package",
-              "version": "[5.0.2, )"
+              "version": "[5.0.5, )"
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[7.0.9, )"
+              "version": "[8.0.7, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
@@ -73,7 +78,7 @@
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
-              "version": "[2.8.5, )"
+              "version": "[2.8.6, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using Windows.Graphics.Imaging;
 using Windows.Security.ExchangeActiveSyncProvisioning;
@@ -483,19 +485,31 @@ namespace xKorean
 			}
 			else if (Bundle.Count >= 1)
 			{
-				foreach (var bundle in Bundle)
+				if (game.Discount != "코어 주말 무료" && game.Discount != "주말 무료")
 				{
-					if (bundle.DiscountType.IndexOf("할인") >= 0)
+					foreach (var bundle in Bundle)
 					{
-						discount = "에디션 할인";
-						if (bundle.LowestPrice == bundle.Price)
-							DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
+						if (bundle.DiscountType.IndexOf("할인") >= 0)
+						{
+							discount = "에디션 할인";
+							if (bundle.LowestPrice == bundle.Price)
+								DiscountDisplayColor = new SolidColorBrush(Colors.Yellow);
+						}
+						else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
+							discount = "";
 					}
-					else if (discount == "판매 중지" && bundle.DiscountType != "판매 중지")
-						discount = "";
 				}
 
-				if (!game.IsAvailable && discount == "")
+				foreach (var bundle in Bundle)
+                {
+                    if (bundle.DiscountType == "코어 주말 무료" || bundle.DiscountType == "주말 무료")
+					{
+						discount = bundle.DiscountType;
+                        break;
+					}
+                }
+
+                if (!game.IsAvailable && discount == "")
 					discount = Bundle[0].DiscountType;
 			}
 

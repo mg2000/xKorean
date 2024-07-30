@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
+using System.ServiceModel.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -86,6 +87,9 @@ namespace xKorean
         private readonly char[] mKorChr = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
         private readonly string[] mKorStr = { "가", "까", "나", "다", "따", "라", "마", "바", "빠", "사", "싸", "아", "자", "짜", "차","카","타", "파", "하" };
         private readonly int[] mKorChrInt = { 44032, 44620, 45208, 45796, 46384, 46972, 47560, 48148, 48736, 49324, 49912, 50500, 51088, 51676, 52264, 52852, 53440, 54028, 54616, 55204 };
+
+		private string mFreeWeekendStartDate = "";
+		private string mFreeWeekendEndDate = "";
 
 		public MainPage()
 		{
@@ -162,19 +166,18 @@ namespace xKorean
 			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";					// 오타 버전. 삭제 예정
             mMessageTemplateMap["usermod"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
-            mMessageTemplateMap["windowsmod"] = "이 게임은 윈도우에서 한글 패치를 설치하셔야 한국어가 지원됩니다.";
+			mMessageTemplateMap["freeweekend1"] = "게임패스 코어/얼티밋 유저는 다음 시간까지 무료로 플레이할 수 있습니다: [name]";
+            mMessageTemplateMap["freeweekend2"] = "이 게임은 다음 시간까지 무료로 플레이할 수 있습니다: [name]";
 
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
 				TitleBlock.FontSize = 30;
 
 				mMessageTemplateMap["noRegion"] = "다음 지역으로 변경하신 후 스토어에서 구매하실 수 있습니다: [name]";
 				mMessageTemplateMap["dlregiononly"] = "다음 지역으로 변경하신 후 스토어에서 다운로드하셔야 한국어가 지원됩니다: [name]";
-				mMessageTemplateMap["360market"] = "360 마켓플레이스를 통해서만 구매하실 수 있습니다. 웹 브라우저를 이용해서 구매해 주십시오.";
 			}
 			else
 			{
-                mMessageTemplateMap["360market"] = "360 마켓플레이스를 통해서만 구매하실 수 있습니다.";
 				mMessageTemplateMap["dlregiononly"] = "다음 지역의 스토어에서 다운로드 받아야 한국어가 지원됩니다: [name]";
 			}
 
@@ -349,10 +352,10 @@ namespace xKorean
 #if DEBUG
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xkorean-33255dfcde3e.herokuapp.com/get_event_list"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
-				var str = response.Content.ReadAsStringAsync().GetResults();
+                var str = response.Content.ReadAsStringAsync().GetResults();
 
 				var eventIDList = JsonConvert.DeserializeObject<List<string>>(str);
 				mEventIDList.Clear();
@@ -380,7 +383,7 @@ namespace xKorean
 #if DEBUG
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xkorean-33255dfcde3e.herokuapp.com/last_modified_time"), new HttpStringContent("{}", Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
@@ -508,7 +511,7 @@ namespace xKorean
 #if DEBUG
 				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("http://127.0.0.1:8080/title_list_ex_zip"));
 #else
-				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xKorean.info/title_list_ex_zip"));
+				var request = new HttpRequestMessage(HttpMethod.Post, new Uri("https://xkorean-33255dfcde3e.herokuapp.com/title_list_ex_zip"));
 #endif
 
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -609,14 +612,17 @@ namespace xKorean
 			var serverData = JsonConvert.DeserializeObject<ServerData>(jsonString);
             var games = serverData.Games.OrderBy(g => g.ID).ToList();
 
-			foreach (var exchangeRate in serverData.ExchangeRates)
+            mFreeWeekendStartDate = serverData.FreeWeekendPeriod.StartDate;
+            mFreeWeekendEndDate = serverData.FreeWeekendPeriod.EndDate;
+
+            foreach (var exchangeRate in serverData.ExchangeRates)
 			{
 				mExchangeRateMap[exchangeRate.Country] = exchangeRate.Rate;
 			}
 
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") {
 				for (var i = 0; i < games.Count; i++) {
-					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O" || games[i].Message.ToLower().IndexOf("windowsmod") >= 0)
+					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O")
 					{
 						games.RemoveAt(i);
 						i--;    
@@ -732,7 +738,7 @@ namespace xKorean
 #if DEBUG
 				var response = await httpClient.PostAsync(new Uri("http://127.0.0.1:8080/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #else
-				var response = await httpClient.PostAsync(new Uri("https://xKorean.info/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
+				var response = await httpClient.PostAsync(new Uri("https://xkorean-33255dfcde3e.herokuapp.com/request_event_code"), new HttpStringContent(JsonConvert.SerializeObject(requestParam), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json"));
 #endif
 
                 var str = response.Content.ReadAsStringAsync().GetResults();
@@ -1267,7 +1273,8 @@ namespace xKorean
                 FPS120CheckBox.IsChecked == true ||
                 FPSBoostCheckBox.IsChecked == true ||
                 F2PCheckBox.IsChecked == true ||
-                AvailableOnlyCheckBox.IsChecked == true)
+                AvailableOnlyCheckBox.IsChecked == true ||
+                FreeWeekendCheckBox.IsChecked == true)
             {
                 if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
@@ -1457,11 +1464,36 @@ namespace xKorean
 					FPSBoostCheckBox != null && (bool)FPSBoostCheckBox.IsChecked && gamesFilteredByDevices[i].FPSBoost == "" ||
 					F2PCheckBox != null && (bool)F2PCheckBox.IsChecked && !gamesFilteredByDevices[i].Discount.Contains("무료") ||
                     AvailableOnlyCheckBox != null && (bool)AvailableOnlyCheckBox.IsChecked && ((DateTime.Parse(gamesFilteredByDevices[i].ReleaseDate) > today && (gamesFilteredByDevices[i].GamePassComing == "O" || (gamesFilteredByDevices[i].GamePassPC != "O" && gamesFilteredByDevices[i].GamePassConsole != "O" && gamesFilteredByDevices[i].GamePassCloud != "O"))) || (gamesFilteredByDevices[i].Discount == "판매 중지" && gamesFilteredByDevices[i].GamePassPC != "O" && gamesFilteredByDevices[i].GamePassConsole != "O" && gamesFilteredByDevices[i].GamePassCloud != "O" && gamesFilteredByDevices[i].Bundle.Count == 0)))
-                    //AvailableOnlyCheckBox != null && (bool)AvailableOnlyCheckBox.IsChecked && (gamesFilteredByDevices[i].Discount != "판매 중지" || gamesFilteredByDevices[i].Bundle.Count > 0))
                 {
                     gamesFilteredByDevices.RemoveAt(i);
 					i--;
 					continue;
+				}
+
+                if (FreeWeekendCheckBox != null && (bool)FreeWeekendCheckBox.IsChecked)
+				{
+					var freeWeekend = false;
+					if (gamesFilteredByDevices[i].Discount == "코어 주말 무료" || gamesFilteredByDevices[i].Discount == "주말 무료")
+						freeWeekend = true;
+
+					if (!freeWeekend && gamesFilteredByDevices[i].Bundle.Count > 0)
+					{
+						foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+						{
+                            if (bundle.DiscountType == "코어 주말 무료" || bundle.DiscountType == "주말 무료")
+							{
+								freeWeekend = true;
+                                break;
+                            }
+						}
+					}
+
+					if (!freeWeekend)
+					{
+                        gamesFilteredByDevices.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
 				}
 
                 if (FamilyKidsCheckBox.IsChecked == true ||
@@ -1591,8 +1623,7 @@ namespace xKorean
 						(CategoryOGCheckBox.IsChecked == true && game.OG == "O") ||
 						(CategoryWindowsCheckBox.IsChecked == true && game.PC == "O"))
 					{
-						if (CategoryWindowsCheckBox.IsChecked == true || game.Message.ToLower().IndexOf("windowsmod") == -1)
-							selectGamesList.Add(game);
+						selectGamesList.Add(game);
 					}
 					else if (CategoryCloudCheckBox.IsChecked == true)
 					{
@@ -1640,7 +1671,6 @@ namespace xKorean
 			var tipBuilder = new StringBuilder();
 
 			GotoStoreButton.Tag = game;
-			Goto360Market.Visibility = Visibility.Collapsed;
 
 			var messageArr = game.Message.Split("\n");
 
@@ -1663,18 +1693,13 @@ namespace xKorean
 				var code = parsePart[0].Trim().ToLower();
 				if (mMessageTemplateMap.ContainsKey(code))
 				{
-					var message = mMessageTemplateMap[code];
+					var message = "";
+
 					if (parsePart.Length > 1)
 					{
 						var strValue = "";
 						switch (code)
 						{
-							case "360market":
-								if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Desktop") {
-									Goto360Market.Tag = parsePart[1];
-									Goto360Market.Visibility = Visibility;
-								}
-								break;
 							case "dlregiononly":
 								if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower())
 									strValue = ConvertCodeToStr(parsePart[1]);
@@ -1684,10 +1709,13 @@ namespace xKorean
 								break;
 						}
 
-						message = message.Replace("[name]", strValue);
+						if (strValue != "")
+							message = mMessageTemplateMap[code].Replace("[name]", strValue);
 					}
+					else
+						message = mMessageTemplateMap[code];
 
-					if ((code == "dlregiononly" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower()) || code != "dlregiononly")
+                    if ((code == "dlregiononly" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower() != parsePart[1].ToLower()) || code != "dlregiononly")
 						tipBuilder.Append(message);
 				}
 				else if (code != "")
@@ -1697,7 +1725,57 @@ namespace xKorean
 					tipBuilder.Append("\r\n");
 			}
 
-			if (tipBuilder.Length > 0)
+			var hasCoreFreeWeekend = false;
+			if (game.Discount == "코어 주말 무료")
+				hasCoreFreeWeekend = true;
+			if (!hasCoreFreeWeekend && game.Bundle.Count > 0)
+			{
+				foreach (var bundle in game.Bundle)
+				{
+					if (bundle.DiscountType == "코어 주말 무료")
+					{
+						hasCoreFreeWeekend = true;
+						break;
+					}
+				}
+			}
+
+            if (hasCoreFreeWeekend && mFreeWeekendStartDate != "" && mFreeWeekendEndDate != "")
+            {
+                var startDate = DateTime.Parse(mFreeWeekendStartDate);
+                var endDate = DateTime.Parse(mFreeWeekendEndDate);
+
+                if (tipBuilder.Length > 0)
+                    tipBuilder.Append("\r\n");
+                tipBuilder.Append(mMessageTemplateMap["freeweekend1"].Replace("[name]", $"{startDate.ToString("yyyy.MM.dd HH:mm")} ~ {endDate.ToString("yyyy.MM.dd HH:mm")}"));
+            }
+
+            var hasFreeWeekend = false;
+            if (game.Discount == "주말 무료")
+                hasFreeWeekend = true;
+            if (!hasFreeWeekend && game.Bundle.Count > 0)
+            {
+                foreach (var bundle in game.Bundle)
+                {
+                    if (bundle.DiscountType == "주말 무료")
+                    {
+                        hasFreeWeekend = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasFreeWeekend && mFreeWeekendStartDate != "" && mFreeWeekendEndDate != "")
+			{
+				var startDate = DateTime.Parse(mFreeWeekendStartDate);
+				var endDate = DateTime.Parse(mFreeWeekendEndDate);
+				
+				if (tipBuilder.Length > 0)
+                    tipBuilder.Append("\r\n");
+				tipBuilder.Append(mMessageTemplateMap["freeweekend2"].Replace("[name]", $"{startDate.ToString("yyyy.MM.dd HH:mm")} ~ {endDate.ToString("yyyy.MM.dd HH:mm")}"));
+            }
+
+            if (tipBuilder.Length > 0)
 			{
 				InfoBlock.Inlines.Clear();
 				InfoBlock.Inlines.Add(new Run() { Text = tipBuilder.ToString().Trim(), FontWeight = FontWeights.Bold });
@@ -1724,31 +1802,6 @@ namespace xKorean
 				else
 				{
 					await GoToStore(game.LanguageCode, game.Bundle[0].ID);
-				}
-			}
-		}
-
-
-		private async Task OpenLink(Game game, LinkType linkType) {
-			var messageArr = game.Message.Split("\n");
-
-			for (var i = 0; i < messageArr.Length; i++)
-			{
-				if (messageArr[i].IndexOf("=") == -1)
-					continue;
-
-				var parsePart = messageArr[i].Split("=");
-				var code = parsePart[0].Trim().ToLower();
-				switch (code)
-				{
-					case "360market":
-						if (linkType == LinkType.Market360)
-						{
-							await Launcher.LaunchUriAsync(new Uri(parsePart[1]));
-							return;
-						}
-						else
-							break;
 				}
 			}
 		}
@@ -2108,15 +2161,6 @@ namespace xKorean
 
 			var gotoStoreButton = sender as Button;
 			await CheckEditionPanel(gotoStoreButton.Tag as Game);
-		}
-
-		private async void Goto360Market_Click(object sender, RoutedEventArgs e)
-		{
-			InfoPanelView.Visibility = Visibility.Collapsed;
-			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
-
-			var goto360market = sender as Button;
-			await Launcher.LaunchUriAsync(new Uri(goto360market.Tag as string));
 		}
 
 		private void CloseInfoPanel_Click(object sender, RoutedEventArgs e)

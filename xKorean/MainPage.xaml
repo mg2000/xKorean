@@ -130,6 +130,7 @@
                                     <CheckBox x:Name="FPSBoostCheckBox" Content="프레임 부스트" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="F2PCheckBox" Content="무료(F2P)" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
                                     <CheckBox x:Name="AvailableOnlyCheckBox" Content="이용 가능 게임만" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
+                                    <CheckBox x:Name="FreeWeekendCheckBox" Content="주말 무료" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click"></CheckBox>
 								</StackPanel>
 							</Flyout>
 						</AppBarButton.Flyout>
@@ -354,7 +355,6 @@
 				<TextBlock x:Name="InfoBlock" Margin="10" TextWrapping="WrapWholeWords">
 				</TextBlock>
 				<Button x:Name="GotoStoreButton" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="GotoStoreButton_Click">스토어로 이동</Button>
-				<Button x:Name="Goto360Market" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="Goto360Market_Click">360 마켓플레이스로 이동</Button>
 				<Button x:Name="CloseInfoPanel" Margin="10, 0, 0, 10" HorizontalAlignment="Stretch" Click="CloseInfoPanel_Click">돌아가기</Button>
 			</StackPanel>
 		</Grid>

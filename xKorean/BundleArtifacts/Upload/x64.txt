@@ -1,2 +1,2 @@
-MainPackage=D:\xKorean\xKorean\bin\x64\Release\Upload\xKorean_4.4.118.0_x64.msix
-SymbolPackage=D:\xKorean\xKorean\bin\x64\Release\Upload\xKorean_4.4.118.0\xKorean_4.4.118.0_x64.appxsym
+MainPackage=D:\xKorean\xKorean\bin\x64\Release\Upload\xKorean_5.1.131.0_x64.msix
+SymbolPackage=D:\xKorean\xKorean\bin\x64\Release\Upload\xKorean_5.1.131.0\xKorean_5.1.131.0_x64.appxsym

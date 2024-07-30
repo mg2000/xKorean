@@ -373,5 +373,5 @@
     <MainPackageIdentityName>3765mg2000.373091EA81A4F</MainPackageIdentityName>
     <MainPackageIdentityName>3765mg2000.3996313D9300</MainPackageIdentityName>
   </AccountPackageIdentityNames>
-  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9P6ZT4WKCCCH" />
+  <PackageInfoList LandingUrl="https://devcenterapi.dce.mp.microsoft.com/dashboard/Application?appId=9P6ZT4WKCCCH" />
 </StoreAssociation>
