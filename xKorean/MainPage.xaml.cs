@@ -1357,8 +1357,8 @@ namespace xKorean
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
             {
 				if (text.Trim() != "" &&
-					!Regex.IsMatch(gamesFilteredByDevices[i].KoreanName.ToLower().Replace(" ", ""), text) &&
-					!Regex.IsMatch(gamesFilteredByDevices[i].Name.ToLower().Replace(" ", ""), text))
+					!Regex.IsMatch(gamesFilteredByDevices[i].KoreanName.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text) &&
+					!Regex.IsMatch(gamesFilteredByDevices[i].Name.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text))
 				{
 					gamesFilteredByDevices.RemoveAt(i);
 					i--;
