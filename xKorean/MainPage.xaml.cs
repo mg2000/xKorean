@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -12,13 +11,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
-using System.ServiceModel.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -34,7 +30,6 @@ using Windows.UI.Popups;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -90,6 +85,8 @@ namespace xKorean
 
 		private string mFreeWeekendStartDate = "";
 		private string mFreeWeekendEndDate = "";
+
+		private List<CheckBox> mPublisherCheckBoxList = new List<CheckBox>();
 
 		public MainPage()
 		{
@@ -620,17 +617,45 @@ namespace xKorean
 				mExchangeRateMap[exchangeRate.Country] = exchangeRate.Rate;
 			}
 
-			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") {
-				for (var i = 0; i < games.Count; i++) {
+			mPublisherCheckBoxList.ForEach(item => PublisherPanel.Children.Remove(item));
+			mPublisherCheckBoxList.Clear();
+			var publisherCountMap = new Dictionary<string, int>();
+
+			for (var i = 0; i < games.Count; i++) {
+				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+				{
 					if (games[i].OG != "O" && games[i].X360 != "O" && games[i].OneS != "O" && games[i].SeriesXS != "O" && games[i].PC == "O")
 					{
 						games.RemoveAt(i);
-						i--;    
+						i--;
+						continue;
+					}
+				}
+
+				if (!publisherCountMap.ContainsKey(games[i].PublisherName.ToLower()))
+					publisherCountMap.Add(games[i].PublisherName.ToLower(), 1);
+				else
+				{
+					publisherCountMap[games[i].PublisherName.ToLower()]++;
+
+					if (publisherCountMap[games[i].PublisherName.ToLower()] >= 7 && !mPublisherCheckBoxList.Exists(item => item.Content.ToString().ToLower() == games[i].PublisherName.ToLower()))
+					{
+						var publisherCheckBox = new CheckBox();
+						publisherCheckBox.Content = games[i].PublisherName;
+						publisherCheckBox.Click += CategoryCheckBox_Click;
+						mPublisherCheckBoxList.Add(publisherCheckBox);
 					}
 				}
 			}
 
-            mNewGames.Clear();
+			mPublisherCheckBoxList.Sort((a, b) => { return a.Content.ToString().CompareTo(b.Content.ToString()); });
+			mPublisherCheckBoxList.ForEach(item =>
+			{
+				PublisherPanel.Children.Add(item);
+			});
+
+
+			mNewGames.Clear();
             if (mExistGames.Count > 0)
 			{
 				foreach (Game game in games)
@@ -689,7 +714,7 @@ namespace xKorean
 		UIElement animatingElement;
 		private async void GamesView_ItemClick(object sender, ItemClickEventArgs e)
 		{
-			var gridView = sender as AdaptiveGridView;
+			var gridView = sender as GridView;
 			
 			if (e.ClickedItem != null)
 			{
@@ -840,14 +865,17 @@ namespace xKorean
 			}
 		}
 
-		private async Task GoToStore(string language, string id)
+		private async Task GoToStore(string language, string id, bool onlyPC)
 		{
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox") // || language.ToLower().IndexOf(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToLower()) >= 0)
 				await Launcher.LaunchUriAsync(new Uri($"ms-windows-store://pdp/?productId={id}"));
 			else
 			{
-				//await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/{language}/games/store/xkorean/{id}"));
-				await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{language}/p/xkorean/{id}"));
+				if (onlyPC)
+					await Launcher.LaunchUriAsync(new Uri($"https://www.microsoft.com/{language}/p/xkorean/{id}"));
+				else
+					await Launcher.LaunchUriAsync(new Uri($"https://www.xbox.com/{language}/games/store/xkorean/{id}"));
+				
 				//await Launcher.LaunchUriAsync(new Uri($"msxbox://game/?productId={id}"));
 			}
 		}
@@ -938,29 +966,29 @@ namespace xKorean
 				return "";
 		}
 
-		protected override void OnNavigatedTo(NavigationEventArgs e)
-		{
-			base.OnNavigatedTo(e);
+		//protected override void OnNavigatedTo(NavigationEventArgs e)
+		//{
+		//	base.OnNavigatedTo(e);
 
-			switch (AnalyticsInfo.VersionInfo.DeviceFamily)
-			{
-				case "Windows.Xbox":
-					GamesView.DesiredWidth = 160;
-					GamesView.ItemHeight = 240;
-					break;
-			}
+		//	switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+		//	{
+		//		case "Windows.Xbox":
+		//			//GamesView.DesiredWidth = 160;
+		//			//GamesView.ItemHeight = 240;
+		//			break;
+		//	}
 
 
-			if (animatingElement != null)
-			{
-				var anim = ConnectedAnimationService.GetForCurrentView().GetAnimation("BackwardConnectedAnimation");
-				if (anim != null)
-				{
-					anim.TryStart(animatingElement);
-				}
-				animatingElement = null;
-			}
-		}
+		//	if (animatingElement != null)
+		//	{
+		//		var anim = ConnectedAnimationService.GetForCurrentView().GetAnimation("BackwardConnectedAnimation");
+		//		if (anim != null)
+		//		{
+		//			anim.TryStart(animatingElement);
+		//		}
+		//		animatingElement = null;
+		//	}
+		//}
 
 		private async void AboutButton_ClickAsync(object sender, RoutedEventArgs e)
 		{
@@ -1336,7 +1364,22 @@ namespace xKorean
                     KoreanSupportButton.Foreground = new SolidColorBrush(Colors.Black);
             }
 
-            if (AgeType15RadioButton.IsChecked == true || AgeType12RadioButton.IsChecked == true || AgeTypeChildRadioButton.IsChecked == true)
+			if (mPublisherCheckBoxList.Exists(item => item.IsChecked == true))
+			{
+				if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+					PublisherFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
+				else
+					PublisherFilterButton.Foreground = new SolidColorBrush(Colors.Red);
+			}
+			else
+			{
+				if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+					PublisherFilterButton.Foreground = new SolidColorBrush(Colors.White);
+				else
+					PublisherFilterButton.Foreground = new SolidColorBrush(Colors.Black);
+			}
+
+			if (AgeType15RadioButton.IsChecked == true || AgeType12RadioButton.IsChecked == true || AgeTypeChildRadioButton.IsChecked == true)
             {
                 if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     AgeRangetButton.Foreground = new SolidColorBrush(Colors.Yellow);
@@ -1530,7 +1573,7 @@ namespace xKorean
 							(ActionAdventureCheckBox.IsChecked == true && category == "action & adventure") ||
 							(MusicCheckBox.IsChecked == true && category == "music") ||
 							(StrategyCheckBox.IsChecked == true && category == "strategy") ||
-							(CardBoardCheckBox.IsChecked == true && category == "card + board") ||
+							(CardBoardCheckBox.IsChecked == true && category == "card & board") ||
 							(ClassicsCheckBox.IsChecked == true && category == "classics") ||
 							(PuzzleTriviaCheckBox.IsChecked == true && category == "puzzle & trivia") ||
 							(PlatformerCheckBox.IsChecked == true && category == "platformer") ||
@@ -1544,6 +1587,24 @@ namespace xKorean
 
 					if (!hasCateogry)
                     {
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+				}
+
+				if (mPublisherCheckBoxList.Exists(item => item.IsChecked == true)) {
+					var hasPublisher = false;
+
+					foreach (var publisherName in mPublisherCheckBoxList.FindAll(item => item.IsChecked == true)) {
+						if (publisherName.Content.ToString().ToLower() == gamesFilteredByDevices[i].PublisherName.ToLower()) {
+							hasPublisher = true;
+							break;
+						}
+					}
+
+					if (!hasPublisher)
+					{
 						gamesFilteredByDevices.RemoveAt(i);
 						i--;
 						continue;
@@ -1655,12 +1716,13 @@ namespace xKorean
 			switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 			{
 				case "Windows.Xbox":
-					GamesView.ItemHeight = 190;
+					//GamesView.ItemsPanelRoot
+					//GamesView.ItemHeight = 190;
 					GamesView.Padding = new Thickness(0, 0, 0, 0);
 					GamesView.Margin = new Thickness(0, 5, 0, 0);
 					break;
 				default:
-					GamesView.ItemHeight = 239;
+	//				GamesView.ItemHeight = 239;
 					GamesView.Padding = new Thickness(0, 0, 0, 0);
 					GamesView.Margin = new Thickness(0, 10, 0, 0);
 					break;
@@ -1794,14 +1856,14 @@ namespace xKorean
 
 		private async Task CheckEditionPanel(Game game) {
 			if (game.Bundle.Count == 0)
-				await GoToStore(game.LanguageCode, game.ID);
+				await GoToStore(game.LanguageCode, game.ID, game.OG != "O" && game.X360 != "O" && game.OneS != "O" && game.OneXEnhanced != "O" && game.SeriesXS != "O");
 			else
 			{
 				if (game.IsAvailable || game.Bundle.Count > 1)
 					ShowEditionPanel(game);
 				else
 				{
-					await GoToStore(game.LanguageCode, game.Bundle[0].ID);
+					await GoToStore(game.LanguageCode, game.Bundle[0].ID, game.Bundle[0].OneS != "O" && game.Bundle[0].SeriesXS != "O");
 				}
 			}
 		}
@@ -2116,7 +2178,7 @@ namespace xKorean
 			{
 				var bundle = e.ClickedItem as EditionViewModel;
 
-				await GoToStore(mEditionLanguage, bundle.ID);
+				await GoToStore(mEditionLanguage, bundle.ID, bundle.OneS != "O" && bundle.SeriesXS != "O");
 			}
 		}
 
@@ -2344,6 +2406,20 @@ namespace xKorean
 				CasinoCheckBox.IsChecked = false;
 				OtherCheckBox.IsChecked = false;
 
+				CategoryCheckBox_Click(sender, e);
+			}
+		}
+
+		private void ResetPublisherFilter_Click(object sender, RoutedEventArgs e)
+		{
+			if (mPublisherCheckBoxList.Exists(item => item.IsChecked == true))
+			{
+				mPublisherCheckBoxList.ForEach(item =>
+				{
+					if (item.IsChecked == true)
+						item.IsChecked = false;
+				});
+				
 				CategoryCheckBox_Click(sender, e);
 			}
 		}

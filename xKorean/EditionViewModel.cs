@@ -169,7 +169,7 @@ namespace xKorean
 				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
 					case "Windows.Xbox":
-						return 130;
+						return 129;
 					default:
 						return 160;
 				}
@@ -183,7 +183,7 @@ namespace xKorean
 				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
 					case "Windows.Xbox":
-						return 130;
+						return 129;
 					default:
 						return 160;
 				}
@@ -247,12 +247,12 @@ namespace xKorean
 		}
 
 		public string SeriesXS {
-			private get;
+			get;
 			set;
 		}
 
 		public string OneS {
-			private get;
+			get;
 			set;
 		}
 

@@ -419,7 +419,7 @@ namespace xKorean
 				switch (AnalyticsInfo.VersionInfo.DeviceFamily)
 				{
 					case "Windows.Xbox":
-						return 130;
+						return 129;
 					default:
 						return 160;
 				}

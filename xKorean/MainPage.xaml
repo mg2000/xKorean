@@ -6,8 +6,8 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-	xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+	xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+	xmlns:animations="using:CommunityToolkit.WinUI.Animations"
 	mc:Ignorable="d"
 	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown">
 	<Page.Resources>
@@ -165,6 +165,36 @@
 							</Flyout>
 						</AppBarButton.Flyout>
 					</AppBarButton>
+					<AppBarButton x:Name="PublisherFilterButton" Label="배급사">
+						<AppBarButton.Icon>
+							<SymbolIcon Symbol="Filter"/>
+						</AppBarButton.Icon>
+						<AppBarButton.Flyout>
+							<Flyout>
+								<StackPanel Orientation="Vertical" x:Name="PublisherPanel">
+									<Button x:Name="ResetPublisherFilter" Content="조건 초기화" Click="ResetPublisherFilter_Click" HorizontalAlignment="Stretch"/>
+									<!--<CheckBox x:Name="FamilyKidsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">가족 &amp; 아이들</CheckBox>
+									<CheckBox x:Name="FightingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">격투</CheckBox>
+									<CheckBox x:Name="EducationalCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">교육</CheckBox>
+									<CheckBox x:Name="RacingFlyingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">레이싱 &amp; 비행</CheckBox>
+									<CheckBox x:Name="RolePlayingCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">롤 플레잉</CheckBox>
+									<CheckBox x:Name="MultiplayCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">멀티플레이 온라인 배틀 아레나</CheckBox>
+									<CheckBox x:Name="ShooterCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">슈터</CheckBox>
+									<CheckBox x:Name="SportsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">스포츠</CheckBox>
+									<CheckBox x:Name="SimulationCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">시뮬레이션</CheckBox>
+									<CheckBox x:Name="ActionAdventureCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">액션 &amp; 어드벤처</CheckBox>
+									<CheckBox x:Name="MusicCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">음악</CheckBox>
+									<CheckBox x:Name="StrategyCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">전략</CheckBox>
+									<CheckBox x:Name="CardBoardCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">카드 + 보드</CheckBox>
+									<CheckBox x:Name="ClassicsCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">클래식</CheckBox>
+									<CheckBox x:Name="PuzzleTriviaCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">퍼즐 &amp; 상식</CheckBox>
+									<CheckBox x:Name="PlatformerCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">플랫포머</CheckBox>
+									<CheckBox x:Name="CasinoCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">도박</CheckBox>
+									<CheckBox x:Name="OtherCheckBox" IsChecked="{Binding IsChecked, Mode=TwoWay}" Click="CategoryCheckBox_Click">기타</CheckBox>-->
+								</StackPanel>
+							</Flyout>
+						</AppBarButton.Flyout>
+					</AppBarButton>
 					<AppBarButton x:Name="KoreanSupportButton" Label="한국어 범위">
 						<AppBarButton.Icon>
 							<SymbolIcon Symbol="Filter"/>
@@ -230,9 +260,9 @@
 					<ProgressBar x:Name="ProgressReady" IsIndeterminate="True" FlowDirection="LeftToRight"></ProgressBar>
 					<ProgressBar x:Name="ProgressDownload" IsIndeterminate="False" Visibility="Collapsed"></ProgressBar>
 				</StackPanel>
-				<controls:AdaptiveGridView Name="GamesView" ItemsSource="{x:Bind GamesViewModel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+				<GridView Name="GamesView" ItemsSource="{x:Bind GamesViewModel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
 								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="GamesView_ItemClick" CacheMode="BitmapCache" KeyDown="GamesView_KeyDown">
-					<controls:AdaptiveGridView.ItemTemplate>
+					<GridView.ItemTemplate>
 						<DataTemplate x:DataType="local:Game">
 							<Grid Margin="10" MaxWidth="{Binding MaxWidth}" Background="Black" PointerPressed="Grid_PointerPressed">
 								<muxc:ProgressRing HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="30" Visibility="{Binding IsImageLoaded}" IsActive="True"></muxc:ProgressRing>
@@ -313,8 +343,8 @@
 								</Grid>
 							</Grid>
 						</DataTemplate>
-					</controls:AdaptiveGridView.ItemTemplate>
-					<controls:AdaptiveGridView.ContextFlyout>
+					</GridView.ItemTemplate>
+					<GridView.ContextFlyout>
 						<MenuFlyout>
 							<MenuFlyoutItem x:Name="MenuPackages" Text="한국어 패키지 확인" Click="MenuPackages_Click" />
 							<MenuFlyoutItem x:Name="MenuCheckPrice" Text="가격 정보" Click="MenuCheckPrice_Click" />
@@ -323,31 +353,47 @@
                             <MenuFlyoutItem x:Name="MenuGamePassPeriod" Text="게임패스 등록 기간" Click="MenuGamePassPeriod_Click"/>
                             <MenuFlyoutItem x:Name="MenuErrorReport" Text="정보 오류 신고" Click="MenuErrorReport_Click" />
 						</MenuFlyout>
-					</controls:AdaptiveGridView.ContextFlyout>
-				</controls:AdaptiveGridView>
+					</GridView.ContextFlyout>
+				</GridView>
 			</Grid>
 		</Grid>
 		<Grid x:Name="EditionPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
-			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">
-				<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">에디션 선택</TextBlock>
-				<GridView Name="EditionView" ItemsSource="{x:Bind mEditionViewModel}" ItemTemplate="{StaticResource BundleTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-									   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache" KeyDown="EditionView_KeyDown">
-					<GridView.ItemsPanel>
-						<ItemsPanelTemplate>
-							<ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="5" Orientation="Horizontal"/>
-						</ItemsPanelTemplate>
-					</GridView.ItemsPanel>
+			<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"></RowDefinition>
+					<RowDefinition Height="*"></RowDefinition>
+					<RowDefinition Height="Auto"></RowDefinition>
+				</Grid.RowDefinitions>
+				<Grid Grid.Row="0">
+					<TextBlock FontSize="30" Margin="10" HorizontalAlignment="Center">에디션 선택</TextBlock>
+				</Grid>
+				<Grid Grid.Row="1" Padding="10, 0, 0, 0">
+					<GridView Name="EditionView" ItemsSource="{x:Bind mEditionViewModel}" ItemTemplate="{StaticResource BundleTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+								   animations:ItemsReorderAnimation.Duration="0:0:0.3" IsItemClickEnabled="True" ItemClick="EditionView_ItemClick" CacheMode="BitmapCache" KeyDown="EditionView_KeyDown">
+						<GridView.ItemsPanel>
+							<ItemsPanelTemplate>
+								<ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="5" Orientation="Horizontal"/>
+							</ItemsPanelTemplate>
+						</GridView.ItemsPanel>
 
-					<GridView.ContextFlyout>
-						<MenuFlyout>
-							<MenuFlyoutItem x:Name="MenuBundleCheckPrice" Text="가격 정보" Click="MenuBundleCheckPrice_Click" />
-							<MenuFlyoutItem x:Name="MenuBundleImmigration" Text="이민갈까요?" Click="MenuBundleImmigration_Click" />
-						</MenuFlyout>
-					</GridView.ContextFlyout>
+						<GridView.ContextFlyout>
+							<MenuFlyout>
+								<MenuFlyoutItem x:Name="MenuBundleCheckPrice" Text="가격 정보" Click="MenuBundleCheckPrice_Click" />
+								<MenuFlyoutItem x:Name="MenuBundleImmigration" Text="이민갈까요?" Click="MenuBundleImmigration_Click" />
+							</MenuFlyout>
+						</GridView.ContextFlyout>
 
-				</GridView>
-				<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
-			</StackPanel>
+					</GridView>
+				</Grid>
+				<Grid Grid.Row="2">
+					<Button x:Name="CloseEditionView" Margin="10" HorizontalAlignment="Stretch" Click="CloseEditionView_Click">닫기</Button>
+				</Grid>
+			</Grid>
+			<!--<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"  Padding="20">
+				
+				
+				
+			</StackPanel>-->
 		</Grid>
 		<Grid x:Name="InfoPanelView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Visibility="Collapsed">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="20">

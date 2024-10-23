@@ -18,6 +18,9 @@ namespace xKorean
 		[JsonProperty("koreanName")]
 		public string KoreanName { set; get; } = string.Empty;
 
+		[JsonProperty("publisherName")]
+		public string PublisherName { set; get; } = string.Empty;
+
 		[JsonProperty("localize")]
 		public string Localize { set; get; } = string.Empty;
 
