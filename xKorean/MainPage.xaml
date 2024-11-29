@@ -252,7 +252,7 @@
 					<AppBarButton x:Name="AboutButton" Icon="Account" Label="정보" Click="AboutButton_ClickAsync"></AppBarButton>
                     <AppBarButton x:Name="DonationButton" Icon="Like" Label="후원" Click="DonationButton_Click"></AppBarButton>
 				</CommandBar>
-				<TextBox Grid.Column="1" x:Name="SearchBox"  Margin="10" HorizontalAlignment="Right" Width="150" GotFocus="SearchBox_GotFocus" KeyUp="SearchBox_KeyUp"></TextBox>
+				<TextBox Grid.Column="1" x:Name="SearchBox"  Margin="10" HorizontalAlignment="Right" Width="Auto" MinWidth="100" GotFocus="SearchBox_GotFocus" KeyUp="SearchBox_KeyUp"></TextBox>
 			</Grid>
 			<Grid Grid.Row="2" Margin="20,0,20,20">
 				<StackPanel x:Name="LoadingPanel" HorizontalAlignment="Center" VerticalAlignment="Center">

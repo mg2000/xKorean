@@ -619,7 +619,10 @@ namespace xKorean
 
 			mPublisherCheckBoxList.ForEach(item => PublisherPanel.Children.Remove(item));
 			mPublisherCheckBoxList.Clear();
-			var publisherCountMap = new Dictionary<string, int>();
+
+			
+
+			var publisherCountList = new List<PublisherCount>();
 
 			for (var i = 0; i < games.Count; i++) {
 				if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
@@ -632,21 +635,40 @@ namespace xKorean
 					}
 				}
 
-				if (!publisherCountMap.ContainsKey(games[i].PublisherName.ToLower()))
-					publisherCountMap.Add(games[i].PublisherName.ToLower(), 1);
-				else
-				{
-					publisherCountMap[games[i].PublisherName.ToLower()]++;
+				var existPublisher = false;
+				foreach (var publisherCount in publisherCountList) {
+					if (publisherCount.Name.ToLower().Contains(games[i].PublisherName.ToLower()) || games[i].PublisherName.ToLower().Contains(publisherCount.Name.ToLower())) {
+						if (games[i].PublisherName.Length < publisherCount.Name.Length)
+							publisherCount.Name = games[i].PublisherName;
+						publisherCount.Count++;
 
-					if (publisherCountMap[games[i].PublisherName.ToLower()] >= 7 && !mPublisherCheckBoxList.Exists(item => item.Content.ToString().ToLower() == games[i].PublisherName.ToLower()))
-					{
-						var publisherCheckBox = new CheckBox();
-						publisherCheckBox.Content = games[i].PublisherName;
-						publisherCheckBox.Click += CategoryCheckBox_Click;
-						mPublisherCheckBoxList.Add(publisherCheckBox);
+						existPublisher = true;
+						break;
 					}
 				}
+
+				if (!existPublisher) {
+					publisherCountList.Add(new PublisherCount()
+					{
+						Name = games[i].PublisherName,
+						Count = 1
+					});
+				}
 			}
+
+			foreach (var publisher in publisherCountList) {
+				Debug.WriteLine($"배급사: {publisher.Name} {publisher.Count}");
+			}
+
+			publisherCountList.FindAll(item => item.Count >= 7).ForEach(item =>
+			{
+				var publisherCheckBox = new CheckBox
+				{
+					Content = item.Name
+				};
+				publisherCheckBox.Click += CategoryCheckBox_Click;
+				mPublisherCheckBoxList.Add(publisherCheckBox);
+			});
 
 			mPublisherCheckBoxList.Sort((a, b) => { return a.Content.ToString().CompareTo(b.Content.ToString()); });
 			mPublisherCheckBoxList.ForEach(item =>
@@ -1597,7 +1619,7 @@ namespace xKorean
 					var hasPublisher = false;
 
 					foreach (var publisherName in mPublisherCheckBoxList.FindAll(item => item.IsChecked == true)) {
-						if (publisherName.Content.ToString().ToLower() == gamesFilteredByDevices[i].PublisherName.ToLower()) {
+						if (gamesFilteredByDevices[i].PublisherName.ToLower().Contains(publisherName.Content.ToString().ToLower())) {
 							hasPublisher = true;
 							break;
 						}
@@ -2679,5 +2701,20 @@ namespace xKorean
                 mDialogQueue.Take();
             }
         }
-    }
+
+		private class PublisherCount
+		{
+			public string Name
+			{
+				get;
+				set;
+			}
+
+			public int Count
+			{
+				get;
+				set;
+			}
+		}
+	}
 }
