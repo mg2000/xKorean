@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AppCenter.Channel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -68,24 +69,64 @@ namespace xKorean
 				{
 					if (thumbnailCacheInfo.Length == 0)
 					{
-						LoadImage();
+                        LoadImage();
 						return "ms-appx:///Assets/blank.png";
 					}
 					else
 					{
 						IsThumbnailCached = true;
-						return thumbnailCacheInfo.FullName;
+						IsImageLoaded = Visibility.Collapsed;
+                        return thumbnailCacheInfo.FullName;
 					}
 				}
 				else
 				{
-					LoadImage();
+                    LoadImage();
                     return "ms-appx:///Assets/blank.png";
                 }
 			}
 		}
 
-		public string Localize { set; get; } = "";
+        public bool ThumbnailLoaded
+        {
+            get
+            {
+                var fileName = $"{Game.ID}_{Game.ThumbnailID}";
+                if (Game.PlayAnywhere == "O")
+                {
+                    if (Game.SeriesXS == "O")
+                        fileName += "_playanywhere_xs";
+                    else if (Game.OneS == "O")
+                        fileName += "_playanywhere_os";
+                }
+                else if (Game.SeriesXS == "O")
+                    fileName += "_xs";
+                else if (Game.OneS == "O")
+                    fileName += "_os";
+                else if (Game.PC == "O")
+                    fileName += "_pc";
+
+                FileInfo thumbnailCacheInfo = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\ThumbnailCache\\" + fileName + ".jpg");
+
+                if (thumbnailCacheInfo.Exists)
+                {
+                    if (thumbnailCacheInfo.Length == 0)
+                    {
+						return false;
+                    }
+                    else
+                    {
+						return true;
+                    }
+                }
+                else
+                {
+					return false;
+                }
+            }
+        }
+
+        public string Localize { set; get; } = "";
 		public string ID { set; get; }
 
 		public List<string> Screenshots { set; get; } = new List<string>();
@@ -459,8 +500,6 @@ namespace xKorean
                     });
 				}
             });
-			//if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.ThumbnailID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere))
-				//NotifyPropertyChanged("ThumbnailPath");
 		}
 
 		public double MaxWidth

@@ -1717,21 +1717,6 @@ namespace xKorean
 			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
 		}
 
-		private void PosterImage_ImageOpened(object sender, RoutedEventArgs e)
-		{
-			var image = sender as Image;
-
-			if (image != null && image.Tag != null)
-			{
-				var match = (from g in GamesViewModel where g.ID == image.Tag.ToString() select g).ToList();
-				if (match.Count != 0)
-				{
-                    if (match.First().ThumbnailPath.IndexOf("blank.png") == -1)
-						match.First().IsImageLoaded = Visibility.Collapsed;
-				}
-			}
-		}
-				
 		private async void OrderByNameAscendItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
@@ -2282,21 +2267,6 @@ namespace xKorean
 			EditionPanelView.Visibility = Visibility.Collapsed;
 			(GamesView.ContainerFromIndex(mSelectedIdx) as GridViewItem).Focus(FocusState.Programmatic);
 			
-		}
-
-		private void EditionPosterImage_ImageOpened(object sender, RoutedEventArgs e)
-		{
-			Image image = sender as Image;
-
-			if (image != null && image.Tag != null)
-			{
-				var match = (from g in mEditionViewModel where g.ID == image.Tag.ToString() select g).ToList();
-				if (match.Count != 0)
-				{
-                    if (match.First().ThumbnailPath.IndexOf("blank.png") == -1)
-                        match.First().IsImageLoaded = Visibility.Collapsed;
-				}
-			}
 		}
 
 		private enum LinkType

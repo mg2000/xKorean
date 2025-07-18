@@ -367,7 +367,8 @@ namespace xKorean
 					else
 					{
 						mThumbnailCached = true;
-						return thumbnailCacheInfo.FullName;
+                        IsImageLoaded = Visibility.Collapsed;
+                        return thumbnailCacheInfo.FullName;
 					}
 				}
 				else
