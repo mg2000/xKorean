@@ -11,6 +11,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System.Profile;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 
@@ -68,7 +69,7 @@ namespace xKorean
 					if (thumbnailCacheInfo.Length == 0)
 					{
 						LoadImage();
-						return "none";
+						return "ms-appx:///Assets/blank.png";
 					}
 					else
 					{
@@ -79,8 +80,8 @@ namespace xKorean
 				else
 				{
 					LoadImage();
-					return "none";
-				}
+                    return "ms-appx:///Assets/blank.png";
+                }
 			}
 		}
 
@@ -134,19 +135,19 @@ namespace xKorean
 			}
 		}
 
-		public string IsGamePassCloud
+		public string IsCloud
 		{
 			get
 			{
-				if (Game.GamePassCloud == "" && Bundle.Count > 0) {
+				if (Game.GamePassCloud == "" && Game.BuyAndCloud == "" && Bundle.Count > 0) {
 					foreach (var bundle in Bundle) {
-						if (bundle.GamePassCloud != "")
+						if (bundle.GamePassCloud != "" || bundle.BuyAndCloud != "")
 							return "클";
 					}
 
 					return "";
 				}
-				else if (Game.GamePassCloud == "O")
+				else if (Game.GamePassCloud == "O" || Game.BuyAndCloud != "")
 					return "클";
 				else
 					return "";
@@ -211,6 +212,32 @@ namespace xKorean
 			}
 		}
 
+		public bool IsGamePassOrBuyAndCloud
+		{
+			get
+			{
+				if (mShowGamepass)
+				{
+					if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "" && Game.BuyAndCloud == "")
+					{
+						foreach (var bundle in Bundle)
+						{
+							if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "" || bundle.BuyAndCloud != "")
+								return true;
+						}
+
+						return false;
+					}
+					else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O" || Game.BuyAndCloud == "O")
+						return true;
+					else
+						return false;
+				}
+				else
+					return false;
+			}
+		}
+
 		public bool IsGamePass
 		{
 			get
@@ -237,7 +264,7 @@ namespace xKorean
 			}
 		}
 
-		public string GamePass
+		public string GamePassOrBuyAndCloud
 		{
 			get
 			{
@@ -279,6 +306,20 @@ namespace xKorean
 							break;
 						}
 					}
+				}
+
+				if (gamePassStatus == "")
+				{
+					if (Game.BuyAndCloud == "O")
+						gamePassStatus = "소유 게임";
+					else {
+						foreach (var bundle in Bundle) {
+							if (bundle.BuyAndCloud == "O") {
+								gamePassStatus = "소유 게임";
+								break;
+							}
+						}
+					}			
 				}
 
 				return gamePassStatus;
@@ -406,10 +447,20 @@ namespace xKorean
 		}
 		
 		public bool IsThumbnailCached { set; get; } = false;
-		private async void LoadImage()
+		private void LoadImage()
 		{
-			if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.ThumbnailID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere))
-				NotifyPropertyChanged("ThumbnailPath");
+			ImageDownloader.Instance.AddProducer(ThumbnailUrl, ID, Game.ThumbnailID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere, async (result) =>
+			{
+				if (result)
+				{
+					await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+					{
+                        NotifyPropertyChanged("ThumbnailPath");
+                    });
+				}
+            });
+			//if (await Utils.DownloadImage(ThumbnailUrl, ID, Game.ThumbnailID, Game.SeriesXS, Game.OneS, Game.PC, Game.PlayAnywhere))
+				//NotifyPropertyChanged("ThumbnailPath");
 		}
 
 		public double MaxWidth

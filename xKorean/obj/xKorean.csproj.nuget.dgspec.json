@@ -14,6 +14,7 @@
         "outputPath": "D:\\xKorean\\xKorean\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
           "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
@@ -45,27 +46,27 @@
           "dependencies": {
             "CommunityToolkit.Uwp.Animations": {
               "target": "Package",
-              "version": "[8.1.240916, )"
+              "version": "[8.2.250402, )"
             },
             "CommunityToolkit.Uwp.Controls.Primitives": {
               "target": "Package",
-              "version": "[8.1.240916, )"
+              "version": "[8.2.250402, )"
             },
             "CommunityToolkit.Uwp.Helpers": {
               "target": "Package",
-              "version": "[8.1.240916, )"
+              "version": "[8.2.250402, )"
             },
             "Microsoft.AppCenter.Analytics": {
               "target": "Package",
-              "version": "[5.0.6, )"
+              "version": "[5.0.7, )"
             },
             "Microsoft.AppCenter.Crashes": {
               "target": "Package",
-              "version": "[5.0.6, )"
+              "version": "[5.0.7, )"
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[8.0.10, )"
+              "version": "[9.0.4, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
@@ -77,7 +78,7 @@
             },
             "Microsoft.UI.Xaml": {
               "target": "Package",
-              "version": "[2.8.6, )"
+              "version": "[2.8.7, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",

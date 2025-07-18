@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 
@@ -114,6 +115,15 @@ namespace xKorean
 			}
 		}
 
+		public string IsCloud {
+			get {
+				if (IsGamePassCloud != "" || BuyAndCloud != "")
+					return "클";
+				else
+					return "";
+			}
+		}
+
 		public string GamePassNew {
 			get;
 			set;
@@ -131,7 +141,13 @@ namespace xKorean
 			set;
         }
 
-		public string GamePass
+		public string BuyAndCloud
+		{
+			get;
+			set;
+		}
+
+		public string GamePassOrBuyAndCloud
 		{
 			get
 			{
@@ -146,6 +162,12 @@ namespace xKorean
 				else if (GamePassComing != "")
 					gamePassStatus += " 예정";
 
+				if (gamePassStatus == "")
+				{
+					if (BuyAndCloud == "O")
+						gamePassStatus = "소유 게임";
+				}
+
 				return gamePassStatus;
 			}
 		}
@@ -156,9 +178,9 @@ namespace xKorean
 			}
 		}
 
-		public bool IsGamePass {
+		public bool IsGamePassOrBuyAndCloud {
 			get {
-				return (mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "") && ShowGamePass;
+				return (mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "" || BuyAndCloud != "") && ShowGamePass;
 			}
 		}
 
@@ -340,8 +362,8 @@ namespace xKorean
 					if (thumbnailCacheInfo.Length == 0)
 					{
 						LoadImage();
-						return "none";
-					}
+						return "ms-appx:///Assets/blank.png";
+                    }
 					else
 					{
 						mThumbnailCached = true;
@@ -351,28 +373,26 @@ namespace xKorean
 				else
 				{
 					LoadImage();
-					return "none";
-				}
+					return "ms-appx:///Assets/blank.png";
+                }
 			}
 			set {
 			
 			}
 		}
 
-		private async void LoadImage()
+		private void LoadImage()
 		{
-			try
-			{
-				if (!mThumbnailCached)
-				{
-					if (await Utils.DownloadImage(ThumbnailUrl, ID, ThumbnailID, SeriesXS, OneS, PC, PlayAnywhere))
-						NotifyPropertyChanged("ThumbnailPath");
-				}	
-			}
-			catch (Exception exception)
-			{
-				Debug.WriteLine($"이미지를 다운로드할 수 없습니다: {ThumbnailUrl}({exception.Message})");
-			}
+            ImageDownloader.Instance.AddProducer(ThumbnailUrl, ID, ThumbnailID, SeriesXS, OneS, PC, PlayAnywhere, async (result) =>
+            {
+                if (result)
+                {
+                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        NotifyPropertyChanged("ThumbnailPath");
+                    });
+                }
+            });
 		}
 
 

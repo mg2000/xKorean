@@ -189,7 +189,9 @@ namespace xKorean
 			if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 				CategoryWindowsCheckBox.Visibility = Visibility.Collapsed;
 
-			LoadTitleImage(oneTitlePath);
+			ImageDownloader.Instance.Start();
+
+            LoadTitleImage(oneTitlePath);
 		}
 
 		private async void LoadTitleImage(string fileName)
@@ -835,6 +837,7 @@ namespace xKorean
 					GamePassNew = game.GamePassNew,
 					GamePassEnd = game.GamePassEnd,
 					GamePassComing = game.GamePassComing,
+					BuyAndCloud = game.BuyAndCloud,
 					ThumbnailUrl = game.Thumbnail,
 					ThumbnailID = game.ThumbnailID,
 					ShowDiscount = mShowDiscount,
@@ -866,6 +869,7 @@ namespace xKorean
 					GamePassNew = bundle.GamePassNew,
 					GamePassEnd = bundle.GamePassEnd,
 					GamePassComing = bundle.GamePassComing,
+					BuyAndCloud = bundle.BuyAndCloud,
 					ThumbnailUrl = bundle.Thumbnail,
 					ThumbnailID = bundle.ThumbnailID,
 					ShowDiscount = mShowDiscount,
@@ -1324,7 +1328,9 @@ namespace xKorean
                 FPSBoostCheckBox.IsChecked == true ||
                 F2PCheckBox.IsChecked == true ||
                 AvailableOnlyCheckBox.IsChecked == true ||
-                FreeWeekendCheckBox.IsChecked == true)
+                FreeWeekendCheckBox.IsChecked == true ||
+				BuyAndCloudCheckBox.IsChecked == true ||
+				PreOrderCheckBox.IsChecked == true)
             {
                 if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
                     CapabilityFilterButton.Foreground = new SolidColorBrush(Colors.Yellow);
@@ -1561,7 +1567,73 @@ namespace xKorean
                     }
 				}
 
-                if (FamilyKidsCheckBox.IsChecked == true ||
+				if (BuyAndCloudCheckBox != null && (bool)BuyAndCloudCheckBox.IsChecked) {
+					bool buyAndCloud = false;
+					if (gamesFilteredByDevices[i].BuyAndCloud == "O") {
+						if (gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "" && gamesFilteredByDevices[i].GamePassCloud == "") {
+							if (gamesFilteredByDevices[i].Bundle.Count == 0)
+								buyAndCloud = true;
+							else
+							{
+								bool bundleGamePass = false;
+								foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+								{
+									if (bundle.GamePassPC == "O" || bundle.GamePassConsole == "O" || bundle.GamePassCloud == "O")
+									{
+										bundleGamePass = true;
+										break;
+									}
+								}
+
+								if (!bundleGamePass)
+									buyAndCloud = true;
+							}
+						}
+					}				
+					else {
+						foreach (var bundle in gamesFilteredByDevices[i].Bundle) {
+							if (bundle.GamePassPC == "" && bundle.GamePassConsole == "" && bundle.GamePassCloud == "" && bundle.BuyAndCloud == "O")
+								buyAndCloud = true;
+							else if (bundle.GamePassPC == "O" || bundle.GamePassConsole == "O" || bundle.GamePassCloud == "O")
+								buyAndCloud = false;
+						}
+					}
+
+					if (!buyAndCloud) {
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+				}
+
+				if (PreOrderCheckBox != null && (bool)PreOrderCheckBox.IsChecked)
+				{
+					var preOrder = false;
+					var releaseDate = DateTime.Parse(gamesFilteredByDevices[i].ReleaseDate);
+					if (today < releaseDate && gamesFilteredByDevices[i].Price > 0)
+						preOrder = true;
+					else
+					{
+						foreach (var bundle in gamesFilteredByDevices[i].Bundle)
+						{
+							var bundleReleaseDate = DateTime.Parse(bundle.ReleaseDate);
+							if (today < bundleReleaseDate && bundle.Price > 0)
+							{
+								preOrder = true;
+								break;
+							}
+						}
+					}
+
+					if (!preOrder)
+					{
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+				}
+
+				if (FamilyKidsCheckBox.IsChecked == true ||
 					FightingCheckBox.IsChecked == true ||
 					EducationalCheckBox.IsChecked == true ||
 					RacingFlyingCheckBox.IsChecked == true ||
@@ -1654,7 +1726,8 @@ namespace xKorean
 				var match = (from g in GamesViewModel where g.ID == image.Tag.ToString() select g).ToList();
 				if (match.Count != 0)
 				{
-					match.First().IsImageLoaded = Visibility.Collapsed;
+                    if (match.First().ThumbnailPath.IndexOf("blank.png") == -1)
+						match.First().IsImageLoaded = Visibility.Collapsed;
 				}
 			}
 		}
@@ -1710,13 +1783,13 @@ namespace xKorean
 					}
 					else if (CategoryCloudCheckBox.IsChecked == true)
 					{
-						if (game.GamePassCloud == "O")
+						if (game.GamePassCloud == "O" || game.BuyAndCloud == "O")
 							selectGamesList.Add(game);
 						else
 						{
 							foreach (var bundle in game.Bundle)
 							{
-								if (bundle.GamePassCloud == "O")
+								if (bundle.GamePassCloud == "O" || bundle.BuyAndCloud == "O")
 								{
 									selectGamesList.Add(game);
 									break;
@@ -2172,13 +2245,13 @@ namespace xKorean
         private async void MenuPlayCloud_Click(object sender, RoutedEventArgs e)
 		{
             var productID = "";
-            if (mSelectedGame.GamePassCloud == "O")
+            if (mSelectedGame.GamePassCloud == "O" || mSelectedGame.BuyAndCloud == "O")
                 productID = mSelectedGame.ID;
             else
             {
                 foreach (var bundle in mSelectedGame.Bundle)
                 {
-                    if (bundle.GamePassCloud == "O")
+                    if (bundle.GamePassCloud == "O" || bundle.BuyAndCloud == "O")
                     {
                         productID = bundle.ID;
                         break;
@@ -2220,7 +2293,8 @@ namespace xKorean
 				var match = (from g in mEditionViewModel where g.ID == image.Tag.ToString() select g).ToList();
 				if (match.Count != 0)
 				{
-					match.First().IsImageLoaded = Visibility.Collapsed;
+                    if (match.First().ThumbnailPath.IndexOf("blank.png") == -1)
+                        match.First().IsImageLoaded = Visibility.Collapsed;
 				}
 			}
 		}
@@ -2501,13 +2575,13 @@ namespace xKorean
 			{
                 menuFlyout.Items[3].Visibility = Visibility.Collapsed;
 
-                if (game.GamePassCloud == "O")
+                if (game.GamePassCloud == "O" || game.BuyAndCloud == "O")
 					menuFlyout.Items[3].Visibility = Visibility.Visible;
 				else if (game.Bundle.Count > 0)
 				{
 					foreach (var bundle in game.Bundle)
 					{
-						if (bundle.GamePassCloud == "O")
+						if (bundle.GamePassCloud == "O" || bundle.BuyAndCloud == "O")
 						{
 							menuFlyout.Items[3].Visibility = Visibility.Visible;
 							break;
@@ -2716,5 +2790,10 @@ namespace xKorean
 				set;
 			}
 		}
-	}
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+			ImageDownloader.Instance.Stop();
+        }
+    }
 }
