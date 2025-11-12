@@ -25,8 +25,12 @@
                         <RowDefinition Height="1*"></RowDefinition>
                         <RowDefinition Height="2*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
-                    </Grid>
+					<Grid Grid.Row="0" Visibility="{Binding Unavailable}">
+						<Grid.Background>
+							<SolidColorBrush Color="Red" Opacity="0.9"></SolidColorBrush>
+						</Grid.Background>
+						<TextBlock Text="{Binding UnavailableReason}" Style="{StaticResource TitleTextBlockStyle}" FontSize="{Binding MetadataFontSize}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+					</Grid>
                     <Grid Grid.Row="2" Visibility="{x:Bind IsDiscounting}">
                         <Grid.Background>
                             <SolidColorBrush Color="Black" Opacity="0.8"></SolidColorBrush>
@@ -105,7 +109,7 @@
                                     <CheckBox x:Name="CategoryOneCheckBox" Content="Xbox One" Click="CategoryCheckBox_Click"/>
                                     <CheckBox x:Name="CategoryX360CheckBox" Content="Xbox 360" Click="CategoryCheckBox_Click"/>
                                     <CheckBox x:Name="CategoryOGCheckBox" Content="Original Xbox" Click="CategoryCheckBox_Click"/>
-                                    <CheckBox x:Name="CategoryWindowsCheckBox" Content="Xbox PC" Click="CategoryCheckBox_Click"/>
+                                    <CheckBox x:Name="CategoryWindowsCheckBox" Content="Xbox on PC" Click="CategoryCheckBox_Click"/>
                                     <CheckBox x:Name="CategoryCloudCheckBox" Content="Xbox Cloud" Click="CategoryCheckBox_Click"></CheckBox>
                                 </StackPanel>
                             </Flyout>

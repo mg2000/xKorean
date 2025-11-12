@@ -65,8 +65,6 @@ namespace xKorean
 		private List<string> mNewGames = new List<string>();
 		private List<string> mEventIDList = new List<string>();
 
-		private string mEditionLanguage;
-
 		private int mSelectedIdx = 0;
 
 		private string mDeviceID = "";
@@ -816,8 +814,6 @@ namespace xKorean
 		{
 			EditionPanelView.Visibility = Visibility.Visible;
 
-			mEditionLanguage = game.LanguageCode;
-
 			mEditionViewModel.Clear();
 
 			if (game.IsAvailable)
@@ -877,7 +873,7 @@ namespace xKorean
 					ShowName = mShowName,
 					Price = bundle.Price,
 					LowestPrice = bundle.LowestPrice,
-					LanguageCode = game.LanguageCode,
+					LanguageCode = bundle.LanguageCode,
 					ReleaseDate = bundle.ReleaseDate,
 					NZReleaseDate = bundle.NZReleaseDate,
 					KIReleaseDate = bundle.KIReleaseDate
@@ -1427,13 +1423,22 @@ namespace xKorean
 
 			for (var i = 0; i < gamesFilteredByDevices.Count; i++)
             {
-				if (text.Trim() != "" &&
-					!Regex.IsMatch(gamesFilteredByDevices[i].KoreanName.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text) &&
-					!Regex.IsMatch(gamesFilteredByDevices[i].Name.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text))
+				try
+				{
+					if (text.Trim() != "" &&
+						!Regex.IsMatch(gamesFilteredByDevices[i].KoreanName.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text) &&
+						!Regex.IsMatch(gamesFilteredByDevices[i].Name.Replace("™", "").Replace("®", "").Replace(" ", "").ToLower(), text))
+					{
+						gamesFilteredByDevices.RemoveAt(i);
+						i--;
+						continue;
+					}
+				}
+				catch (ArgumentException ex)
 				{
 					gamesFilteredByDevices.RemoveAt(i);
-					i--;
-					continue;
+                    i--;
+                    continue;
 				}
 
 				// 한국어 지원 범위 필터링
@@ -1943,7 +1948,7 @@ namespace xKorean
 					ShowEditionPanel(game);
 				else
 				{
-					await GoToStore(game.LanguageCode, game.Bundle[0].ID, game.Bundle[0].OneS != "O" && game.Bundle[0].SeriesXS != "O");
+					await GoToStore(game.Bundle[0].LanguageCode, game.Bundle[0].ID, game.Bundle[0].OneS != "O" && game.Bundle[0].SeriesXS != "O");
 				}
 			}
 		}
@@ -2258,7 +2263,7 @@ namespace xKorean
 			{
 				var bundle = e.ClickedItem as EditionViewModel;
 
-				await GoToStore(mEditionLanguage, bundle.ID, bundle.OneS != "O" && bundle.SeriesXS != "O");
+				await GoToStore(bundle.LanguageCode, bundle.ID, bundle.OneS != "O" && bundle.SeriesXS != "O");
 			}
 		}
 
@@ -2686,7 +2691,7 @@ namespace xKorean
                     {
                         for (var i = 0; i < game.Bundle.Count; i++)
                         {
-                            var bundlePrice = extractPrice(game.Bundle[i].Price, game.LanguageCode);
+                            var bundlePrice = extractPrice(game.Bundle[i].Price, game.Bundle[i].LanguageCode);
 
                             if (bundlePrice > 0 && (bundlePrice < lowestPrice || lowestPrice <= 0))
                                 lowestPrice = bundlePrice;

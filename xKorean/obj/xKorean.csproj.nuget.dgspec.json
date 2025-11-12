@@ -66,7 +66,7 @@
             },
             "Microsoft.Data.Sqlite": {
               "target": "Package",
-              "version": "[9.0.7, )"
+              "version": "[9.0.8, )"
             },
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",

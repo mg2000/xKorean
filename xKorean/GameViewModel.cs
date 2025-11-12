@@ -61,7 +61,7 @@ namespace xKorean
 				else if (Game.OneS == "O")
 					fileName += "_os";
 				else if (Game.PC == "O")
-					fileName += "_pc";
+					fileName += "_xbox_on_pc";
 
 				FileInfo thumbnailCacheInfo = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\ThumbnailCache\\" + fileName + ".jpg");
 

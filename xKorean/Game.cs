@@ -309,6 +309,13 @@ namespace xKorean
 			set;
 		} = -1;
 
+		[JsonProperty("languageCode")]
+		public string LanguageCode
+		{
+			get;
+			set;
+		} = "";
+
 		public bool IsAvailable
 		{
 			get

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Storage;
 using Windows.System.Profile;
 using Windows.UI;
@@ -21,8 +22,6 @@ namespace xKorean
 		private string mGamePassPC = "";
 		private string mGamePassConsole = "";
 		private string mGamePassCloud = "";
-
-		private bool mThumbnailCached = false;
 
 		public EditionViewModel()
 		{
@@ -353,7 +352,7 @@ namespace xKorean
 				else if (OneS == "O")
 					fileName += "_os";
 				else if (PC == "O")
-					fileName += "_pc";
+					fileName += "_xbox_on_pc";
 
 				FileInfo thumbnailCacheInfo = new FileInfo($@"{ApplicationData.Current.LocalFolder.Path}\ThumbnailCache\{fileName}.jpg");
 
@@ -366,7 +365,6 @@ namespace xKorean
                     }
 					else
 					{
-						mThumbnailCached = true;
                         IsImageLoaded = Visibility.Collapsed;
                         return thumbnailCacheInfo.FullName;
 					}
@@ -379,6 +377,33 @@ namespace xKorean
 			}
 			set {
 			
+			}
+		}
+
+		public bool Unavailable
+		{
+			get
+			{
+				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
+				if ((productName.Contains("xbox one") == true && OneS == "X") || (productName.Contains("xbox series") == true && SeriesXS == "X") ||
+					(Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() != Utils.GetRegionCodeFromLanguageCode(LanguageCode).ToUpper() && Discount != "판매 중지"))
+					return true;
+				else
+					return false;
+			}
+		}
+
+		public string UnavailableReason
+		{
+			get
+			{
+				var productName = new EasClientDeviceInformation().SystemProductName.ToLower();
+				if ((productName.Contains("xbox one") == true && OneS == "X") || (productName.Contains("xbox series") == true && SeriesXS == "X"))
+					return "미지원 기기";
+				else if (Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() == "KR" && Windows.System.UserProfile.GlobalizationPreferences.HomeGeographicRegion.ToUpper() != Utils.GetRegionCodeFromLanguageCode(LanguageCode).ToUpper() && Discount != "판매 중지")
+					return "한국 스토어에 없음";
+				else
+					return "알 수 없음";
 			}
 		}
 
