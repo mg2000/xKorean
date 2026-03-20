@@ -254,7 +254,28 @@
                             </SymbolIcon>
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton x:Name="SettingButton" Icon="Setting" Label="설정" Click="SettingButton_ClickAsync"></AppBarButton>
+                    <AppBarButton x:Name="SettingButton" Icon="Setting" Label="설정">
+						          <AppBarButton.Flyout>
+							          <Flyout>
+								          <StackPanel Orientation="Vertical">
+									          <RadioButton x:Name="TitleNameKoreanRadioButton" Content="타이틀명: 한국어" IsChecked="True" GroupName="DisplayNameType" Click="DispalyNameRadioButton_Click"/>
+									<RadioButton x:Name="TitleNameEnglishRadioButton" Content="타이틀명: 영어" GroupName="DisplayNameType" Click="DispalyNameRadioButton_Click"/>  
+														<MenuFlyoutSeparator/>
+									          <RadioButton x:Name="GamePassUltimateRadioButton" Content="GamePass Ultimate" IsChecked="True" GroupName="DisplayGamepassType" Click="DispalyGamepassRadioButton_Click"/>
+									          <RadioButton x:Name="GamePassPremiumRadioButton" Content="GamePass Premium" GroupName="DisplayGamepassType" Click="DispalyGamepassRadioButton_Click"/>
+									          <RadioButton x:Name="GamePassEssentialRadioButton" Content="GamePass Essential" GroupName="DisplayGamepassType" Click="DispalyGamepassRadioButton_Click"/>
+									          <RadioButton x:Name="GamePassNoneRadioButton" Content="GamePass 정보 미표시" GroupName="DisplayGamepassType" Click="DispalyGamepassRadioButton_Click"/>
+									          <MenuFlyoutSeparator/>
+									          <CheckBox x:Name="ShowNewTitleCheckBox" Content="새로운 게임 확인시 팝업 표시" Click="ShowNewTitleCheckBox_Click"/>
+									          <MenuFlyoutSeparator/>
+									          <CheckBox x:Name="ShowDiscountCheckbox" Content="판매 정보 표시"  Click="ShowDiscountCheckBox_Click"/>
+									          <CheckBox x:Name="ShowNameCheckbox" Content="게임명/한글화 정보 표시" Click="ShowNameCheckBox_Click"/>
+									          <CheckBox x:Name="ShowReleaseTimeCheckbox" Content="출시일을 시간으로 표시" Click="ShowReleaseTimeCheckBox_Click"/>  
+								          </StackPanel>
+							          </Flyout>
+						          </AppBarButton.Flyout>
+
+					</AppBarButton>
                     <AppBarButton x:Name="AboutButton" Icon="Account" Label="정보" Click="AboutButton_ClickAsync"></AppBarButton>
                     <AppBarButton x:Name="DonationButton" Icon="Like" Label="후원" Click="DonationButton_Click"></AppBarButton>
                 </CommandBar>

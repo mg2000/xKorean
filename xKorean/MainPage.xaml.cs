@@ -69,10 +69,7 @@ namespace xKorean
 
 		private string mDeviceID = "";
 
-		private bool mShowDiscount = true;
-		private bool mShowGamepass = true;
-		private bool mShowName = true;
-		private bool mShowReleaseTime = false;
+		private string mShowGamepass = "Ultimate";
 
 		private Game mSelectedGame = null;
 		private EditionViewModel mSelectedEdition = null;
@@ -139,30 +136,60 @@ namespace xKorean
 			UpdateDeviceFilterButton();
 
 			if (localSettings.Values["showDiscount"] != null)
-				mShowDiscount = (bool)localSettings.Values["showDiscount"];
+                ShowDiscountCheckbox.IsChecked = (bool)localSettings.Values["showDiscount"];
 			else
-				mShowDiscount = true;
+                ShowDiscountCheckbox.IsChecked = true;
 
 			if (localSettings.Values["showGamepass"] != null)
-				mShowGamepass = (bool)localSettings.Values["showGamepass"];
+			{
+				try
+				{
+					mShowGamepass = (string)localSettings.Values["showGamepass"];
+				}
+				catch (InvalidCastException e)
+				{
+                    if ((bool)localSettings.Values["showGamepass"] == true)
+						mShowGamepass = "Ultimate";
+					else
+                        mShowGamepass = "None";
+                }
+
+				if (mShowGamepass == "Ultimate")
+					GamePassUltimateRadioButton.IsChecked = true;
+				else if (mShowGamepass == "Premium")
+					GamePassPremiumRadioButton.IsChecked = true;
+				else if (mShowGamepass == "Essential")
+					GamePassEssentialRadioButton.IsChecked = true;
+				else
+					GamePassNoneRadioButton.IsChecked = true;
+			}
 			else
-				mShowGamepass = true;
+			{
+				mShowGamepass = "Ultimate";
+                GamePassUltimateRadioButton.IsChecked = true;
+            }
 
 			if (localSettings.Values["showName"] != null)
-				mShowName = (bool)localSettings.Values["showName"];
+                ShowNameCheckbox.IsChecked = (bool)localSettings.Values["showName"];
 			else
-				mShowName = true;
+                ShowNameCheckbox.IsChecked = true;
 
 			if (localSettings.Values["showReleaseTime"] != null)
-				mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
+                ShowReleaseTimeCheckbox.IsChecked = (bool)localSettings.Values["showReleaseTime"];
 			else
-				mShowReleaseTime = false;
+                ShowReleaseTimeCheckbox.IsChecked = false;
 
-			mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
+            if (localSettings.Values["ShowNewTitle"] != null)
+                ShowNewTitleCheckBox.IsChecked = (bool)localSettings.Values["ShowNewTitle"];
+            else
+                ShowNewTitleCheckBox.IsChecked = true;
+
+            mMessageTemplateMap["packageonly"] = "패키지 버전만 한국어를 지원합니다.";
 			mMessageTemplateMap["usermode"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";					// 오타 버전. 삭제 예정
             mMessageTemplateMap["usermod"] = "이 게임은 유저 모드를 설치하셔야 한국어가 지원됩니다.";
 			mMessageTemplateMap["freeweekend1"] = "게임패스 코어/얼티밋 유저는 다음 시간까지 무료로 플레이할 수 있습니다: [name]";
             mMessageTemplateMap["freeweekend2"] = "이 게임은 다음 시간까지 무료로 플레이할 수 있습니다: [name]";
+			mMessageTemplateMap["windowsOnly"] = "윈도우 버전만 한국어를 지원합니다.";
 
             if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
 			{
@@ -257,17 +284,20 @@ namespace xKorean
 
 		private async void CheckCacheFolder()
 		{
-			var settings = Settings.Instance;
-			await settings.Load();
-
 			UpdateItemHeight();
 
-			mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
-			if (mGameNameDisplayLanguage == "")
+            var localSettings = ApplicationData.Current.LocalSettings;
+            if (localSettings.Values["gameNameDisplayLanguage"] == null || localSettings.Values["gameNameDisplayLanguage"].ToString() == "Korean")
 				mGameNameDisplayLanguage = "Korean";
+			else
+				mGameNameDisplayLanguage = "English";
 
-			var orderType = settings.LoadValue("orderType");
-			switch (orderType)
+			var orderType = "";
+			if (localSettings.Values["orderType"] == null)
+				orderType = "name_asc";
+			else
+                orderType = localSettings.Values["orderType"].ToString();
+            switch (orderType)
 			{
 				case "":
 				case "name_asc":
@@ -284,8 +314,12 @@ namespace xKorean
 					break;
 			}
 
-			var priorityType = settings.LoadValue("priorityType");
-			switch (priorityType) {
+			var priorityType = "";
+			if (localSettings.Values["priorityType"] == null)
+				priorityType = "none";
+			else
+                priorityType = localSettings.Values["priorityType"].ToString();
+            switch (priorityType) {
 				case "":
 				case "none":
 					PriorityNoneItem.IsChecked = true;
@@ -388,9 +422,9 @@ namespace xKorean
 				var settingMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(str);
 
 				var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
-				
-				var settings = Settings.Instance;
-				if (settingMap["lastModifiedTime"] == "")
+
+                var localSettings = ApplicationData.Current.LocalSettings;
+                if (settingMap["lastModifiedTime"] == null || settingMap["lastModifiedTime"] == "")
 				{
 					if (LoadingPanel.Visibility == Visibility.Visible)
 						LoadingPanel.Visibility = Visibility.Collapsed;
@@ -422,9 +456,9 @@ namespace xKorean
 
 					return;
 				}
-				else if (settings.LoadValue("lastModifiedTime") != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
+				else if (localSettings.Values["lastModifiedTime"] == null || localSettings.Values["lastModifiedTime"].ToString() != settingMap["lastModifiedTime"] || !downloadedJsonFile.Exists)
 				{
-					await settings.SetValue("lastModifiedTime", settingMap["lastModifiedTime"]);
+                    localSettings.Values["lastModifiedTime"] = settingMap["lastModifiedTime"];
 
 					UpateJsonData();
 				}
@@ -531,7 +565,7 @@ namespace xKorean
 				var str = streamReader.ReadToEnd();
 
 				// 저장 전에 이전 데이터 가져오기
-				if (Settings.Instance.LoadValue("ShowNewTitle") != "False")
+				if (ShowNewTitleCheckBox.IsChecked == true)
 				{
 					var downloadedJsonFile = new FileInfo(ApplicationData.Current.LocalFolder.Path + "\\games_ex.json");
 
@@ -818,27 +852,39 @@ namespace xKorean
 
 			if (game.IsAvailable)
 			{
-				mEditionViewModel.Add(new EditionViewModel
+				var isGamePassPC = "";
+				if ((mShowGamepass == "Ultimate" || mShowGamepass == "PC" || (mShowGamepass == "Premium" && game.GamePassPremium == "O") || (mShowGamepass == "Essential" && game.GamePassEssential == "O")) && game.GamePassPC != "")
+					isGamePassPC = "O";
+
+                var isGamePassConsole = "";
+                if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && game.GamePassPremium == "O") || (mShowGamepass == "Essential" && game.GamePassEssential == "O")) && game.GamePassConsole != "")
+                    isGamePassConsole = "O";
+
+                var isGamePassCloud = "";
+                if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && game.GamePassPremium == "O") || (mShowGamepass == "Essential" && game.GamePassEssential == "O")) && game.GamePassCloud != "")
+                    isGamePassCloud = "O";
+
+                mEditionViewModel.Add(new EditionViewModel
 				{
 					ID = game.ID,
 					Name = mGameNameDisplayLanguage == "Korean" ? game.KoreanName : game.Name,
-					Discount = game.Discount == "곧 출시" || (mShowReleaseTime && game.Discount != "출시 예정" && game.Discount.Contains(" 출시")) ? Utils.GetReleaseStr(game.ReleaseDate) : game.Discount,
+					Discount = game.Discount == "곧 출시" || (ShowReleaseTimeCheckbox.IsChecked == true && game.Discount != "출시 예정" && game.Discount.Contains(" 출시")) ? Utils.GetReleaseStr(game.ReleaseDate) : game.Discount,
 					SeriesXS = game.SeriesXS,
 					OneS = game.OneS,
 					PC = game.PC,
 					PlayAnywhere = game.PlayAnywhere,
-					IsGamePassPC = game.GamePassPC,
-					IsGamePassConsole = game.GamePassConsole,
-					IsGamePassCloud = game.GamePassCloud,
+					IsGamePassPC = isGamePassPC,
+					IsGamePassConsole = isGamePassConsole,
+					IsGamePassCloud = isGamePassCloud,
 					GamePassNew = game.GamePassNew,
 					GamePassEnd = game.GamePassEnd,
 					GamePassComing = game.GamePassComing,
 					BuyAndCloud = game.BuyAndCloud,
 					ThumbnailUrl = game.Thumbnail,
 					ThumbnailID = game.ThumbnailID,
-					ShowDiscount = mShowDiscount,
+					ShowDiscount = ShowDiscountCheckbox.IsChecked == true,
 					ShowGamePass = mShowGamepass,
-					ShowName = mShowName,
+					ShowName = ShowNameCheckbox.IsChecked == true,
 					Price = game.Price,
 					LowestPrice = game.LowestPrice,
 					LanguageCode = game.LanguageCode,
@@ -850,27 +896,39 @@ namespace xKorean
 
 			foreach (var bundle in game.Bundle)
 			{
-				mEditionViewModel.Add(new EditionViewModel
+                var isGamePassPC = "";
+                if ((mShowGamepass == "Ultimate" || mShowGamepass == "PC" || (mShowGamepass == "Premium" && bundle.GamePassPremium == "O") || (mShowGamepass == "Essential" && bundle.GamePassEssential == "O")) && bundle.GamePassPC != "")
+                    isGamePassPC = "O";
+
+                var isGamePassConsole = "";
+                if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && bundle.GamePassPremium == "O") || (mShowGamepass == "Essential" && bundle.GamePassEssential == "O")) && bundle.GamePassConsole != "")
+                    isGamePassConsole = "O";
+
+                var isGamePassCloud = "";
+                if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && bundle.GamePassPremium == "O") || (mShowGamepass == "Essential" && bundle.GamePassEssential == "O")) && bundle.GamePassCloud != "")
+                    isGamePassCloud = "O";
+
+                mEditionViewModel.Add(new EditionViewModel
 				{
 					ID = bundle.ID,
 					Name = bundle.Name,
-					Discount = bundle.DiscountType == "곧 출시" || (mShowReleaseTime && bundle.DiscountType != "출시 예정" && bundle.DiscountType.Contains(" 출시")) ? Utils.GetReleaseStr(bundle.ReleaseDate) : bundle.DiscountType,
+					Discount = bundle.DiscountType == "곧 출시" || (ShowReleaseTimeCheckbox.IsChecked == true && bundle.DiscountType != "출시 예정" && bundle.DiscountType.Contains(" 출시")) ? Utils.GetReleaseStr(bundle.ReleaseDate) : bundle.DiscountType,
 					SeriesXS = bundle.SeriesXS,
 					OneS = bundle.OneS,
 					PC = bundle.PC,
 					PlayAnywhere = bundle.PlayAnywhere,
-					IsGamePassPC = bundle.GamePassPC,
-					IsGamePassConsole = bundle.GamePassConsole,
-					IsGamePassCloud = bundle.GamePassCloud,
+					IsGamePassPC = isGamePassPC,
+					IsGamePassConsole = isGamePassConsole,
+					IsGamePassCloud = isGamePassCloud,
 					GamePassNew = bundle.GamePassNew,
 					GamePassEnd = bundle.GamePassEnd,
 					GamePassComing = bundle.GamePassComing,
-					BuyAndCloud = bundle.BuyAndCloud,
+                    BuyAndCloud = bundle.BuyAndCloud,
 					ThumbnailUrl = bundle.Thumbnail,
 					ThumbnailID = bundle.ThumbnailID,
-					ShowDiscount = mShowDiscount,
+					ShowDiscount = ShowDiscountCheckbox.IsChecked == true,
 					ShowGamePass = mShowGamepass,
-					ShowName = mShowName,
+					ShowName = ShowNameCheckbox.IsChecked == true,
 					Price = bundle.Price,
 					LowestPrice = bundle.LowestPrice,
 					LanguageCode = bundle.LanguageCode,
@@ -1575,32 +1633,15 @@ namespace xKorean
 				if (BuyAndCloudCheckBox != null && (bool)BuyAndCloudCheckBox.IsChecked) {
 					bool buyAndCloud = false;
 					if (gamesFilteredByDevices[i].BuyAndCloud == "O") {
-						if (gamesFilteredByDevices[i].GamePassPC == "" && gamesFilteredByDevices[i].GamePassConsole == "" && gamesFilteredByDevices[i].GamePassCloud == "") {
-							if (gamesFilteredByDevices[i].Bundle.Count == 0)
-								buyAndCloud = true;
-							else
-							{
-								bool bundleGamePass = false;
-								foreach (var bundle in gamesFilteredByDevices[i].Bundle)
-								{
-									if (bundle.GamePassPC == "O" || bundle.GamePassConsole == "O" || bundle.GamePassCloud == "O")
-									{
-										bundleGamePass = true;
-										break;
-									}
-								}
-
-								if (!bundleGamePass)
-									buyAndCloud = true;
-							}
-						}
+						buyAndCloud = true;
 					}				
 					else {
 						foreach (var bundle in gamesFilteredByDevices[i].Bundle) {
-							if (bundle.GamePassPC == "" && bundle.GamePassConsole == "" && bundle.GamePassCloud == "" && bundle.BuyAndCloud == "O")
+							if (bundle.BuyAndCloud == "O")
+							{
 								buyAndCloud = true;
-							else if (bundle.GamePassPC == "O" || bundle.GamePassConsole == "O" || bundle.GamePassCloud == "O")
-								buyAndCloud = false;
+								break;
+							}
 						}
 					}
 
@@ -1716,7 +1757,7 @@ namespace xKorean
 			GamesViewModel.Clear();
 			foreach (var g in games)
 			{
-				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, mShowDiscount, mShowGamepass, mShowName, mShowReleaseTime));
+				GamesViewModel.Add(new GameViewModel(g, mGameNameDisplayLanguage, ShowDiscountCheckbox.IsChecked == true, mShowGamepass, ShowNameCheckbox.IsChecked == true, ShowNameCheckbox.IsChecked == true));
 			}
 
 			TitleBlock.Text = $"한국어 지원 타이틀 목록 ({games.Count:#,#0}개)";
@@ -1726,28 +1767,32 @@ namespace xKorean
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("orderType", "name_asc");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["orderType"] = "name_asc";
 		}
 
 		private async void OrderByNameDescendItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("orderType", "name_desc");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["orderType"] = "name_desc";
 		}
 
 		private async void OrderByReleaseAscendItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("orderType", "release_asc");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["orderType"] = "release_asc";
 		}
 
 		private async void OrderByReleaseDescendItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("orderType", "release_desc");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["orderType"] = "release_desc";
 		}
 
 		private List<Game> FilterByDevices(List<Game> games)
@@ -1769,7 +1814,8 @@ namespace xKorean
 						(CategoryOGCheckBox.IsChecked == true && game.OG == "O") ||
 						(CategoryWindowsCheckBox.IsChecked == true && game.PC == "O"))
 					{
-						selectGamesList.Add(game);
+						if (game.Message.Contains("windowsOnly") == CategoryWindowsCheckBox.IsChecked || !game.Message.Contains("windowsOnly"))
+							selectGamesList.Add(game);
 					}
 					else if (CategoryCloudCheckBox.IsChecked == true)
 					{
@@ -2011,51 +2057,51 @@ namespace xKorean
 			await CheckEventData();
 		}
 
-		private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
-		{
-			var dialog = new SettingDialog();
-			if (mDialogQueue.TryAdd(dialog, 500))
-			{
-				var result = await dialog.ShowAsync();
-				mDialogQueue.Take();
+		//private async void SettingButton_ClickAsync(object sender, RoutedEventArgs e)
+		//{
+		//	var dialog = new SettingDialog();
+		//	if (mDialogQueue.TryAdd(dialog, 500))
+		//	{
+		//		var result = await dialog.ShowAsync();
+		//		mDialogQueue.Take();
 
-				if (result == ContentDialogResult.Primary)
-				{
-					var settings = Settings.Instance;
+		//		if (result == ContentDialogResult.Primary)
+		//		{
+		//			var settings = Settings.Instance;
 
-					mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
+		//			mGameNameDisplayLanguage = settings.LoadValue("gameNameDisplayLanguage");
 
-					var localSettings = ApplicationData.Current.LocalSettings;
-					if (localSettings.Values["showDiscount"] != null)
-						mShowDiscount = (bool)localSettings.Values["showDiscount"];
-					else
-						mShowDiscount = true;
+		//			var localSettings = ApplicationData.Current.LocalSettings;
+		//			if (localSettings.Values["showDiscount"] != null)
+		//				mShowDiscount = (bool)localSettings.Values["showDiscount"];
+		//			else
+		//				mShowDiscount = true;
 
-					if (localSettings.Values["showGamepass"] != null)
-						mShowGamepass = (bool)localSettings.Values["showGamepass"];
-					else
-						mShowGamepass = true;
+		//			if (localSettings.Values["showGamepass"] != null)
+		//				mShowGamepass = (string)localSettings.Values["showGamepass"];
+		//			else
+		//				mShowGamepass = true;
 
-					if (localSettings.Values["showName"] != null)
-						mShowName = (bool)localSettings.Values["showName"];
-					else
-						mShowName = true;
+		//			if (localSettings.Values["showName"] != null)
+		//				mShowName = (bool)localSettings.Values["showName"];
+		//			else
+		//				mShowName = true;
 
-					if (localSettings.Values["showReleaseTime"] != null)
-						mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
-					else
-						mShowReleaseTime = false;
+		//			if (localSettings.Values["showReleaseTime"] != null)
+		//				mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
+		//			else
+		//				mShowReleaseTime = false;
 
-					foreach (var gameViewModel in GamesViewModel) {
-						gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
-						gameViewModel.UpdateShowDiscount(mShowDiscount);
-						gameViewModel.UpdateShowGamepass(mShowGamepass);
-						gameViewModel.UpdateShowName(mShowName);
-						gameViewModel.UpdateShowReleaseTime(mShowReleaseTime);
-					}
-				}
-			}
-		}
+		//			foreach (var gameViewModel in GamesViewModel) {
+		//				gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
+		//				gameViewModel.UpdateShowDiscount(mShowDiscount);
+		//				gameViewModel.UpdateShowGamepass(mShowGamepass);
+		//				gameViewModel.UpdateShowName(mShowName);
+		//				gameViewModel.UpdateShowReleaseTime(mShowReleaseTime);
+		//			}
+		//		}
+		//	}
+		//}
 
 		private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
 		{
@@ -2499,28 +2545,32 @@ namespace xKorean
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("priorityType", "none");
+            var localSettings = ApplicationData.Current.LocalSettings;
+			localSettings.Values["priorityType"] = "none";
 		}
 
 		private async void PriorityByGamepassItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("priorityType", "gamepass");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["priorityType"] = "gamepass";
 		}
 
 		private async void PriorityByDiscountItem_Click(object sender, RoutedEventArgs e)
 		{
 			SearchBox_TextChanged(SearchBox, null);
 
-			await Settings.Instance.SetValue("priorityType", "discount");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["priorityType"] = "discount";
 		}
 
         private async void PriorityByPriceItem_Click(object sender, RoutedEventArgs e)
         {
             SearchBox_TextChanged(SearchBox, null);
 
-            await Settings.Instance.SetValue("priorityType", "price");
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["priorityType"] = "price";
         }
 
         private void CheckContextMenu(Game game, MenuFlyout menuFlyout)
@@ -2751,7 +2801,118 @@ namespace xKorean
             }
         }
 
-		private class PublisherCount
+        private async void DispalyNameRadioButton_Click(object sender, RoutedEventArgs e)
+		{
+            var localSettings = ApplicationData.Current.LocalSettings;
+            if (TitleNameKoreanRadioButton.IsChecked == true)
+			{
+				mGameNameDisplayLanguage = "Korean";
+                localSettings.Values["gameNameDisplayLanguage"] = "Korean";
+			}
+			else
+			{
+                mGameNameDisplayLanguage = "English";
+                localSettings.Values["gameNameDisplayLanguage"] = "English";
+			}
+
+            foreach (var gameViewModel in GamesViewModel)
+            {
+                gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
+            }
+        }
+
+        private async void DispalyGamepassRadioButton_Click(object sender, RoutedEventArgs e)
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+            if (GamePassUltimateRadioButton.IsChecked == true)
+			{
+				mShowGamepass = "Ultimate";
+				localSettings.Values["showGamepass"] = "Ultimate";
+			}
+			else if (GamePassPremiumRadioButton.IsChecked == true)
+			{
+				mShowGamepass = "Premium";
+                localSettings.Values["showGamepass"] = "Premium";
+			}
+			else if (GamePassEssentialRadioButton.IsChecked == true)
+			{
+				mShowGamepass = "Essential";
+                localSettings.Values["showGamepass"] = "Essential";
+			}
+			else
+			{
+                mShowGamepass = "None";
+                localSettings.Values["showGamepass"] = "None";
+			}
+
+            foreach (var gameViewModel in GamesViewModel)
+            {
+                gameViewModel.UpdateShowGamepass(mShowGamepass);
+            }
+        }
+
+        private async void ShowNewTitleCheckBox_Click(object sender, RoutedEventArgs e)
+		{
+			ApplicationData.Current.LocalSettings.Values["ShowNewTitle"] = ShowNewTitleCheckBox.IsChecked;
+            
+
+            //			if (localSettings.Values["showName"] != null)
+            //				mShowName = (bool)localSettings.Values["showName"];
+            //			else
+            //				mShowName = true;
+
+            //			if (localSettings.Values["showReleaseTime"] != null)
+            //				mShowReleaseTime = (bool)localSettings.Values["showReleaseTime"];
+            //			else
+            //				mShowReleaseTime = false;
+
+            //			foreach (var gameViewModel in GamesViewModel) {
+            //				gameViewModel.GameNameDisplayLanguage = mGameNameDisplayLanguage;
+            //				gameViewModel.UpdateShowDiscount(mShowDiscount);
+            //				gameViewModel.UpdateShowGamepass(mShowGamepass);
+            //				gameViewModel.UpdateShowName(mShowName);
+            //				gameViewModel.UpdateShowReleaseTime(mShowReleaseTime);
+            //			}
+        }
+
+		private async void ShowDiscountCheckBox_Click(object sender, RoutedEventArgs e)
+		{
+            var localSettings = ApplicationData.Current.LocalSettings;
+
+			localSettings.Values["showDiscount"] = ShowDiscountCheckbox.IsChecked;
+
+			foreach (var gameViewModel in GamesViewModel)
+			{
+				gameViewModel.UpdateShowDiscount((bool)ShowDiscountCheckbox.IsChecked);
+			}
+        }
+
+        private async void ShowNameCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+
+            localSettings.Values["showName"] = ShowNameCheckbox.IsChecked;
+
+            foreach (var gameViewModel in GamesViewModel)
+            {
+                gameViewModel.UpdateShowName((bool)ShowNameCheckbox.IsChecked);
+            }
+        }
+
+        private async void ShowReleaseTimeCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+
+            localSettings.Values["showReleaseTime"] = ShowReleaseTimeCheckbox.IsChecked;
+
+            foreach (var gameViewModel in GamesViewModel)
+            {
+                gameViewModel.UpdateShowName((bool)ShowReleaseTimeCheckbox.IsChecked);
+            }
+        }
+
+
+        private class PublisherCount
 		{
 			public string Name
 			{

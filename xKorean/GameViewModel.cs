@@ -25,7 +25,7 @@ namespace xKorean
 		private bool mRegionAvailable = true;
 
 		private bool mShowDiscount = true;
-		private bool mShowGamepass = true;
+		private string mShowGamepass = "Ultimate";
 		private bool mShowName = true;
 
 		public Game Game { set; get; } = new Game();
@@ -130,7 +130,7 @@ namespace xKorean
 		public string ID { set; get; }
 
 		public List<string> Screenshots { set; get; } = new List<string>();
-		public GameViewModel(Game game, string gameNameDisplayLanguage, bool showDiscount, bool showGamepass , bool showName, bool showReleaseTime)
+		public GameViewModel(Game game, string gameNameDisplayLanguage, bool showDiscount, string showGamepass , bool showName, bool showReleaseTime)
 		{
 			Game = game;
 
@@ -182,14 +182,14 @@ namespace xKorean
 			{
 				if (Game.GamePassCloud == "" && Game.BuyAndCloud == "" && Bundle.Count > 0) {
 					foreach (var bundle in Bundle) {
-						if (bundle.GamePassCloud != "" || bundle.BuyAndCloud != "")
+						if (((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && bundle.GamePassPremium != "") || (mShowGamepass == "Essential" && bundle.GamePassEssential != "")) && bundle.GamePassCloud != "") || bundle.BuyAndCloud != "")
 							return "클";
 					}
 
 					return "";
 				}
-				else if (Game.GamePassCloud == "O" || Game.BuyAndCloud != "")
-					return "클";
+				else if (((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && Game.GamePassPremium != "") || (mShowGamepass == "Essential" && Game.GamePassEssential != "")) && Game.GamePassCloud != "") || Game.BuyAndCloud != "")
+                    return "클";
 				else
 					return "";
 			}
@@ -203,13 +203,13 @@ namespace xKorean
 				{
 					foreach (var bundle in Bundle)
 					{
-						if (bundle.GamePassPC != "")
+						if ((mShowGamepass == "Ultimate" || mShowGamepass == "PC" || (mShowGamepass == "Premium" && bundle.GamePassPremium != "") || (mShowGamepass == "Essential" && bundle.GamePassEssential != "")) && bundle.GamePassPC != "")
 							return "피";
 					}
 
 					return "";
 				}
-				else if (Game.GamePassPC == "O")
+				else if ((mShowGamepass == "Ultimate" || mShowGamepass == "PC") && Game.GamePassPC == "O")
 					return "피";
 				else
 					return "";
@@ -224,13 +224,13 @@ namespace xKorean
 				{
 					foreach (var bundle in Bundle)
 					{
-						if (bundle.GamePassConsole != "")
+						if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && bundle.GamePassPremium != "") || (mShowGamepass == "Essential" && bundle.GamePassEssential != "")) && bundle.GamePassConsole != "")
 							return "엑";
 					}
 
 					return "";
 				}
-				else if (Game.GamePassConsole == "O")
+				else if ((mShowGamepass == "Ultimate" || (mShowGamepass == "Premium" && Game.GamePassPremium != "") || (mShowGamepass == "Essential" && Game.GamePassEssential != "")) && Game.GamePassConsole != "") 
 					return "엑";
 				else
 					return "";
@@ -257,20 +257,26 @@ namespace xKorean
 		{
 			get
 			{
-				if (mShowGamepass)
+				if (mShowGamepass != "None")
 				{
 					if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "" && Game.BuyAndCloud == "")
 					{
 						foreach (var bundle in Bundle)
 						{
-							if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "" || bundle.BuyAndCloud != "")
+							if ((mShowGamepass == "Ultimate" && (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "" || bundle.BuyAndCloud != "")) ||
+                                (mShowGamepass == "PC" && (bundle.GamePassPC != "" || bundle.BuyAndCloud != "")) ||
+                                (mShowGamepass == "Premium" && (bundle.GamePassPremium != "" || bundle.BuyAndCloud != "")) ||
+                                (mShowGamepass == "Essential" && (bundle.GamePassEssential != "" || bundle.BuyAndCloud != "")))
 								return true;
 						}
 
 						return false;
 					}
-					else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O" || Game.BuyAndCloud == "O")
-						return true;
+					else if ((mShowGamepass == "Ultimate" && (Game.GamePassCloud != "" || Game.GamePassPC != "" || Game.GamePassConsole != "" || Game.BuyAndCloud != "")) ||
+                        (mShowGamepass == "PC" && (Game.GamePassPC != "" || Game.BuyAndCloud != "")) ||
+                        (mShowGamepass == "Premium" && (Game.GamePassPremium != "" || Game.BuyAndCloud != "")) ||
+                        (mShowGamepass == "Essential" && (Game.GamePassEssential != "" || Game.BuyAndCloud != "")))
+                        return true;
 					else
 						return false;
 				}
@@ -283,20 +289,26 @@ namespace xKorean
 		{
 			get
 			{
-				if (mShowGamepass)
+				if (mShowGamepass != "None")
 				{
 					if (Game.GamePassCloud == "" && Game.GamePassPC == "" && Game.GamePassConsole == "")
 					{
 						foreach (var bundle in Bundle)
 						{
-							if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")
-								return true;
+							if ((mShowGamepass == "Ultimate" && (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")) ||
+                                (mShowGamepass == "PC" && (bundle.GamePassPC != "")) ||
+                                (mShowGamepass == "Premium" && (bundle.GamePassPremium != "")) ||
+                                (mShowGamepass == "Essential" && (bundle.GamePassEssential != "")))
+                                return true;
 						}
 
 						return false;
 					}
-					else if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
-						return true;
+					else if ((mShowGamepass == "Ultimate" && (Game.GamePassCloud != "" || Game.GamePassPC != "" || Game.GamePassConsole != "")) ||
+                        (mShowGamepass == "PC" && (Game.GamePassPC != "")) ||
+                        (mShowGamepass == "Premium" && (Game.GamePassPremium != "")) ||
+                        (mShowGamepass == "Essential" && (Game.GamePassEssential != "")))
+                        return true;
 					else
 						return false;
 				}
@@ -310,46 +322,63 @@ namespace xKorean
 			get
 			{
 				var gamePassStatus = "";
-				if (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")
-					gamePassStatus = "게임패스";
-				else if (Bundle.Count > 0) {
-					foreach (var bundle in Bundle) {
-						if (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "") {
-							gamePassStatus = "게임패스";
-							break;
-						}
-					}
+				var gamePassFilter = false;
+				if ((mShowGamepass == "Ultimate" && (Game.GamePassCloud == "O" || Game.GamePassPC == "O" || Game.GamePassConsole == "O")) ||
+					(mShowGamepass == "PC" && Game.GamePassConsole == "O") ||
+					(mShowGamepass == "Premium" && Game.GamePassPremium == "O") ||
+					(mShowGamepass == "Essential" && Game.GamePassEssential == "O"))
+				{
+					gamePassFilter = true;
+                    gamePassStatus = "게임패스";
 				}
-
-				if (Game.GamePassNew == "O")
-					gamePassStatus += " 신규";
-				else if (Game.GamePassEnd == "O")
-					gamePassStatus += " 만기";
-				else if (Game.GamePassComing == "O")
-					gamePassStatus += " 예정";
-				else
+				else if (Bundle.Count > 0)
 				{
 					foreach (var bundle in Bundle)
 					{
-						if (bundle.GamePassNew != "")
-						{
-							gamePassStatus += " 신규";
-							break;
-						}
-						else if (bundle.GamePassEnd != "")
-						{
-							gamePassStatus += " 만기";
-							break;
-						}
-						else if (bundle.GamePassComing != "")
+						if ((mShowGamepass == "Ultimate" && (bundle.GamePassCloud != "" || bundle.GamePassPC != "" || bundle.GamePassConsole != "")) ||
+                            (mShowGamepass == "PC" && (bundle.GamePassPC != "")) ||
+                            (mShowGamepass == "Premium" && (bundle.GamePassPremium != "")) ||
+                            (mShowGamepass == "Essential" && (bundle.GamePassEssential != "")))
                         {
-							gamePassStatus += " 예정";
-							break;
+							gamePassStatus = "게임패스";
+                            gamePassFilter = true;
+                            break;
 						}
 					}
 				}
 
-				if (gamePassStatus == "")
+				if (gamePassFilter)
+				{
+					if (Game.GamePassNew == "O")
+						gamePassStatus += " 신규";
+					else if (Game.GamePassEnd == "O")
+						gamePassStatus += " 만기";
+					else if (Game.GamePassComing == "O")
+						gamePassStatus += " 예정";
+					else
+					{
+						foreach (var bundle in Bundle)
+						{
+							if (bundle.GamePassNew != "")
+							{
+								gamePassStatus += " 신규";
+								break;
+							}
+							else if (bundle.GamePassEnd != "")
+							{
+								gamePassStatus += " 만기";
+								break;
+							}
+							else if (bundle.GamePassComing != "")
+							{
+								gamePassStatus += " 예정";
+								break;
+							}
+						}
+					}
+				}
+
+				if (!gamePassFilter)
 				{
 					if (Game.BuyAndCloud == "O")
 						gamePassStatus = "소유 게임";
@@ -469,11 +498,15 @@ namespace xKorean
 			NotifyPropertyChanged("IsDiscounting");
 		}
 
-		public void UpdateShowGamepass(bool showGamepass)
+		public void UpdateShowGamepass(string showGamepass)
 		{
 			mShowGamepass = showGamepass;
-			NotifyPropertyChanged("IsGamePass");
-		}
+			NotifyPropertyChanged("IsGamePassOrBuyAndCloud");
+			NotifyPropertyChanged("GamePassOrBuyAndCloud");
+            NotifyPropertyChanged("IsGamePassPC");
+            NotifyPropertyChanged("IsGamePassConsole");
+            NotifyPropertyChanged("IsGamePassCloud");
+        }
 
 		public void UpdateShowName(bool showName) {
 			mShowName = showName;

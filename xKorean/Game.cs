@@ -71,8 +71,14 @@ namespace xKorean
 
         [JsonProperty("gamePassRegisterDate")]
         public string GamePassRegisterDate { set; get; } = string.Empty;
+        
+		[JsonProperty("gamePassPremium")]
+        public string GamePassPremium { set; get; } = string.Empty;
 
-		[JsonProperty("buyAndCloud")]
+        [JsonProperty("gamePassEssential")]
+        public string GamePassEssential { set; get; } = string.Empty;
+
+        [JsonProperty("buyAndCloud")]
 		public string BuyAndCloud { set; get; } = string.Empty;
 
 		[JsonProperty("discount")]
@@ -275,7 +281,21 @@ namespace xKorean
 			set;
 		} = "";
 
-		[JsonProperty("buyAndCloud")]
+        [JsonProperty("gamePassPremium")]
+        public string GamePassPremium
+        {
+            get;
+            set;
+        } = "";
+
+        [JsonProperty("gamePassEssential")]
+        public string GamePassEssential
+        {
+            get;
+            set;
+        } = "";
+
+        [JsonProperty("buyAndCloud")]
 		public string BuyAndCloud
 		{
 			get;

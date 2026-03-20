@@ -140,7 +140,7 @@ namespace xKorean
 			set;
         }
 
-		public string BuyAndCloud
+        public string BuyAndCloud
 		{
 			get;
 			set;
@@ -152,14 +152,16 @@ namespace xKorean
 			{
 				var gamePassStatus = "";
 				if (mGamePassCloud != "" || mGamePassPC != "" || mGamePassConsole != "")
+				{
 					gamePassStatus = "게임패스";
 
-				if (GamePassNew != "")
-					gamePassStatus += " 신규";
-				else if (GamePassEnd != "")
-					gamePassStatus += " 만기";
-				else if (GamePassComing != "")
-					gamePassStatus += " 예정";
+					if (GamePassNew != "")
+						gamePassStatus += " 신규";
+					else if (GamePassEnd != "")
+						gamePassStatus += " 만기";
+					else if (GamePassComing != "")
+						gamePassStatus += " 예정";
+				}
 
 				if (gamePassStatus == "")
 				{
@@ -179,7 +181,7 @@ namespace xKorean
 
 		public bool IsGamePassOrBuyAndCloud {
 			get {
-				return (mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "" || BuyAndCloud != "") && ShowGamePass;
+				return (mGamePassPC != "" || mGamePassConsole != "" || mGamePassCloud != "" || BuyAndCloud != "") && ShowGamePass != "None";
 			}
 		}
 
@@ -308,7 +310,7 @@ namespace xKorean
 			set;
 		}
 
-		public bool ShowGamePass {
+		public string ShowGamePass {
 			private get;
 			set;
 		}

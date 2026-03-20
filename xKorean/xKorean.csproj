@@ -147,10 +147,6 @@
     <Compile Include="NewControlDialog.xaml.cs">
       <DependentUpon>NewControlDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
-    <Compile Include="SettingDialog.xaml.cs">
-      <DependentUpon>SettingDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Game.cs" />
     <Compile Include="GameViewModel.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -191,10 +187,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ErrorReportDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="SettingDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
